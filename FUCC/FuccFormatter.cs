@@ -126,39 +126,29 @@ namespace FUCC
                 if (Options.CheckHeader)
                 {
                     var magicVar = Variable(typeof(byte), "_magic");
+                    var hash = ClassSignature.Get(type);
 
-                    if (Options.CheckStructureSignature)
-                    {
-                        var hash = ClassSignature.Get(type);
-                        /*
-                         byte magic = Read<byte>();
-                         if (magic == 244)
+                    /*
+                     byte magic = Read<byte>();
+                     if (magic == 244)
+                     {
+                         if (Read<string>() != "HASH")
                          {
-                             if (Read<string>() != "HASH")
-                             {
+                             if (Options.CheckStructureSignature)
                                  throw new Exception();
-                             }
                          }
-                         else if (magic != 243)
-                         {
-                             throw new Exception();
-                         }
-                         */
-                        exprs.Add(Block(new[] { magicVar },
-                            Assign(magicVar, Read<byte>()),
-                            IfThenElse(
-                                Equal(magicVar, Constant(MagicWithSignature)),
-                                IfThen(NotEqual(Read<string>(), Constant(hash)), InvalidHeaderException.Throw("Class structure signature mismatch")),
-                                IfThen(NotEqual(magicVar, Constant(Magic)), InvalidHeaderException.Throw("Invalid magic number")))));
-                    }
-                    else
-                    {
-                        exprs.Add(Block(new[] { magicVar },
-                            Assign(magicVar, Read<byte>()),
-                            IfThen(
-                                NotEqual(magicVar, Constant(Magic)),
-                                InvalidHeaderException.Throw("Invalid magic number"))));
-                    }
+                     }
+                     else if (magic != 243)
+                     {
+                         throw new Exception();
+                     }
+                     */
+                    exprs.Add(Block(new[] { magicVar },
+                        Assign(magicVar, Read<byte>()),
+                        IfThenElse(
+                            Equal(magicVar, Constant(MagicWithSignature)),
+                            IfThen(NotEqual(Read<string>(), Constant(hash)), Options.CheckStructureSignature ? InvalidHeaderException.Throw("Class structure signature mismatch") : Block()),
+                            IfThen(NotEqual(magicVar, Constant(Magic)), InvalidHeaderException.Throw("Invalid magic number")))));
                 }
 
                 exprs.AddRange(GetBlock(objVar, bufferParam, type));

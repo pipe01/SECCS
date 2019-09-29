@@ -54,7 +54,7 @@ namespace Tester
             });
 
             buffer.Position = 0;
-            var obj = f.Deserialize<Nested>(buffer);
+            var obj = f.Deserialize<Test>(buffer);
         }
     }
 }

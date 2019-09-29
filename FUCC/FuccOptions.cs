@@ -10,6 +10,6 @@
 
         public bool WriteStructureSignature { get; set; } = true;
 
-        public bool CheckStructureSignature { get; set; } = false;
+        public bool CheckStructureSignature { get; set; } = true;
     }
 }
