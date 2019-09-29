@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -9,18 +10,42 @@ namespace FUCC
     {
         bool CanFormat(Type type);
 
-        Expression Serialize(Expression buffer, Expression value);
-        Expression Deserialize(Expression buffer);
+        Expression Serialize(FormatContextWithValue context);
+        Expression Deserialize(FormatContext context);
     }
 
-    public abstract class TypeFormat<TObject> : ITypeFormat
+    internal interface IStaticTypeFormat
     {
+        Type Type { get; }
+    }
+
+    public abstract class TypeFormat<TObject> : ITypeFormat, IStaticTypeFormat
+    {
+        Type IStaticTypeFormat.Type => typeof(TObject);
+
         bool ITypeFormat.CanFormat(Type type) => type == typeof(TObject);
 
-        public abstract Expression Serialize(Expression buffer, Expression value);
-        public abstract Expression Deserialize(Expression buffer);
+        public abstract Expression Serialize(FormatContextWithValue context);
+        public abstract Expression Deserialize(FormatContext context);
     }
 
+    public abstract class TypedTypeFormat<TBuffer, TObject> : ITypeFormat, IStaticTypeFormat
+    {
+        Type IStaticTypeFormat.Type => typeof(TObject);
+
+        bool ITypeFormat.CanFormat(Type type) => type == typeof(TObject);
+
+        Expression ITypeFormat.Serialize(FormatContextWithValue context)
+            => Expression.Call(Expression.Constant(this), nameof(Serialize), null, context.Buffer, context.Value);
+
+        Expression ITypeFormat.Deserialize(FormatContext context)
+            => Expression.Call(Expression.Constant(this), nameof(Deserialize), null, context.Buffer);
+
+        protected abstract void Serialize(TBuffer buffer, TObject obj);
+        protected abstract TObject Deserialize(TBuffer buffer);
+    }
+
+    [DebuggerDisplay("{Type.Name}")]
     internal class AutoTypeFormat : ITypeFormat
     {
         private readonly Type Type;
@@ -36,9 +61,11 @@ namespace FUCC
 
         public bool CanFormat(Type type) => type == Type;
 
-        public Expression Serialize(Expression buffer, Expression value) => Expression.Call(buffer, WriteMethod, value);
+        public Expression Serialize(FormatContextWithValue context)
+            => Expression.Call(context.Buffer, WriteMethod, context.Value);
 
-        public Expression Deserialize(Expression buffer) => Expression.Call(buffer, ReadMethod);
+        public Expression Deserialize(FormatContext context)
+            => Expression.Call(context.Buffer, ReadMethod);
     }
 
     public static class TypeFormat
@@ -56,18 +83,18 @@ namespace FUCC
                 if (method.IsPrivate && readAttr == null && writeAttr == null)
                     continue;
 
-                if (readAttr != null || (method.Name.StartsWith("Read") && method.Name.Substring(4) == method.ReturnType.Name))
-                {
-                    readMethods.Add(readAttr?.ForType ?? method.ReturnType, method);
-                }
-                else if (writeAttr != null || method.Name.StartsWith("Write"))
-                {
-                    var @params = method.GetParameters();
+                var @params = method.GetParameters();
 
-                    if (@params.Length == 1)
-                    {
-                        writeMethods.Add(@params[0].ParameterType, method);
-                    }
+                if (@params.Length == 0 && (readAttr != null || (method.Name.StartsWith("Read") && method.Name.Substring(4) == method.ReturnType.Name)))
+                {
+                    var type = readAttr?.ForType ?? method.ReturnType;
+
+                    if (!readMethods.ContainsKey(type))
+                        readMethods.Add(type, method);
+                }
+                else if (@params.Length == 1 && (writeAttr != null || method.Name.StartsWith("Write")) && !writeMethods.ContainsKey(@params[0].ParameterType))
+                {
+                    writeMethods.Add(@params[0].ParameterType, method);
                 }
             }
 
