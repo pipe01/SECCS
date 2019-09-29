@@ -62,10 +62,14 @@ namespace FUCC
         public bool CanFormat(Type type) => type == Type;
 
         public Expression Serialize(FormatContextWithValue context)
-            => Expression.Call(context.Buffer, WriteMethod, context.Value);
+            => WriteMethod != null
+                    ? Expression.Call(context.Buffer, WriteMethod, context.Value)
+                    : throw new InvalidOperationException($"No serializator method was found for type {Type.FullName}");
 
         public Expression Deserialize(FormatContext context)
-            => Expression.Call(context.Buffer, ReadMethod);
+            => ReadMethod != null
+                    ? Expression.Call(context.Buffer, ReadMethod)
+                    : throw new InvalidOperationException($"No deserializator method was found for type {Type.FullName}");
     }
 
     public static class TypeFormat
@@ -98,10 +102,20 @@ namespace FUCC
                 }
             }
 
+            var addedTypes = new List<Type>();
+
             foreach (var readMethod in readMethods)
             {
-                if (writeMethods.TryGetValue(readMethod.Key, out var writeMethod))
-                    yield return new AutoTypeFormat(readMethod.Key, readMethod.Value, writeMethod);
+                writeMethods.TryGetValue(readMethod.Key, out var writeMethod);
+                addedTypes.Add(readMethod.Key);
+
+                yield return new AutoTypeFormat(readMethod.Key, readMethod.Value, writeMethod);
+            }
+
+            foreach (var writeMethod in writeMethods)
+            {
+                if (!addedTypes.Contains(writeMethod.Key))
+                    yield return new AutoTypeFormat(writeMethod.Key, null, writeMethod.Value);
             }
         }
     }
