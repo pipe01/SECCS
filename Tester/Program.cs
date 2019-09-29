@@ -9,7 +9,6 @@ namespace Tester
     {
         public string Str;
         public int Hello;
-        public Test Test;
     }
 
     public class Test
@@ -55,7 +54,7 @@ namespace Tester
             });
 
             buffer.Position = 0;
-            var obj = f.Deserialize<Test>(buffer);
+            var obj = f.Deserialize<Nested>(buffer);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FUCC.DefaultFormats;
+using FUCC.Exceptions;
 using FUCC.Internal;
 using System;
 using System.Collections;
@@ -14,7 +15,9 @@ namespace FUCC
 
     public class FuccFormatter<TBuffer>
     {
-        private static readonly Random Random = new Random();
+        private const byte Magic = 243;
+        private const byte MagicWithSignature = 244;
+
         private static readonly ITypeFormat[] DefaultFormats;
 
         private readonly IDictionary<Type, Func<TBuffer, object>> Deserializers = new Dictionary<Type, Func<TBuffer, object>>();
@@ -63,9 +66,23 @@ namespace FUCC
 
             if (!Serializers.TryGetValue(type, out var ser))
             {
-                var bufferParam = Parameter(typeof(TBuffer), "buffer_" + Random.Next());
-                var objParam = Parameter(typeof(object), "obj_" + Random.Next());
-                var exprs = GetBlock(objParam, bufferParam, type);
+                var bufferParam = Parameter(typeof(TBuffer), "_buffer");
+                var objParam = Parameter(typeof(object), "_obj");
+                var exprs = new List<Expression>();
+
+                if (Options.WriteHeader)
+                {
+                    //Write 243, or 244 if Options.WriteStructureSignature is on
+                    exprs.Add(GetFormat(typeof(byte)).Serialize(new FormatContextWithValue(Formats, typeof(byte), bufferParam, Constant((byte)(Options.WriteStructureSignature ? MagicWithSignature : Magic)))));
+
+                    if (Options.WriteStructureSignature)
+                    {
+                        var hash = ClassSignature.Get(type);
+                        exprs.Add(GetFormat(typeof(string)).Serialize(new FormatContextWithValue(Formats, typeof(string), bufferParam, Constant(hash))));
+                    }
+                }
+
+                exprs.AddRange(GetBlock(objParam, bufferParam, type));
 
                 Serializers[type] = ser = Lambda<Action<TBuffer, object>>(Block(exprs), bufferParam, objParam).Compile();
             }
@@ -103,13 +120,53 @@ namespace FUCC
             if (!Deserializers.TryGetValue(type, out var des))
             {
                 var exprs = new List<Expression>();
-                var bufferParam = Parameter(typeof(TBuffer), "buffer");
-                var objVar = Variable(typeof(object), "obj");
+                var bufferParam = Parameter(typeof(TBuffer), "_buffer");
+                var objVar = Variable(typeof(object), "_obj");
+
+                if (Options.CheckHeader)
+                {
+                    var magicVar = Variable(typeof(byte), "_magic");
+
+                    if (Options.CheckStructureSignature)
+                    {
+                        var hash = ClassSignature.Get(type);
+                        /*
+                         byte magic = Read<byte>();
+                         if (magic == 244)
+                         {
+                             if (Read<string>() != "HASH")
+                             {
+                                 throw new Exception();
+                             }
+                         }
+                         else if (magic != 243)
+                         {
+                             throw new Exception();
+                         }
+                         */
+                        exprs.Add(Block(new[] { magicVar },
+                            Assign(magicVar, Read<byte>()),
+                            IfThenElse(
+                                Equal(magicVar, Constant(MagicWithSignature)),
+                                IfThen(NotEqual(Read<string>(), Constant(hash)), InvalidHeaderException.Throw("Class structure signature mismatch")),
+                                IfThen(NotEqual(magicVar, Constant(Magic)), InvalidHeaderException.Throw("Invalid magic number")))));
+                    }
+                    else
+                    {
+                        exprs.Add(Block(new[] { magicVar },
+                            Assign(magicVar, Read<byte>()),
+                            IfThen(
+                                NotEqual(magicVar, Constant(Magic)),
+                                InvalidHeaderException.Throw("Invalid magic number"))));
+                    }
+                }
 
                 exprs.AddRange(GetBlock(objVar, bufferParam, type));
                 exprs.Add(objVar);
 
                 Deserializers[type] = des = Lambda<Func<TBuffer, object>>(Block(new[] { objVar }, exprs), bufferParam).Compile();
+
+                Expression Read<T>() => GetFormat(typeof(T)).Deserialize(new FormatContext(Formats, typeof(T), bufferParam));
             }
 
             return des(buffer);
