@@ -6,6 +6,10 @@ using System.Reflection;
 
 namespace FUCC
 {
+    /// <summary>
+    /// Base interface for all type formats. A type format is a class that can generate an <see cref="Expression"/> that
+    /// writes an object to a buffer.
+    /// </summary>
     public interface ITypeFormat
     {
         bool CanFormat(Type type);
@@ -14,12 +18,16 @@ namespace FUCC
         Expression Deserialize(FormatContext context);
     }
 
-    internal interface IStaticTypeFormat
+    internal interface IStaticTypeFormat : ITypeFormat
     {
         Type Type { get; }
     }
 
-    public abstract class TypeFormat<TObject> : ITypeFormat, IStaticTypeFormat
+    /// <summary>
+    /// Base class for a type format that handles a single type. See <seealso cref="ITypeFormat"/>
+    /// </summary>
+    /// <typeparam name="TObject">The type of the object this class handles.</typeparam>
+    public abstract class TypeFormat<TObject> : IStaticTypeFormat
     {
         Type IStaticTypeFormat.Type => typeof(TObject);
 
@@ -29,7 +37,12 @@ namespace FUCC
         public abstract Expression Deserialize(FormatContext context);
     }
 
-    public abstract class TypedTypeFormat<TBuffer, TObject> : ITypeFormat, IStaticTypeFormat
+    /// <summary>
+    /// Base class for a type format that handles a single type with a known buffer type. See <seealso cref="ITypeFormat"/>
+    /// </summary>
+    /// <typeparam name="TBuffer">The type of the buffer this class uses</typeparam>
+    /// <typeparam name="TObject">The type of the object this class handles</typeparam>
+    public abstract class TypedTypeFormat<TBuffer, TObject> : IStaticTypeFormat
     {
         Type IStaticTypeFormat.Type => typeof(TObject);
 
@@ -72,8 +85,15 @@ namespace FUCC
                     : throw new InvalidOperationException($"No deserializator method was found for type {Type.FullName}");
     }
 
+    /// <summary>
+    /// Contains helper methods for type formats.
+    /// </summary>
     public static class TypeFormat
     {
+        /// <summary>
+        /// Generates type formats from a type's Read() and Write...() methods.
+        /// </summary>
+        /// <typeparam name="TBuffer">The buffer type</typeparam>
         public static IEnumerable<ITypeFormat> GetFromReadAndWrite<TBuffer>()
         {
             var readMethods = new Dictionary<Type, MethodInfo>();

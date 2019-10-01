@@ -1,8 +1,6 @@
 ﻿using FUCC.DefaultFormats;
 using FUCC.Exceptions;
-using FUCC.Internal;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -36,9 +34,19 @@ namespace FUCC
                 .ToArray();
         }
 
+        /// <summary>
+        /// Instantiates a <see cref="FuccFormatter{TBuffer}"/> with no additional formatters and default options.
+        /// </summary>
+        /// <param name="options">The options object, or null for default</param>
         public FuccFormatter(FuccOptions options = null) : this(Enumerable.Empty<ITypeFormat>(), options)
         {
         }
+
+        /// <summary>
+        /// Instantiates a <see cref="FuccFormatter{TBuffer}"/> with additional formatters and default options.
+        /// </summary>
+        /// <param name="formats">The additional formatters to be used</param>
+        /// <param name="options">The options object, or null for default</param>
         public FuccFormatter(IEnumerable<ITypeFormat> formats, FuccOptions options = null)
         {
             this.Formats = new List<ITypeFormat>();
@@ -48,6 +56,10 @@ namespace FUCC
             Formats.AddRange(formats);
         }
 
+        /// <summary>
+        /// Registers a type format of type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The type format type</typeparam>
         public void AddFormat<T>() where T : ITypeFormat, new()
             => Formats.Add(new T());
 
@@ -57,9 +69,21 @@ namespace FUCC
         private ITypeFormat GetFormat(Type t)
             => Formats.Find(o => o.CanFormat(t));
 
+        /// <summary>
+        /// Serializes <paramref name="obj"/> into <typeparamref name="TBuffer"/> using type formats.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to serialize</typeparam>
+        /// <param name="buffer">The buffer to serialize the object into</param>
+        /// <param name="obj">The object to serialize</param>
         public void Serialize<T>(TBuffer buffer, T obj)
             => Serialize(buffer, obj, typeof(T));
-        
+
+        /// <summary>
+        /// Serializes an <paramref name="obj"/> of type <paramref name="type"/> into <paramref name="buffer"/>
+        /// </summary>
+        /// <param name="buffer">The buffer to serialize the object into</param>
+        /// <param name="obj">The object to serialize</param>
+        /// <param name="type">The object's type, or null to get it from <paramref name="obj"/></param>
         public void Serialize(TBuffer buffer, object obj, Type type = null)
         {
             type = type ?? obj?.GetType() ?? throw new ArgumentNullException("obj is null and no type has been specified");
@@ -112,9 +136,20 @@ namespace FUCC
             }
         }
 
+        /// <summary>
+        /// Reads a <typeparamref name="T"/> from a <paramref name="buffer"/> of type <typeparamref name="TBuffer"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to read</typeparam>
+        /// <param name="buffer">The buffer to read from</param>
+        /// <returns></returns>
         public T Deserialize<T>(TBuffer buffer)
             => (T)Deserialize(buffer, typeof(T));
 
+        /// <summary>
+        /// Reads an object of type <paramref name="type"/> from <paramref name="buffer"/>.
+        /// </summary>
+        /// <param name="buffer">The buffer to read from</param>
+        /// <param name="type">The type of the object to read</param>
         public object Deserialize(TBuffer buffer, Type type)
         {
             if (!Deserializers.TryGetValue(type, out var des))
