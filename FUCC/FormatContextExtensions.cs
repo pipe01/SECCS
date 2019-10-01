@@ -9,7 +9,7 @@ namespace FUCC
         /// Shortcut for <c>context.GetFormat(type).Serialize(context.WithType(type).WithValue(value))</c>
         /// </summary>
         public static Expression Write(this FormatContextWithValue context, Type type, Expression value)
-            => context.GetFormat(type).Serialize(context.WithType(type).WithValue(value));
+            => context.Formats.Get(type).Serialize(context.WithType(type).WithValue(value));
 
         /// <summary>
         /// Shortcut for <c>context.Write(typeof(T), value)</c>
@@ -21,7 +21,7 @@ namespace FUCC
         /// Shortcut for <c>context.GetFormat(type).Deserialize(context.WithType(type))</c>
         /// </summary>
         public static Expression Read(this FormatContext context, Type type)
-            => context.GetFormat(type).Deserialize(context.WithType(type));
+            => context.Formats.Get(type).Deserialize(context.WithType(type));
 
         /// <summary>
         /// Shortcut for <c>context.Read(typeof(T))</c>

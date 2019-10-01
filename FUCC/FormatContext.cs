@@ -10,8 +10,6 @@ namespace FUCC
     /// </summary>
     public class FormatContext
     {
-        internal IEnumerable<ITypeFormat> Formats { get; }
-
         /// <summary>
         /// The type that is being (de)serialized.
         /// </summary>
@@ -22,22 +20,17 @@ namespace FUCC
         /// </summary>
         public Expression Buffer { get; }
 
-        internal FormatContext(IEnumerable<ITypeFormat> formats, Type type, Expression buffer)
+        /// <summary>
+        /// The registered type formats.
+        /// </summary>
+        public ReadOnlyTypeFormatCollection Formats { get; }
+
+        internal FormatContext(ReadOnlyTypeFormatCollection formats, Type type, Expression buffer)
         {
             this.Formats = formats;
             this.Type = type;
             this.Buffer = buffer;
         }
-
-        /// <summary>
-        /// Gets the first type format for <typeparamref name="T"/> from the list of registered formats.
-        /// </summary>
-        public ITypeFormat GetFormat<T>() => GetFormat(typeof(T));
-
-        /// <summary>
-        /// Gets the first type format for <paramref name="type"/> from the list of registered formats.
-        /// </summary>
-        public ITypeFormat GetFormat(Type type) => Formats.FirstOrDefault(o => o.CanFormat(type));
 
         /// <summary>
         /// Creates a copy of the current context and changes the type to <typeparamref name="T"/>.
@@ -60,7 +53,7 @@ namespace FUCC
         /// </summary>
         public Expression Value { get; }
 
-        internal FormatContextWithValue(IEnumerable<ITypeFormat> formats, Type type, Expression buffer, Expression value)
+        internal FormatContextWithValue(ReadOnlyTypeFormatCollection formats, Type type, Expression buffer, Expression value)
             : base(formats, type, buffer)
         {
             this.Value = value;

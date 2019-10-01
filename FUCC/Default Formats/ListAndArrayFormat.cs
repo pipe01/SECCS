@@ -68,7 +68,7 @@ namespace FUCC.DefaultFormats
             var block = new List<Expression>
             {
                 //msg.Write(length);
-                context.GetFormat(typeof(int)).Serialize(context.WithType(typeof(int)).WithValue(arrLength)),
+                context.Formats.Get(typeof(int)).Serialize(context.WithType(typeof(int)).WithValue(arrLength)),
 
                 //i = 0;
                 Assign(indexVar, Constant(0)),

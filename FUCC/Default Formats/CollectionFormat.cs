@@ -1,5 +1,4 @@
-﻿using FUCC.Internal;
-using System;
+﻿using System;
 using System.Collections;
 using System.Linq.Expressions;
 

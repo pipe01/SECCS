@@ -18,10 +18,14 @@ namespace FUCC
 
         private static readonly ITypeFormat[] DefaultFormats;
 
+        /// <summary>
+        /// Collection of registered type formats.
+        /// </summary>
+        public TypeFormatCollection Formats { get; }
+
         private readonly IDictionary<Type, Func<TBuffer, object>> Deserializers = new Dictionary<Type, Func<TBuffer, object>>();
         private readonly IDictionary<Type, Action<TBuffer, object>> Serializers = new Dictionary<Type, Action<TBuffer, object>>();
 
-        private readonly List<ITypeFormat> Formats;
         private readonly FuccOptions Options;
 
         static FuccFormatter()
@@ -49,25 +53,15 @@ namespace FUCC
         /// <param name="options">The options object, or null for default</param>
         public FuccFormatter(IEnumerable<ITypeFormat> formats, FuccOptions options = null)
         {
-            this.Formats = new List<ITypeFormat>();
+            this.Formats = new TypeFormatCollection();
             this.Options = options ?? new FuccOptions();
 
-            Formats.AddRange(DefaultFormats);
-            Formats.AddRange(formats);
+            Formats.Register(DefaultFormats);
+            Formats.Register(formats);
         }
-
-        /// <summary>
-        /// Registers a type format of type <typeparamref name="T"/>.
-        /// </summary>
-        /// <typeparam name="T">The type format type</typeparam>
-        public void AddFormat<T>() where T : ITypeFormat, new()
-            => Formats.Add(new T());
 
         private static IEnumerable<FieldInfo> GetFields(Type t)
             => t.GetFields(BindingFlags.Public | BindingFlags.Instance).Where(o => !o.IsDefined(typeof(IgnoreDataMemberAttribute), false)).ToArray();
-
-        private ITypeFormat GetFormat(Type t)
-            => Formats.Find(o => o.CanFormat(t));
 
         /// <summary>
         /// Serializes <paramref name="obj"/> into <typeparamref name="TBuffer"/> using type formats.
@@ -97,12 +91,12 @@ namespace FUCC
                 if (Options.WriteHeader)
                 {
                     //Write 243, or 244 if Options.WriteStructureSignature is on
-                    exprs.Add(GetFormat(typeof(byte)).Serialize(new FormatContextWithValue(Formats, typeof(byte), bufferParam, Constant((byte)(Options.WriteStructureSignature ? MagicWithSignature : Magic)))));
+                    exprs.Add(Formats.Get(typeof(byte)).Serialize(new FormatContextWithValue(Formats, typeof(byte), bufferParam, Constant((byte)(Options.WriteStructureSignature ? MagicWithSignature : Magic)))));
 
                     if (Options.WriteStructureSignature)
                     {
                         var hash = ClassSignature.Get(type);
-                        exprs.Add(GetFormat(typeof(string)).Serialize(new FormatContextWithValue(Formats, typeof(string), bufferParam, Constant(hash))));
+                        exprs.Add(Formats.Get(typeof(string)).Serialize(new FormatContextWithValue(Formats, typeof(string), bufferParam, Constant(hash))));
                     }
                 }
 
@@ -119,7 +113,7 @@ namespace FUCC
 
                 foreach (var field in GetFields(objType))
                 {
-                    var format = GetFormat(field.FieldType);
+                    var format = Formats.Get(field.FieldType);
 
                     if (format == null)
                     {
@@ -191,7 +185,7 @@ namespace FUCC
 
                 Deserializers[type] = des = Lambda<Func<TBuffer, object>>(Block(new[] { objVar }, exprs), bufferParam).Compile();
 
-                Expression Read<T>() => GetFormat(typeof(T)).Deserialize(new FormatContext(Formats, typeof(T), bufferParam));
+                Expression Read<T>() => Formats.Get(typeof(T)).Deserialize(new FormatContext(Formats, typeof(T), bufferParam));
             }
 
             return des(buffer);
@@ -204,7 +198,7 @@ namespace FUCC
 
                 foreach (var field in GetFields(objType))
                 {
-                    var format = GetFormat(field.FieldType);
+                    var format = Formats.Get(field.FieldType);
 
                     if (format == null)
                     {
