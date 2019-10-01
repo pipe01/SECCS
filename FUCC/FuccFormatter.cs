@@ -185,7 +185,7 @@ namespace FUCC
 
                 Deserializers[type] = des = Lambda<Func<TBuffer, object>>(Block(new[] { objVar }, exprs), bufferParam).Compile();
 
-                Expression Read<T>() => Formats.Get(typeof(T)).Deserialize(new FormatContext(Formats, typeof(T), bufferParam));
+                Expression Read<T>() => Formats.Get(typeof(T))?.Deserialize(new FormatContext(Formats, typeof(T), bufferParam)) ?? throw new InvalidOperationException("Cannot deserialize type " + typeof(T).FullName);
             }
 
             return des(buffer);
