@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FUCC
 {
@@ -22,7 +21,7 @@ namespace FUCC
         /// <summary>
         /// Gets the first type format for <paramref name="type"/> from the list of registered formats.
         /// </summary>
-        public ITypeFormat Get(Type type) => Formats.FirstOrDefault(o => o.CanFormat(type));
+        public ITypeFormat Get(Type type) => Formats.Find(o => o.CanFormat(type));
     }
 
     public class TypeFormatCollection<TBuffer> : ReadOnlyTypeFormatCollection
