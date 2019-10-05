@@ -1,5 +1,6 @@
 ﻿using FUCC.DefaultFormats;
 using FUCC.Exceptions;
+using FUCC.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,8 +61,9 @@ namespace FUCC
             Formats.Register(formats);
         }
 
-        private static IEnumerable<FieldInfo> GetFields(Type t)
-            => t.GetFields(BindingFlags.Public | BindingFlags.Instance).Where(o => !o.IsDefined(typeof(IgnoreDataMemberAttribute), false)).ToArray();
+        private static IEnumerable<ClassMember> GetFields(Type t)
+            => t.GetFields(BindingFlags.Public | BindingFlags.Instance).Select(o => new ClassMember(o)).Concat(
+               t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(o => new ClassMember(o))).Where(o => !o.Member.IsDefined(typeof(IgnoreDataMemberAttribute), false)).ToArray();
 
         /// <summary>
         /// Serializes <paramref name="obj"/> into <typeparamref name="TBuffer"/> using type formats.
@@ -113,19 +115,19 @@ namespace FUCC
 
                 foreach (var field in GetFields(objType))
                 {
-                    var format = Formats.Get(field.FieldType);
+                    var format = Formats.Get(field.MemberType);
 
                     if (format == null)
                     {
                         if (Options.SerializeUnknownTypes)
-                            yield return Block(GetBlock(Field(convertedObj, field), bufferExpr, field.FieldType));
+                            yield return Block(GetBlock(PropertyOrField(convertedObj, field.Name), bufferExpr, field.MemberType));
                         else
                             throw new Exception($"Format not found for '{type.Name}.{field.Name}'");
                     }
                     else
                     {
                         yield return format.Serialize(new FormatContextWithValue(
-                            Formats, field.FieldType, bufferExpr, Field(convertedObj, field), field.GetConcreteType()));
+                            Formats, field.MemberType, bufferExpr, PropertyOrField(convertedObj, field.Name), field.GetConcreteType()));
                     }
                 }
             }
@@ -199,27 +201,27 @@ namespace FUCC
 
                 foreach (var field in GetFields(objType))
                 {
-                    if (field.FieldType.IsInterface)
+                    if (field.MemberType.IsInterface)
                     {
-                        if (!field.IsDefined(typeof(ConcreteTypeAttribute)))
+                        if (!field.Member.IsDefined(typeof(ConcreteTypeAttribute)))
                             throw new Exception("Fields of interface types must be decorated with ConcreteTypeAttribute");
-                        else if (!field.FieldType.IsAssignableFrom(field.GetConcreteType()))
-                            throw new Exception($"The specified concrete type for field '{field.Name}' doesn't implement the field type ({field.FieldType.Name})");
+                        else if (!field.MemberType.IsAssignableFrom(field.GetConcreteType()))
+                            throw new Exception($"The specified concrete type for field '{field.Name}' doesn't implement the field type ({field.MemberType.Name})");
                     }
 
-                    var format = Formats.Get(field.FieldType);
+                    var format = Formats.Get(field.MemberType);
 
                     if (format == null)
                     {
                         if (Options.SerializeUnknownTypes)
-                            yield return Block(GetBlock(Field(convertedObj, field), bufferExpr, field.FieldType));
+                            yield return Block(GetBlock(PropertyOrField(convertedObj, field.Name), bufferExpr, field.MemberType));
                         else
                             throw new Exception($"Format not found for '{objType.Name}.{field.Name}'");
                     }
                     else
                     {
-                        yield return Assign(Field(convertedObj, field), format.Deserialize(
-                            new FormatContext(Formats, field.FieldType, bufferExpr, field.GetConcreteType())));
+                        yield return Assign(PropertyOrField(convertedObj, field.Name), format.Deserialize(
+                            new FormatContext(Formats, field.MemberType, bufferExpr, field.GetConcreteType())));
                     }
                 }
             }
