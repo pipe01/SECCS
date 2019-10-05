@@ -21,7 +21,7 @@ namespace FUCC
         /// <summary>
         /// Collection of registered type formats.
         /// </summary>
-        public TypeFormatCollection Formats { get; }
+        public TypeFormatCollection<TBuffer> Formats { get; }
 
         private readonly IDictionary<Type, Func<TBuffer, object>> Deserializers = new Dictionary<Type, Func<TBuffer, object>>();
         private readonly IDictionary<Type, Action<TBuffer, object>> Serializers = new Dictionary<Type, Action<TBuffer, object>>();
@@ -53,7 +53,7 @@ namespace FUCC
         /// <param name="options">The options object, or null for default</param>
         public FuccFormatter(IEnumerable<ITypeFormat> formats, FuccOptions options = null)
         {
-            this.Formats = new TypeFormatCollection();
+            this.Formats = new TypeFormatCollection<TBuffer>();
             this.Options = options ?? new FuccOptions();
 
             Formats.Register(DefaultFormats);

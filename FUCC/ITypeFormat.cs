@@ -59,9 +59,10 @@ namespace FUCC
     }
 
     [DebuggerDisplay("{Type.Name}")]
-    internal class AutoTypeFormat : ITypeFormat
+    internal class AutoTypeFormat : IStaticTypeFormat
     {
-        private readonly Type Type;
+        public Type Type { get; }
+
         private readonly MethodInfo ReadMethod;
         private readonly MethodInfo WriteMethod;
 
@@ -83,6 +84,22 @@ namespace FUCC
             => ReadMethod != null
                     ? Expression.Call(context.Buffer, ReadMethod)
                     : throw new InvalidOperationException($"No deserializator method was found for type {Type.FullName}");
+    }
+
+    internal class LambdaFormat<TBuffer, TObject> : TypedTypeFormat<TBuffer, TObject>
+    {
+        private readonly Func<TBuffer, TObject> Deserializer;
+        private readonly Action<TBuffer, TObject> Serializer;
+
+        public LambdaFormat(Func<TBuffer, TObject> deserializer, Action<TBuffer, TObject> serializer)
+        {
+            this.Deserializer = deserializer;
+            this.Serializer = serializer;
+        }
+
+        protected override TObject Deserialize(TBuffer buffer) => Deserializer(buffer);
+
+        protected override void Serialize(TBuffer buffer, TObject obj) => Serializer(buffer, obj);
     }
 
     /// <summary>

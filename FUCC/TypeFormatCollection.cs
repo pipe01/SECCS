@@ -25,15 +25,24 @@ namespace FUCC
         public ITypeFormat Get(Type type) => Formats.FirstOrDefault(o => o.CanFormat(type));
     }
 
-    public class TypeFormatCollection : ReadOnlyTypeFormatCollection
+    public class TypeFormatCollection<TBuffer> : ReadOnlyTypeFormatCollection
     {
         /// <summary>
         /// Registers a type format of type <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">The type format type</typeparam>
-        public void Register<T>() where T : ITypeFormat, new()
+        public TypeFormatCollection<TBuffer> Register<T>() where T : ITypeFormat, new()
         {
             Formats.Add(new T());
+
+            return this;
+        }
+
+        public TypeFormatCollection<TBuffer> Register<T>(Action<TBuffer, T> writer, Func<TBuffer, T> reader)
+        {
+            Formats.Add(new LambdaFormat<TBuffer, T>(reader, writer));
+
+            return this;
         }
 
         internal void Register(IEnumerable<ITypeFormat> formats)
