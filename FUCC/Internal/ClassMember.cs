@@ -15,6 +15,8 @@ namespace FUCC.Internal
             this.MemberType = member is PropertyInfo p ? p.PropertyType : member is FieldInfo f ? f.FieldType : throw new ArgumentException();
         }
 
+        public Type GetConcreteType() => Member.GetCustomAttribute<ConcreteTypeAttribute>()?.Type;
+
         public static implicit operator ClassMember(PropertyInfo prop) => new ClassMember(prop);
         public static implicit operator ClassMember(FieldInfo prop) => new ClassMember(prop);
     }
