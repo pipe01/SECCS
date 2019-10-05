@@ -25,11 +25,18 @@ namespace FUCC
         /// </summary>
         public ReadOnlyTypeFormatCollection Formats { get; }
 
-        internal FormatContext(ReadOnlyTypeFormatCollection formats, Type type, Expression buffer)
+        /// <summary>
+        /// If <see cref="Type"/> is an interface type, <see cref="DeserializableType"/> will be set to the type that the user
+        /// wants to instantiate when deserializing, if it was specified. Otherwise, null.
+        /// </summary>
+        public Type DeserializableType { get; }
+
+        internal FormatContext(ReadOnlyTypeFormatCollection formats, Type type, Expression buffer, Type concreteType = null)
         {
             this.Formats = formats;
             this.Type = type;
             this.Buffer = buffer;
+            this.DeserializableType = concreteType;
         }
 
         /// <summary>
@@ -53,8 +60,8 @@ namespace FUCC
         /// </summary>
         public Expression Value { get; }
 
-        internal FormatContextWithValue(ReadOnlyTypeFormatCollection formats, Type type, Expression buffer, Expression value)
-            : base(formats, type, buffer)
+        internal FormatContextWithValue(ReadOnlyTypeFormatCollection formats, Type type, Expression buffer, Expression value, Type concreteType = null)
+            : base(formats, type, buffer, concreteType)
         {
             this.Value = value;
         }

@@ -124,7 +124,8 @@ namespace FUCC
                     }
                     else
                     {
-                        yield return format.Serialize(new FormatContextWithValue(Formats, field.FieldType, bufferExpr, Field(convertedObj, field)));
+                        yield return format.Serialize(new FormatContextWithValue(
+                            Formats, field.FieldType, bufferExpr, Field(convertedObj, field), field.GetConcreteType()));
                     }
                 }
             }
@@ -198,6 +199,14 @@ namespace FUCC
 
                 foreach (var field in GetFields(objType))
                 {
+                    if (field.FieldType.IsInterface)
+                    {
+                        if (!field.IsDefined(typeof(ConcreteTypeAttribute)))
+                            throw new Exception("Fields of interface types must be decorated with ConcreteTypeAttribute");
+                        else if (!field.FieldType.IsAssignableFrom(field.GetConcreteType()))
+                            throw new Exception($"The specified concrete type for field '{field.Name}' doesn't implement the field type ({field.FieldType.Name})");
+                    }
+
                     var format = Formats.Get(field.FieldType);
 
                     if (format == null)
@@ -209,7 +218,8 @@ namespace FUCC
                     }
                     else
                     {
-                        yield return Assign(Field(convertedObj, field), format.Deserialize(new FormatContext(Formats, field.FieldType, bufferExpr)));
+                        yield return Assign(Field(convertedObj, field), format.Deserialize(
+                            new FormatContext(Formats, field.FieldType, bufferExpr, field.GetConcreteType())));
                     }
                 }
             }

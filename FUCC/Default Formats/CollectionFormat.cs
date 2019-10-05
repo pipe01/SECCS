@@ -9,11 +9,12 @@ namespace FUCC.DefaultFormats
     [Priority(-1)]
     internal class CollectionFormat : ITypeFormat
     {
-        public bool CanFormat(Type type) => type.GetInterface("ICollection`1") != null;
+        public bool CanFormat(Type type) => type.Name == "ICollection`1" || type.GetInterface("ICollection`1") != null
+                                         || type.Name == "IReadOnlyCollection`1" || type.GetInterface("IReadOnlyCollection`1") != null;
 
         public Expression Deserialize(FormatContext context)
         {
-            var collection = context.Type.GetInterface("ICollection`1");
+            var collection = context.Type.GetInterface("ICollection`1") ?? context.Type.GetInterface("IReadOnlyCollection`1") ?? context.Type;
             var itemType = collection.GetGenericArguments()[0];
 
             var countVar = Variable(typeof(int), "_count");
@@ -25,12 +26,12 @@ namespace FUCC.DefaultFormats
             return Block(new[] { countVar, resultVar, indexVar },
                 Assign(indexVar, Constant(0)),
                 Assign(countVar, context.Read<int>()),
-                Assign(resultVar, New(context.Type)),
+                Assign(resultVar, New(context.DeserializableType ?? context.Type)),
 
                 Loop(IfThenElse(
                     LessThan(indexVar, countVar),
                     Block(
-                        Call(Convert(resultVar, collection), "Add", null, context.Read(itemType)),
+                        Call(Convert(resultVar, context.DeserializableType ?? collection), "Add", null, context.Read(itemType)),
                         PostIncrementAssign(indexVar)),
                     Break(breakLabel)), breakLabel),
 
@@ -40,7 +41,8 @@ namespace FUCC.DefaultFormats
 
         public Expression Serialize(FormatContextWithValue context)
         {
-            var itemType = context.Type.GetInterface("ICollection`1").GetGenericArguments()[0];
+            var collection = context.Type.GetInterface("ICollection`1") ?? context.Type.GetInterface("IReadOnlyCollection`1") ?? context.Type;
+            var itemType = collection.GetGenericArguments()[0];
             var enumerator = Variable(typeof(IEnumerator));
             var breakLabel = Label("_break");
 
