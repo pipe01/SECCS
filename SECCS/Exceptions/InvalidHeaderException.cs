@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace FUCC.Exceptions
+namespace SECCS.Exceptions
 {
     public class InvalidHeaderException : Exception
     {

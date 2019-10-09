@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FUCC
+namespace SECCS
 {
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class ConcreteTypeAttribute : Attribute

@@ -1,9 +1,9 @@
-﻿namespace FUCC
+﻿namespace SECCS
 {
     /// <summary>
-    /// Options for <see cref="FuccFormatter{TBuffer}"/>.
+    /// Options for <see cref="SeccsFormatter{TBuffer}"/>.
     /// </summary>
-    public sealed class FuccOptions
+    public sealed class SeccsOptions
     {
         /// <summary>
         /// If a field with a class type is found when (de)serializing and this option is set to true, the field

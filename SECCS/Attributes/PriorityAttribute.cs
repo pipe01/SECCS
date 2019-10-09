@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FUCC
+namespace SECCS
 {
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class PriorityAttribute : Attribute

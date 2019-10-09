@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Linq.Expressions;
 
-namespace FUCC.DefaultFormats
+namespace SECCS.DefaultFormats
 {
     using static Expression;
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace FUCC
+namespace SECCS
 {
     /// <summary>
     /// Represents the context of a type format.

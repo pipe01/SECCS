@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace FUCC
+namespace SECCS
 {
     /// <summary>
     /// Base interface for all type formats. A type format is a class that can generate an <see cref="Expression"/> that

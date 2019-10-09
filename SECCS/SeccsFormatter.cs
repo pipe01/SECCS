@@ -1,6 +1,6 @@
-﻿using FUCC.DefaultFormats;
-using FUCC.Exceptions;
-using FUCC.Internal;
+﻿using SECCS.DefaultFormats;
+using SECCS.Exceptions;
+using SECCS.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +8,11 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace FUCC
+namespace SECCS
 {
     using static Expression;
 
-    public class FuccFormatter<TBuffer>
+    public class SeccsFormatter<TBuffer>
     {
         private const byte Magic = 243;
         private const byte MagicWithSignature = 244;
@@ -27,9 +27,9 @@ namespace FUCC
         private readonly IDictionary<Type, Func<TBuffer, object>> Deserializers = new Dictionary<Type, Func<TBuffer, object>>();
         private readonly IDictionary<Type, Action<TBuffer, object>> Serializers = new Dictionary<Type, Action<TBuffer, object>>();
 
-        private readonly FuccOptions Options;
+        private readonly SeccsOptions Options;
 
-        static FuccFormatter()
+        static SeccsFormatter()
         {
             DefaultFormats = typeof(ITypeFormat).Assembly
                 .GetTypes()
@@ -40,22 +40,22 @@ namespace FUCC
         }
 
         /// <summary>
-        /// Instantiates a <see cref="FuccFormatter{TBuffer}"/> with no additional formatters and default options.
+        /// Instantiates a <see cref="SeccsFormatter{TBuffer}"/> with no additional formatters and default options.
         /// </summary>
         /// <param name="options">The options object, or null for default</param>
-        public FuccFormatter(FuccOptions options = null) : this(Enumerable.Empty<ITypeFormat>(), options)
+        public SeccsFormatter(SeccsOptions options = null) : this(Enumerable.Empty<ITypeFormat>(), options)
         {
         }
 
         /// <summary>
-        /// Instantiates a <see cref="FuccFormatter{TBuffer}"/> with additional formatters and default options.
+        /// Instantiates a <see cref="SeccsFormatter{TBuffer}"/> with additional formatters and default options.
         /// </summary>
         /// <param name="formats">The additional formatters to be used</param>
         /// <param name="options">The options object, or null for default</param>
-        public FuccFormatter(IEnumerable<ITypeFormat> formats, FuccOptions options = null)
+        public SeccsFormatter(IEnumerable<ITypeFormat> formats, SeccsOptions options = null)
         {
             this.Formats = new TypeFormatCollection<TBuffer>();
-            this.Options = options ?? new FuccOptions();
+            this.Options = options ?? new SeccsOptions();
 
             Formats.Register(DefaultFormats);
             Formats.Register(formats);
