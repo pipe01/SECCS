@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using FUCC;
+using SECCS;
 using MessagePack;
 using Newtonsoft.Json;
 using System;
@@ -65,20 +65,20 @@ namespace Benchmarks
             }
         };
 
-        private readonly FuccFormatter<BinaryWriter> Fucc = new FuccFormatter<BinaryWriter>(TypeFormat.GetFromReadAndWrite<BinaryWriter>());
-        private readonly MemoryStream FuccStream = new MemoryStream();
-        private readonly BinaryWriter FuccWriter;
+        private readonly SeccsFormatter<BinaryWriter> Seccs = new SeccsFormatter<BinaryWriter>(TypeFormat.GetFromReadAndWrite<BinaryWriter>());
+        private readonly MemoryStream SeccsStream = new MemoryStream();
+        private readonly BinaryWriter SeccsWriter;
 
         public SerializeBenchmark()
         {
-            FuccWriter = new BinaryWriter(FuccStream);
+            SeccsWriter = new BinaryWriter(SeccsStream);
         }
 
         [Benchmark]
-        public void FUCC()
+        public void SECCS()
         {
-            FuccStream.Position = 0;
-            Fucc.Serialize(FuccWriter, Object);
+            SeccsStream.Position = 0;
+            Seccs.Serialize(SeccsWriter, Object);
         }
 
         [Benchmark]

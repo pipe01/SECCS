@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace FUCC
+namespace SECCS
 {
     public static class FormatContextExtensions
     {

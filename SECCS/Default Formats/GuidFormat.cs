@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace FUCC.DefaultFormats
+namespace SECCS.DefaultFormats
 {
     internal class GuidFormat : IStaticTypeFormat
     {

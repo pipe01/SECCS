@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace FUCC.Internal
+namespace SECCS.Internal
 {
     internal class ClassMember
     {

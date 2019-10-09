@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FUCC\FUCC.csproj" />
+    <ProjectReference Include="..\SECCS\SECCS.csproj" />
   </ItemGroup>
 
 </Project>

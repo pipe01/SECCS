@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FUCC
+namespace SECCS
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public sealed class WriteMethodAttribute : Attribute

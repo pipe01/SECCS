@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FUCC", "FUCC\FUCC.csproj", "{AB381CEC-0165-49CE-90BE-D5FD0CC2D9ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SECCS", "SECCS\SECCS.csproj", "{AB381CEC-0165-49CE-90BE-D5FD0CC2D9ED}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{F92DF9DC-AD02-4C88-8CAF-36463E806D88}"
 EndProject

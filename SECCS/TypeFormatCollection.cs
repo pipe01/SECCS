@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace FUCC
+namespace SECCS
 {
     public class ReadOnlyTypeFormatCollection : IEnumerable<ITypeFormat>
     {

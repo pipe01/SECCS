@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace FUCC
+namespace SECCS
 {
     internal static class ClassSignature
     {
