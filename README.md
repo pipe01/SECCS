@@ -3,7 +3,7 @@ Speedy & Easy C# Class Serialization
 
 ## Purpose
 
-SECCS is a tool for performant binary serialization of C# classes containing arbitrary data. It is quick and easy to use, requiring only an attribute on any classes you want to serialize.
+SECCS is a tool for performant binary serialization of C# classes containing arbitrary data. It is quick and easy to use, and it doesn't require any attributes on the classes you want to serialize.
 
 ## Performance
 
