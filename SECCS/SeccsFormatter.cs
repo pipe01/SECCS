@@ -93,12 +93,12 @@ namespace SECCS
                 if (Options.WriteHeader)
                 {
                     //Write 243, or 244 if Options.WriteStructureSignature is on
-                    exprs.Add(Formats.Get(typeof(byte)).Serialize(new FormatContextWithValue(Formats, typeof(byte), bufferParam, Constant((byte)(Options.WriteStructureSignature ? MagicWithSignature : Magic)))));
+                    exprs.Add(Formats.Get(typeof(byte)).Serialize(new FormatContextWithValue(Formats, typeof(byte), typeof(TBuffer), bufferParam, Constant((byte)(Options.WriteStructureSignature ? MagicWithSignature : Magic)))));
 
                     if (Options.WriteStructureSignature)
                     {
                         var hash = ClassSignature.Get(type);
-                        exprs.Add(Formats.Get(typeof(string)).Serialize(new FormatContextWithValue(Formats, typeof(string), bufferParam, Constant(hash))));
+                        exprs.Add(Formats.Get(typeof(string)).Serialize(new FormatContextWithValue(Formats, typeof(string), typeof(TBuffer), bufferParam, Constant(hash))));
                     }
                 }
 
@@ -127,7 +127,7 @@ namespace SECCS
                     else
                     {
                         yield return format.Serialize(new FormatContextWithValue(
-                            Formats, field.MemberType, bufferExpr, PropertyOrField(convertedObj, field.Name), field.GetConcreteType()));
+                            Formats, field.MemberType, typeof(TBuffer), bufferExpr, PropertyOrField(convertedObj, field.Name), field.GetConcreteType()));
                     }
                 }
             }
@@ -188,7 +188,7 @@ namespace SECCS
 
                 Deserializers[type] = des = Lambda<Func<TBuffer, object>>(Block(new[] { objVar }, exprs), bufferParam).Compile();
 
-                Expression Read<T>() => Formats.Get(typeof(T))?.Deserialize(new FormatContext(Formats, typeof(T), bufferParam)) ?? throw new InvalidOperationException("Cannot deserialize type " + typeof(T).FullName);
+                Expression Read<T>() => Formats.Get(typeof(T))?.Deserialize(new FormatContext(Formats, typeof(T), typeof(TBuffer), bufferParam)) ?? throw new InvalidOperationException("Cannot deserialize type " + typeof(T).FullName);
             }
 
             return des(buffer);
@@ -221,7 +221,7 @@ namespace SECCS
                     else
                     {
                         yield return Assign(PropertyOrField(convertedObj, field.Name), format.Deserialize(
-                            new FormatContext(Formats, field.MemberType, bufferExpr, field.GetConcreteType())));
+                            new FormatContext(Formats, field.MemberType, typeof(TBuffer), bufferExpr, field.GetConcreteType())));
                     }
                 }
             }

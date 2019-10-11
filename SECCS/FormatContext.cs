@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace SECCS
@@ -16,6 +14,11 @@ namespace SECCS
         public Type Type { get; }
 
         /// <summary>
+        /// The type of the buffer that is being used.
+        /// </summary>
+        public Type BufferType { get; }
+
+        /// <summary>
         /// The expression for the buffer in use.
         /// </summary>
         public Expression Buffer { get; }
@@ -23,7 +26,7 @@ namespace SECCS
         /// <summary>
         /// The registered type formats.
         /// </summary>
-        public ReadOnlyTypeFormatCollection Formats { get; }
+        public IReadOnlyTypeFormatCollection Formats { get; }
 
         /// <summary>
         /// If <see cref="Type"/> is an interface type, <see cref="DeserializableType"/> will be set to the type that the user
@@ -31,10 +34,11 @@ namespace SECCS
         /// </summary>
         public Type DeserializableType { get; }
 
-        internal FormatContext(ReadOnlyTypeFormatCollection formats, Type type, Expression buffer, Type concreteType = null)
+        internal FormatContext(IReadOnlyTypeFormatCollection formats, Type type, Type bufferType, Expression buffer, Type concreteType = null)
         {
             this.Formats = formats;
             this.Type = type;
+            this.BufferType = bufferType;
             this.Buffer = buffer;
             this.DeserializableType = concreteType;
         }
@@ -47,7 +51,7 @@ namespace SECCS
         /// <summary>
         /// Creates a copy of the current context and changes the type to <paramref name="type"/>.
         /// </summary>
-        public FormatContext WithType(Type type) => new FormatContext(Formats, type, Buffer);
+        public FormatContext WithType(Type type) => new FormatContext(Formats, type, BufferType, Buffer);
     }
 
     /// <summary>
@@ -60,8 +64,8 @@ namespace SECCS
         /// </summary>
         public Expression Value { get; }
 
-        internal FormatContextWithValue(ReadOnlyTypeFormatCollection formats, Type type, Expression buffer, Expression value, Type concreteType = null)
-            : base(formats, type, buffer, concreteType)
+        internal FormatContextWithValue(IReadOnlyTypeFormatCollection formats, Type type, Type bufferType, Expression buffer, Expression value, Type concreteType = null)
+            : base(formats, type, bufferType, buffer, concreteType)
         {
             this.Value = value;
         }
@@ -69,11 +73,11 @@ namespace SECCS
         /// <summary>
         /// Creates a copy of the current context and changes the type to <paramref name="type"/>.
         /// </summary>
-        public new FormatContextWithValue WithType(Type type) => new FormatContextWithValue(Formats, type, Buffer, Value);
+        public new FormatContextWithValue WithType(Type type) => new FormatContextWithValue(Formats, type, BufferType, Buffer, Value);
 
         /// <summary>
         /// Creates a copy of the current context and changes the value to <paramref name="value"/>.
         /// </summary>
-        public FormatContextWithValue WithValue(Expression value) => new FormatContextWithValue(Formats, Type, Buffer, value);
+        public FormatContextWithValue WithValue(Expression value) => new FormatContextWithValue(Formats, Type, BufferType, Buffer, value);
     }
 }

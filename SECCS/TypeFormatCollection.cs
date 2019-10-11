@@ -4,12 +4,17 @@ using System.Collections.Generic;
 
 namespace SECCS
 {
-    public class ReadOnlyTypeFormatCollection : IEnumerable<ITypeFormat>
+    public interface IReadOnlyTypeFormatCollection : IEnumerable<ITypeFormat>
+    {
+        ITypeFormat Get<T>();
+        ITypeFormat Get(Type type);
+    }
+
+    public class ReadOnlyTypeFormatCollection<TBuffer> : IReadOnlyTypeFormatCollection
     {
         protected readonly List<ITypeFormat> Formats = new List<ITypeFormat>();
 
         public IEnumerator<ITypeFormat> GetEnumerator() => this.Formats.GetEnumerator();
-
         IEnumerator IEnumerable.GetEnumerator() => this.Formats.GetEnumerator();
 
 
@@ -21,10 +26,10 @@ namespace SECCS
         /// <summary>
         /// Gets the first type format for <paramref name="type"/> from the list of registered formats.
         /// </summary>
-        public ITypeFormat Get(Type type) => Formats.Find(o => o.CanFormat(type));
+        public ITypeFormat Get(Type type) => Formats.Find(o => o.CanFormat(type, typeof(TBuffer)));
     }
 
-    public class TypeFormatCollection<TBuffer> : ReadOnlyTypeFormatCollection
+    public class TypeFormatCollection<TBuffer> : ReadOnlyTypeFormatCollection<TBuffer>
     {
         /// <summary>
         /// Registers a type format of type <typeparamref name="T"/>.
