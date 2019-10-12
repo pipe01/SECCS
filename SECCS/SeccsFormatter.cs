@@ -71,7 +71,7 @@ namespace SECCS
             var optionsAttr = t.GetCustomAttribute<SeccsObjectAttribute>();
 
             if (optionsAttr == null || optionsAttr.MemberSerializing == SeccsMemberSerializing.OptOut)
-                return members;
+                return members.Where(o => !o.Member.IsDefined(typeof(SeccsIgnoreAttribute)));
             else
                 return members.Where(o => o.Member.IsDefined(typeof(SeccsMemberAttribute)));
         }
