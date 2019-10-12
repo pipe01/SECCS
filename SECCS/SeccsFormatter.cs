@@ -1,4 +1,5 @@
-﻿using SECCS.DefaultFormats;
+﻿using SECCS.Attributes;
+using SECCS.DefaultFormats;
 using SECCS.Exceptions;
 using SECCS.Internal;
 using System;
@@ -62,8 +63,18 @@ namespace SECCS
         }
 
         private static IEnumerable<ClassMember> GetFields(Type t)
-            => t.GetFields(BindingFlags.Public | BindingFlags.Instance).Select(o => new ClassMember(o)).Concat(
-               t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(o => new ClassMember(o))).Where(o => !o.Member.IsDefined(typeof(IgnoreDataMemberAttribute), false)).ToArray();
+        {
+            var members = t.GetFields(BindingFlags.Public | BindingFlags.Instance).Select(o => new ClassMember(o)).Concat(
+                          t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(o => new ClassMember(o)))
+                    .Where(o => !o.Member.IsDefined(typeof(IgnoreDataMemberAttribute), false));
+
+            var optionsAttr = t.GetCustomAttribute<SeccsObjectAttribute>();
+
+            if (optionsAttr == null || optionsAttr.MemberSerializing == SeccsMemberSerializing.OptOut)
+                return members;
+            else
+                return members.Where(o => o.Member.IsDefined(typeof(SeccsMemberAttribute)));
+        }
 
         /// <summary>
         /// Serializes <paramref name="obj"/> into <typeparamref name="TBuffer"/> using type formats.
