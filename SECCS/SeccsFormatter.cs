@@ -62,7 +62,7 @@ namespace SECCS
             Formats.Register(formats);
         }
 
-        private static IEnumerable<ClassMember> GetFields(Type t)
+        private static IEnumerable<ClassMember> GetMembers(Type t)
         {
             var members = t.GetFields(BindingFlags.Public | BindingFlags.Instance).Select(o => new ClassMember(o)).Concat(
                           t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(o => new ClassMember(o)))
@@ -124,7 +124,7 @@ namespace SECCS
             {
                 var convertedObj = Convert(objExpr, objType);
 
-                foreach (var field in GetFields(objType))
+                foreach (var field in GetMembers(objType))
                 {
                     var format = Formats.Get(field.MemberType);
 
@@ -207,10 +207,48 @@ namespace SECCS
             IEnumerable<Expression> GetBlock(Expression objExpr, Expression bufferExpr, Type objType)
             {
                 var convertedObj = Convert(objExpr, objType);
+                var members = GetMembers(objType).ToArray();
 
-                yield return Assign(objExpr, New(objType));
+                var seccsCtor = objType.GetConstructors().SingleOrDefault(o => o.IsDefined(typeof(SeccsConstructorAttribute)));
 
-                foreach (var field in GetFields(objType))
+                if (seccsCtor != null)
+                {
+                    if (seccsCtor.GetParameters().Length != members.Length)
+                        throw new InvalidConstructorException($"SECCS constructor for {objType.FullName}'s parameter count must be equal to the number of serializable members in the class");
+
+                    var ctorParams = new Queue<ParameterInfo>(seccsCtor.GetParameters());
+                    var memberList = new List<ClassMember>(members);
+                    var paramExprs = new List<Expression>();
+
+                    while (ctorParams.Count > 0)
+                    {
+                        var param = ctorParams.Dequeue();
+                        var member = memberList.Find(o => o.MemberType == param.ParameterType);
+
+                        if (member != null)
+                        {
+                            memberList.Remove(member);
+                            paramExprs.Add(GetExpressionForField(member));
+                        }
+                        else
+                        {
+                            throw new InvalidConstructorException($"Mismatched parameter: {param.Name}");
+                        }
+                    }
+
+                    yield return Assign(objExpr, New(seccsCtor, paramExprs));
+                }
+                else
+                {
+                    yield return Assign(objExpr, New(objType));
+
+                    foreach (var field in members)
+                    {
+                        yield return GetExpressionForField(field);
+                    }
+                }
+
+                Expression GetExpressionForField(ClassMember field)
                 {
                     if (field.MemberType.IsInterface)
                     {
@@ -225,13 +263,13 @@ namespace SECCS
                     if (format == null)
                     {
                         if (Options.SerializeUnknownTypes)
-                            yield return Block(GetBlock(PropertyOrField(convertedObj, field.Name), bufferExpr, field.MemberType));
+                            return Block(GetBlock(PropertyOrField(convertedObj, field.Name), bufferExpr, field.MemberType));
                         else
                             throw new Exception($"Format not found for '{objType.Name}.{field.Name}'");
                     }
                     else
                     {
-                        yield return Assign(PropertyOrField(convertedObj, field.Name), format.Deserialize(
+                        return Assign(PropertyOrField(convertedObj, field.Name), format.Deserialize(
                             new FormatContext(Formats, field.MemberType, typeof(TBuffer), bufferExpr, field.GetConcreteType())));
                     }
                 }

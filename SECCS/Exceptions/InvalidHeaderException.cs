@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 namespace SECCS.Exceptions
 {
-    public class InvalidHeaderException : Exception
+    public sealed class InvalidHeaderException : Exception
     {
         internal InvalidHeaderException()
         {

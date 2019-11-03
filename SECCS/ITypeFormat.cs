@@ -13,7 +13,6 @@ namespace SECCS
     public interface ITypeFormat
     {
         bool CanFormat(Type type);
-        bool CanFormat(Type type, Type bufferType) => CanFormat(type);
 
         Expression Serialize(FormatContextWithValue context);
         Expression Deserialize(FormatContext context);
