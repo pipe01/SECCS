@@ -102,6 +102,7 @@ namespace SECCS
 
                 exprs.Add(Formats.Get(type).Serialize(new FormatContextWithValue(Formats, type, typeof(TBuffer), bufferParam, objParam)));
 
+                var lambda = Lambda<Action<TBuffer, object>>(Block(exprs), bufferParam, objParam);
                 Serializers[type] = ser = Lambda<Action<TBuffer, object>>(Block(exprs), bufferParam, objParam).Compile();
             }
 
@@ -128,7 +129,6 @@ namespace SECCS
             {
                 var exprs = new List<Expression>();
                 var bufferParam = Parameter(typeof(TBuffer), "_buffer");
-                var objVar = Variable(typeof(object), "_obj");
 
                 if (Options.CheckHeader)
                 {
@@ -160,7 +160,7 @@ namespace SECCS
 
                 exprs.Add(Read(type));
 
-                Deserializers[type] = des = Lambda<Func<TBuffer, object>>(Block(new[] { objVar }, exprs), bufferParam).Compile();
+                Deserializers[type] = des = Lambda<Func<TBuffer, object>>(Block(exprs), bufferParam).Compile();
 
                 Expression ReadG<T>() => Read(typeof(T));
                 Expression Read(Type t) => Formats.Get(t)?.Deserialize(new FormatContext(Formats, t, typeof(TBuffer), bufferParam)) ?? throw new InvalidOperationException("Cannot deserialize type " + t.FullName);

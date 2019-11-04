@@ -64,9 +64,7 @@ namespace SECCS.DefaultFormats
                 }
             }
 
-            exprs.Add(objVar);
-
-            return Block(new[] { objVar }, exprs);
+            return Block(new[] { objVar }, new[] { NullCheck(objType, objVar, Block(exprs)), objVar });
 
             Expression GetExpressionForField(ClassMember field)
             {
@@ -83,7 +81,24 @@ namespace SECCS.DefaultFormats
                 if (format == null)
                     throw new Exception($"Format not found for '{objType.Name}.{field.Name}'");
 
-                return Assign(PropertyOrField(objVar, field.Name), context.Read(field.MemberType));
+                var readExpr = Assign(PropertyOrField(objVar, field.Name), context.Read(field.MemberType));
+
+                return NullCheck(field.MemberType, PropertyOrField(objVar, field.Name), readExpr);
+            }
+
+            Expression NullCheck(Type type, Expression value, Expression readExpr)
+            {
+                if (!type.IsValueType)
+                {
+                    return IfThenElse(
+                        Equal(context.Read(typeof(byte)), Constant((byte)0)),
+                        Assign(value, Constant(null, type)),
+                        readExpr);
+                }
+                else
+                {
+                    return readExpr;
+                }
             }
         }
 
@@ -99,10 +114,31 @@ namespace SECCS.DefaultFormats
                 if (format == null)
                     throw new Exception($"Format not found for '{context.Type.Name}.{field.Name}'");
 
-                exprs.Add(context.Write(field.MemberType, PropertyOrField(convertedObj, field.Name)));
+                var fieldExpr = PropertyOrField(convertedObj, field.Name);
+
+                exprs.Add(NullCheck(field.MemberType, fieldExpr, context.Write(field.MemberType, fieldExpr)));
             }
 
-            return Block(exprs);
+            return NullCheck(context.Type, context.Value, Block(exprs));
+
+            Expression NullCheck(Type type, Expression value, Expression writeExpr)
+            {
+                if (!type.IsValueType)
+                {
+                    return IfThenElse(
+                        Equal(value, Constant(null)),
+                        context.Write(typeof(byte), Constant((byte)0)),
+                        Block(new[]
+                        {
+                            context.Write(typeof(byte), Constant((byte)1)),
+                            writeExpr
+                        }));
+                }
+                else
+                {
+                    return writeExpr;
+                }
+            }
         }
 
 

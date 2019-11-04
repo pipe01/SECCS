@@ -16,7 +16,7 @@ namespace SECCS.DefaultFormats
             var intf = GetInterface(type);
             if (intf != null)
             {
-                if (type.GetConstructor(new[] { intf.GetGenericArguments()[0] }) == null)
+                if (type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new[] { intf.GetGenericArguments()[0] }, null) == null)
                     throw new Exception($"Type {type.FullName} implements ISeccsSerializable`1 but doesn't have a suitable constructor");
 
                 return true;

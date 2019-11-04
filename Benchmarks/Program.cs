@@ -13,8 +13,37 @@ namespace Benchmarks
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<SerializeBenchmark>();
+            var t = new Test
+            {
+                List = new[]
+                {
+                    new Nested { Hello = 123, Str = "hola" },
+                    null,
+                    new Nested { Hello = 41, Str = null },
+
+                }
+            };
+
+            using var mem = new MemoryStream();
+            using var writer = new BinaryWriter(mem);
+            var opt = new SeccsOptions { WriteHeader = false, WriteStructureSignature = false, CheckHeader = false, CheckStructureSignature = false };
+            var formatter = new SeccsFormatter<BinaryWriter>(TypeFormat.GetFromReadAndWrite<BinaryWriter>(), opt);
+
+            formatter.Serialize(writer, t);
+            writer.Flush();
+            mem.Flush();
+            mem.Position = 0;
+
+            var readFormatter = new SeccsFormatter<BinaryReader>(TypeFormat.GetFromReadAndWrite<BinaryReader>(), opt);
+            using var reader = new BinaryReader(mem);
+
+            var obj = readFormatter.Deserialize<Test>(reader);
         }
+    }
+
+    public class Test
+    {
+        public Nested[] List;
     }
 
     public class Nested
