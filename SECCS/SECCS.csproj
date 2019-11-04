@@ -8,5 +8,9 @@
     <OutputPath>..\bin\</OutputPath>
     <BaseIntermediateOutputPath>..\obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="**/*.meta" />
+  </ItemGroup>
   
 </Project>

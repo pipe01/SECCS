@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace SECCS
 {
@@ -48,6 +49,12 @@ namespace SECCS
 
             return this;
         }
+
+        public void RemoveAll(Predicate<ITypeFormat> predicate) => Formats.RemoveAll(predicate);
+
+        public void SortByPriority() => Formats.Sort((a, b) => 
+                (b.GetType().GetCustomAttribute<PriorityAttribute>()?.Priority ?? 0).CompareTo(
+                    a.GetType().GetCustomAttribute<PriorityAttribute>()?.Priority ?? 0));
 
         internal void Register(IEnumerable<ITypeFormat> formats)
         {

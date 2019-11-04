@@ -60,20 +60,7 @@ namespace SECCS
 
             Formats.Register(DefaultFormats);
             Formats.Register(formats);
-        }
-
-        private static IEnumerable<ClassMember> GetMembers(Type t)
-        {
-            var members = t.GetFields(BindingFlags.Public | BindingFlags.Instance).Select(o => new ClassMember(o)).Concat(
-                          t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(o => new ClassMember(o)))
-                    .Where(o => !o.Member.IsDefined(typeof(IgnoreDataMemberAttribute), false));
-
-            var optionsAttr = t.GetCustomAttribute<SeccsObjectAttribute>();
-
-            if (optionsAttr == null || optionsAttr.MemberSerializing == SeccsMemberSerializing.OptOut)
-                return members.Where(o => !o.Member.IsDefined(typeof(SeccsIgnoreAttribute)));
-            else
-                return members.Where(o => o.Member.IsDefined(typeof(SeccsMemberAttribute)));
+            Formats.SortByPriority();
         }
 
         /// <summary>
@@ -104,7 +91,7 @@ namespace SECCS
                 if (Options.WriteHeader)
                 {
                     //Write 243, or 244 if Options.WriteStructureSignature is on
-                    exprs.Add(Formats.Get(typeof(byte)).Serialize(new FormatContextWithValue(Formats, typeof(byte), typeof(TBuffer), bufferParam, Constant((byte)(Options.WriteStructureSignature ? MagicWithSignature : Magic)))));
+                    exprs.Add(Formats.Get(typeof(byte)).Serialize(new FormatContextWithValue(Formats, typeof(byte), typeof(TBuffer), bufferParam, Constant(Options.WriteStructureSignature ? MagicWithSignature : Magic))));
 
                     if (Options.WriteStructureSignature)
                     {
@@ -113,35 +100,12 @@ namespace SECCS
                     }
                 }
 
-                exprs.AddRange(GetBlock(objParam, bufferParam, type));
+                exprs.Add(Formats.Get(type).Serialize(new FormatContextWithValue(Formats, type, typeof(TBuffer), bufferParam, objParam)));
 
                 Serializers[type] = ser = Lambda<Action<TBuffer, object>>(Block(exprs), bufferParam, objParam).Compile();
             }
 
             ser(buffer, obj);
-
-            IEnumerable<Expression> GetBlock(Expression objExpr, Expression bufferExpr, Type objType)
-            {
-                var convertedObj = Convert(objExpr, objType);
-
-                foreach (var field in GetMembers(objType))
-                {
-                    var format = Formats.Get(field.MemberType);
-
-                    if (format == null)
-                    {
-                        if (Options.SerializeUnknownTypes)
-                            yield return Block(GetBlock(PropertyOrField(convertedObj, field.Name), bufferExpr, field.MemberType));
-                        else
-                            throw new Exception($"Format not found for '{type.Name}.{field.Name}'");
-                    }
-                    else
-                    {
-                        yield return format.Serialize(new FormatContextWithValue(
-                            Formats, field.MemberType, typeof(TBuffer), bufferExpr, PropertyOrField(convertedObj, field.Name), field.GetConcreteType()));
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -187,93 +151,22 @@ namespace SECCS
                      }
                      */
                     exprs.Add(Block(new[] { magicVar },
-                        Assign(magicVar, Read<byte>()),
+                        Assign(magicVar, ReadG<byte>()),
                         IfThenElse(
                             Equal(magicVar, Constant(MagicWithSignature)),
-                            IfThen(NotEqual(Read<string>(), Constant(hash)), Options.CheckStructureSignature ? InvalidHeaderException.Throw("Class structure signature mismatch") : Block()),
+                            IfThen(NotEqual(ReadG<string>(), Constant(hash)), Options.CheckStructureSignature ? InvalidHeaderException.Throw("Class structure signature mismatch") : Block()),
                             IfThen(NotEqual(magicVar, Constant(Magic)), InvalidHeaderException.Throw("Invalid magic number")))));
                 }
 
-                exprs.AddRange(GetBlock(objVar, bufferParam, type));
-                exprs.Add(objVar);
+                exprs.Add(Read(type));
 
                 Deserializers[type] = des = Lambda<Func<TBuffer, object>>(Block(new[] { objVar }, exprs), bufferParam).Compile();
 
-                Expression Read<T>() => Formats.Get(typeof(T))?.Deserialize(new FormatContext(Formats, typeof(T), typeof(TBuffer), bufferParam)) ?? throw new InvalidOperationException("Cannot deserialize type " + typeof(T).FullName);
+                Expression ReadG<T>() => Read(typeof(T));
+                Expression Read(Type t) => Formats.Get(t)?.Deserialize(new FormatContext(Formats, t, typeof(TBuffer), bufferParam)) ?? throw new InvalidOperationException("Cannot deserialize type " + t.FullName);
             }
 
             return des(buffer);
-
-            IEnumerable<Expression> GetBlock(Expression objExpr, Expression bufferExpr, Type objType)
-            {
-                var convertedObj = Convert(objExpr, objType);
-                var members = GetMembers(objType).ToArray();
-
-                var seccsCtor = objType.GetConstructors().SingleOrDefault(o => o.IsDefined(typeof(SeccsConstructorAttribute)));
-
-                if (seccsCtor != null)
-                {
-                    if (seccsCtor.GetParameters().Length != members.Length)
-                        throw new InvalidConstructorException($"SECCS constructor for {objType.FullName}'s parameter count must be equal to the number of serializable members in the class");
-
-                    var ctorParams = new Queue<ParameterInfo>(seccsCtor.GetParameters());
-                    var memberList = new List<ClassMember>(members);
-                    var paramExprs = new List<Expression>();
-
-                    while (ctorParams.Count > 0)
-                    {
-                        var param = ctorParams.Dequeue();
-                        var member = memberList.Find(o => o.MemberType == param.ParameterType);
-
-                        if (member != null)
-                        {
-                            memberList.Remove(member);
-                            paramExprs.Add(GetExpressionForField(member));
-                        }
-                        else
-                        {
-                            throw new InvalidConstructorException($"Mismatched parameter: {param.Name}");
-                        }
-                    }
-
-                    yield return Assign(objExpr, New(seccsCtor, paramExprs));
-                }
-                else
-                {
-                    yield return Assign(objExpr, New(objType));
-
-                    foreach (var field in members)
-                    {
-                        yield return GetExpressionForField(field);
-                    }
-                }
-
-                Expression GetExpressionForField(ClassMember field)
-                {
-                    if (field.MemberType.IsInterface)
-                    {
-                        if (!field.Member.IsDefined(typeof(ConcreteTypeAttribute)))
-                            throw new Exception("Fields of interface types must be decorated with ConcreteTypeAttribute");
-                        else if (!field.MemberType.IsAssignableFrom(field.GetConcreteType()))
-                            throw new Exception($"The specified concrete type for field '{field.Name}' doesn't implement the field type ({field.MemberType.Name})");
-                    }
-
-                    var format = Formats.Get(field.MemberType);
-
-                    if (format == null)
-                    {
-                        if (Options.SerializeUnknownTypes)
-                            return Block(GetBlock(PropertyOrField(convertedObj, field.Name), bufferExpr, field.MemberType));
-                        else
-                            throw new Exception($"Format not found for '{objType.Name}.{field.Name}'");
-                    }
-                    else
-                    {
-                        return Assign(PropertyOrField(convertedObj, field.Name), format.Deserialize(
-                            new FormatContext(Formats, field.MemberType, typeof(TBuffer), bufferExpr, field.GetConcreteType())));
-                    }
-                }
-            }
         }
     }
 }
