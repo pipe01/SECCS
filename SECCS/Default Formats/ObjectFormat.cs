@@ -19,11 +19,10 @@ namespace SECCS.DefaultFormats
 
         public Expression Deserialize(FormatContext context)
         {
-            var objVar = Variable(typeof(object), "_obj");
             var objType = context.DeserializableType ?? context.Type;
+            var objVar = Variable(objType, "_obj");
             var exprs = new List<Expression>();
 
-            var convertedObj = Convert(objVar, objType);
             var members = GetMembers(objType).ToArray();
 
             var seccsCtor = objType.GetConstructors().SingleOrDefault(o => o.IsDefined(typeof(SeccsConstructorAttribute)));
@@ -65,7 +64,7 @@ namespace SECCS.DefaultFormats
                 }
             }
 
-            exprs.Add(Convert(objVar, objType));
+            exprs.Add(objVar);
 
             return Block(new[] { objVar }, exprs);
 
@@ -84,7 +83,7 @@ namespace SECCS.DefaultFormats
                 if (format == null)
                     throw new Exception($"Format not found for '{objType.Name}.{field.Name}'");
 
-                return Assign(PropertyOrField(convertedObj, field.Name), context.Read(field.MemberType));
+                return Assign(PropertyOrField(objVar, field.Name), context.Read(field.MemberType));
             }
         }
 
