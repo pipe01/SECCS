@@ -7,6 +7,7 @@ namespace SECCS.DefaultFormats
 {
     using static Expression;
 
+    [Priority(10)]
     internal class ListAndArrayFormat : ITypeFormat
     {
         public bool CanFormat(Type type) => type.IsArray || (typeof(IList).IsAssignableFrom(type) && type.IsGenericType);

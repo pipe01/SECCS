@@ -144,8 +144,8 @@ namespace SECCS.DefaultFormats
 
         private static IEnumerable<ClassMember> GetMembers(Type t)
         {
-            var members = t.GetFields(BindingFlags.Public | BindingFlags.Instance).Select(o => new ClassMember(o)).Concat(
-                          t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(o => new ClassMember(o)))
+            var members = t.GetFields(BindingFlags.Public | BindingFlags.Instance).Where(o => !o.IsInitOnly).Select(o => new ClassMember(o)).Concat(
+                          t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(o => o.CanWrite && o.CanRead).Select(o => new ClassMember(o)))
                     .Where(o => !o.Member.IsDefined(typeof(IgnoreDataMemberAttribute), false));
 
             var optionsAttr = t.GetCustomAttribute<SeccsObjectAttribute>();

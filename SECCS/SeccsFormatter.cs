@@ -1,9 +1,11 @@
-﻿using SECCS.Attributes;
+﻿using AgileObjects.ReadableExpressions;
+using SECCS.Attributes;
 using SECCS.DefaultFormats;
 using SECCS.Exceptions;
 using SECCS.Internal;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -103,7 +105,12 @@ namespace SECCS
                 exprs.Add(Formats.Get(type).Serialize(new FormatContextWithValue(Formats, type, typeof(TBuffer), bufferParam, objParam)));
 
                 var lambda = Lambda<Action<TBuffer, object>>(Block(exprs), bufferParam, objParam);
-                Serializers[type] = ser = Lambda<Action<TBuffer, object>>(Block(exprs), bufferParam, objParam).Compile();
+
+#if DEBUG
+                //Debug.WriteLine($"Serializer for {type.FullName}:\n{lambda.ToReadableString()}");
+#endif
+
+                Serializers[type] = ser = lambda.Compile();
             }
 
             ser(buffer, obj);
@@ -160,7 +167,13 @@ namespace SECCS
 
                 exprs.Add(Read(type));
 
-                Deserializers[type] = des = Lambda<Func<TBuffer, object>>(Block(exprs), bufferParam).Compile();
+                var lambda = Lambda<Func<TBuffer, object>>(Block(exprs), bufferParam);
+
+#if DEBUG
+                Debug.WriteLine($"Deserializer for {type.FullName}:\n{lambda.ToReadableString()}");
+#endif
+
+                Deserializers[type] = des = lambda.Compile();
 
                 Expression ReadG<T>() => Read(typeof(T));
                 Expression Read(Type t) => Formats.Get(t)?.Deserialize(new FormatContext(Formats, t, typeof(TBuffer), bufferParam)) ?? throw new InvalidOperationException("Cannot deserialize type " + t.FullName);
