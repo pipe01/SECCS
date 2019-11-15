@@ -1,6 +1,8 @@
-﻿using System;
+﻿using SECCS.Internal;
+using System;
 using System.Collections;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace SECCS.DefaultFormats
 {
@@ -23,15 +25,20 @@ namespace SECCS.DefaultFormats
             var indexVar = Variable(typeof(int), "_idx");
             var breakLabel = Label("_break");
 
+            var addMethod = context.DeserializableType.GetMethodInAnyInterface("Add", new[] { itemType });
+
+            if (addMethod == null)
+                throw new Exception($"Type {context.DeserializableType.FullName} doesn't have an appropiate 'Add' method");
+
             return Block(new[] { countVar, resultVar, indexVar },
                 Assign(indexVar, Constant(0)),
                 Assign(countVar, context.Read<int>()),
-                Assign(resultVar, New(context.DeserializableType ?? context.Type)),
+                Assign(resultVar, New(context.DeserializableType)),
 
                 Loop(IfThenElse(
                     LessThan(indexVar, countVar),
                     Block(
-                        Call(Convert(resultVar, context.DeserializableType ?? collection), "Add", null, context.Read(itemType)),
+                        Call(Convert(resultVar, addMethod.DeclaringType), addMethod, context.Read(itemType)),
                         PostIncrementAssign(indexVar)),
                     Break(breakLabel)), breakLabel),
 
@@ -49,7 +56,7 @@ namespace SECCS.DefaultFormats
             return Block(new[] { enumerator },
                 Assign(enumerator, Call(Convert(context.Value, typeof(IEnumerable)), "GetEnumerator", null)),
 
-                context.Write<int>(Property(context.Value, "Count")),
+                context.Write<int>(Property(context.Value, collection.GetProperty("Count"))),
 
                 Loop(IfThenElse(
                         IsTrue(Call(enumerator, "MoveNext", null)),

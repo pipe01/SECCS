@@ -20,8 +20,8 @@ namespace SECCS
         /// <summary>
         /// Shortcut for <c>context.GetFormat(type).Deserialize(context.WithType(type))</c>
         /// </summary>
-        public static Expression Read(this FormatContext context, Type type)
-            => context.Formats.Get(type).Deserialize(context.WithType(type));
+        public static Expression Read(this FormatContext context, Type type, Type concreteType = null)
+            => context.Formats.Get(type).Deserialize(context.WithType(type).WithConcreteType(concreteType));
 
         /// <summary>
         /// Shortcut for <c>context.Read(typeof(T))</c>

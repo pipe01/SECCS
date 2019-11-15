@@ -27,7 +27,7 @@ namespace SECCS.DefaultFormats
 
         public Expression Deserialize(FormatContext context)
         {
-            var ctor = (context.DeserializableType ?? context.Type).GetConstructor(
+            var ctor = context.DeserializableType.GetConstructor(
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new[] { context.BufferType }, null);
 
             return New(ctor, context.Buffer);

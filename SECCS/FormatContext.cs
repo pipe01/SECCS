@@ -29,10 +29,11 @@ namespace SECCS
         public IReadOnlyTypeFormatCollection Formats { get; }
 
         /// <summary>
-        /// If <see cref="Type"/> is an interface type, <see cref="DeserializableType"/> will be set to the type that the user
-        /// wants to instantiate when deserializing, if it was specified. Otherwise, null.
+        /// The type that the user wants to instantiate when deserializing.
         /// </summary>
-        public Type DeserializableType { get; }
+        public Type ConcreteType { get; }
+
+        public Type DeserializableType => ConcreteType ?? Type;
 
         internal FormatContext(IReadOnlyTypeFormatCollection formats, Type type, Type bufferType, Expression buffer, Type concreteType = null)
         {
@@ -40,7 +41,7 @@ namespace SECCS
             this.Type = type;
             this.BufferType = bufferType;
             this.Buffer = buffer;
-            this.DeserializableType = concreteType;
+            this.ConcreteType = concreteType;
         }
 
         /// <summary>
@@ -52,6 +53,13 @@ namespace SECCS
         /// Creates a copy of the current context and changes the type to <paramref name="type"/>.
         /// </summary>
         public FormatContext WithType(Type type) => new FormatContext(Formats, type, BufferType, Buffer);
+
+        /// <summary>
+        /// Creates a copy of the current context and changes the concrete type to <paramref name="type"/>.
+        /// </summary>
+        public FormatContext WithConcreteType(Type type) => new FormatContext(Formats, Type, BufferType, Buffer, type);
+
+
     }
 
     /// <summary>

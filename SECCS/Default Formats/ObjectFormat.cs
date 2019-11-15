@@ -19,7 +19,7 @@ namespace SECCS.DefaultFormats
 
         public Expression Deserialize(FormatContext context)
         {
-            var objType = context.DeserializableType ?? context.Type;
+            var objType = context.DeserializableType;
             var objVar = Variable(objType, "_obj");
             var exprs = new List<Expression>();
 
@@ -81,7 +81,7 @@ namespace SECCS.DefaultFormats
                 if (format == null)
                     throw new Exception($"Format not found for '{objType.Name}.{field.Name}'");
 
-                var readExpr = Assign(PropertyOrField(objVar, field.Name), context.Read(field.MemberType));
+                var readExpr = Assign(PropertyOrField(objVar, field.Name), context.Read(field.MemberType, field.GetConcreteType()));
 
                 return NullCheck(field.MemberType, PropertyOrField(objVar, field.Name), readExpr);
             }
