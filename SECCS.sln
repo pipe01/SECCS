@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SECCS", "SECCS\SECCS.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{F92DF9DC-AD02-4C88-8CAF-36463E806D88}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SECCS.Tests", "SECCS.Tests\SECCS.Tests.csproj", "{A522AA9A-545E-47EF-B6F8-34C76268B704}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F92DF9DC-AD02-4C88-8CAF-36463E806D88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F92DF9DC-AD02-4C88-8CAF-36463E806D88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F92DF9DC-AD02-4C88-8CAF-36463E806D88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A522AA9A-545E-47EF-B6F8-34C76268B704}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A522AA9A-545E-47EF-B6F8-34C76268B704}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A522AA9A-545E-47EF-B6F8-34C76268B704}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A522AA9A-545E-47EF-B6F8-34C76268B704}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

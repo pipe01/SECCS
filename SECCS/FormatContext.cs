@@ -58,8 +58,6 @@ namespace SECCS
         /// Creates a copy of the current context and changes the concrete type to <paramref name="type"/>.
         /// </summary>
         public FormatContext WithConcreteType(Type type) => new FormatContext(Formats, Type, BufferType, Buffer, type);
-
-
     }
 
     /// <summary>

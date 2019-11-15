@@ -32,6 +32,15 @@ namespace SECCS
 
     public class TypeFormatCollection<TBuffer> : ReadOnlyTypeFormatCollection<TBuffer>
     {
+        internal TypeFormatCollection(IEnumerable<ITypeFormat> formats)
+        {
+            Formats.AddRange(formats);
+        }
+
+        public TypeFormatCollection()
+        {
+        }
+
         /// <summary>
         /// Registers a type format of type <typeparamref name="T"/>.
         /// </summary>

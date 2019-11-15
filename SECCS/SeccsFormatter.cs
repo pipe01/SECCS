@@ -121,9 +121,25 @@ namespace SECCS
         /// </summary>
         /// <typeparam name="T">The type of the object to read</typeparam>
         /// <param name="buffer">The buffer to read from</param>
-        /// <returns></returns>
         public T Deserialize<T>(TBuffer buffer)
             => (T)Deserialize(buffer, typeof(T));
+
+        /// <summary>
+        /// Reads a <typeparamref name="T"/> from a <paramref name="buffer"/> of type <typeparamref name="TBuffer"/>.
+        /// The type of <typeparamref name="T"/> can be inferred from the first parameter, which allows you to
+        /// pass in an anonymous object with the fields that you want to deserialize. For example:
+        /// <code>
+        /// DeserializeAnonymousObject(new { Foo = "asd" }, buffer);
+        /// </code>
+        /// </summary>
+        /// <typeparam name="T">The type of the object to read</typeparam>
+        /// <param name="anonymousTypeObject">The anonymous object whose type will be inferred</param>
+        /// <param name="buffer">The buffer to read from</param>
+        public T DeserializeAnonymousObject<T>(T anonymousTypeObject, TBuffer buffer)
+        {
+            _ = anonymousTypeObject; //Supress "parameter not used"
+            return Deserialize<T>(buffer);
+        }
 
         /// <summary>
         /// Reads an object of type <paramref name="type"/> from <paramref name="buffer"/>.
