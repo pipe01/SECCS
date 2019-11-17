@@ -60,11 +60,13 @@ namespace SECCS.DefaultFormats
 
                 foreach (var field in members)
                 {
-                    exprs.Add(GetExpressionForField(field));
+                    exprs.Add(Assign(PropertyOrField(objVar, field.Name), GetExpressionForField(field)));
                 }
             }
 
-            return Block(new[] { objVar }, new[] { NullCheck(objType, objVar, Block(exprs)), objVar });
+            exprs.Add(objVar);
+
+            return Block(new[] { objVar }, NullCheck(objType, Block(exprs)));
 
             Expression GetExpressionForField(ClassMember field)
             {
@@ -81,19 +83,20 @@ namespace SECCS.DefaultFormats
                 if (format == null)
                     throw new Exception($"Format not found for '{objType.Name}.{field.Name}'");
 
-                var readExpr = Assign(PropertyOrField(objVar, field.Name), context.Read(field.MemberType, field.GetConcreteType()));
+                var readExpr = context.Read(field.MemberType, field.GetConcreteType());
 
-                return NullCheck(field.MemberType, PropertyOrField(objVar, field.Name), readExpr);
+                return NullCheck(field.MemberType, readExpr);
             }
 
-            Expression NullCheck(Type type, Expression value, Expression readExpr)
+            Expression NullCheck(Type type, Expression readExpr)
             {
                 if (!type.IsValueType)
                 {
-                    return IfThenElse(
-                        Equal(context.Read(typeof(byte)), Constant((byte)0)),
-                        Assign(value, Constant(null, type)),
-                        readExpr);
+                    return Convert(Condition(
+                        test: Equal(context.Read(typeof(byte)), Constant((byte)0)),
+                        ifTrue: Constant(null, type),
+                        ifFalse: readExpr,
+                        type: typeof(object)), type);
                 }
                 else
                 {
@@ -144,8 +147,8 @@ namespace SECCS.DefaultFormats
 
         private static IEnumerable<ClassMember> GetMembers(Type t)
         {
-            var members = t.GetFields(BindingFlags.Public | BindingFlags.Instance).Where(o => !o.IsInitOnly).Select(o => new ClassMember(o)).Concat(
-                          t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(o => o.CanWrite && o.CanRead).Select(o => new ClassMember(o)))
+            var members = t.GetFields(BindingFlags.Public | BindingFlags.Instance).Where(o => !o.IsInitOnly || o.IsDefined(typeof(SeccsMemberAttribute))).Select(o => new ClassMember(o)).Concat(
+                          t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(o => (o.CanWrite && o.CanRead) || o.IsDefined(typeof(SeccsMemberAttribute))).Select(o => new ClassMember(o)))
                     .Where(o => !o.Member.IsDefined(typeof(IgnoreDataMemberAttribute), false));
 
             var optionsAttr = t.GetCustomAttribute<SeccsObjectAttribute>();
