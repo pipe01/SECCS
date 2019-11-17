@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SECCS.Exceptions;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -11,13 +12,41 @@ namespace SECCS.DefaultFormats
     {
         private Type GetInterface(Type type) => Array.Find(type.GetInterfaces(), o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(ISeccsSerializable<>));
 
+        private static ConstructorInfo GetCtor(Type type, Type bufferType)
+            => type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new[] { bufferType }, null);
+
+        private static MethodInfo GetMethod(Type type, Type bufferType)
+        {
+            do
+            {
+                var method = type.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Static, null, new[] { bufferType }, null);
+
+                if (method != null)
+                    return method;
+            } while ((type = type.BaseType) != null);
+
+            return null;
+        }
+
         public bool CanFormat(Type type)
         {
             var intf = GetInterface(type);
+
             if (intf != null)
             {
-                if (type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new[] { intf.GetGenericArguments()[0] }, null) == null)
-                    throw new Exception($"Type {type.FullName} implements ISeccsSerializable`1 but doesn't have a suitable constructor");
+                var bufferType = intf.GetGenericArguments()[0];
+
+                if (GetCtor(type, bufferType) == null)
+                {
+                    var method = GetMethod(type, bufferType);
+
+                    if (method == null || !type.IsAssignableFrom(method.ReturnType))
+                    {
+                        throw new InvalidSeccsSerializableException("A class that implements the ISeccsSerializable`1 attribute must contain " +
+                             "either a constructor that only takes in the buffer type, or a static method called 'Deserialize' with " +
+                             "the same parameter that returns an object of the class' type.\n\nOffending type: " + type.FullName);
+                    }
+                }
 
                 return true;
             }
@@ -27,10 +56,17 @@ namespace SECCS.DefaultFormats
 
         public Expression Deserialize(FormatContext context)
         {
-            var ctor = context.DeserializableType.GetConstructor(
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new[] { context.BufferType }, null);
+            var ctor = GetCtor(context.DeserializableType, context.BufferType);
 
-            return New(ctor, context.Buffer);
+            if (ctor != null)
+                return New(ctor, context.Buffer);
+
+            var method = GetMethod(context.DeserializableType, context.BufferType);
+
+            if (method != null)
+                return Call(method, context.Buffer);
+
+            throw new Exception();
         }
 
         public Expression Serialize(FormatContextWithValue context)
