@@ -6,6 +6,8 @@ using System.Reflection;
 
 namespace SECCS
 {
+    using static Expression;
+
     /// <summary>
     /// Base interface for all type formats. A type format is a class that can generate an <see cref="Expression"/> that
     /// writes an object to a buffer.
@@ -49,10 +51,10 @@ namespace SECCS
         bool ITypeFormat.CanFormat(Type type) => type == typeof(TObject);
 
         Expression ITypeFormat.Serialize(FormatContextWithValue context)
-            => Expression.Call(Expression.Constant(this), nameof(Serialize), null, context.Buffer, context.Value);
+            => Call(Constant(this), nameof(Serialize), null, context.Buffer, context.Value);
 
         Expression ITypeFormat.Deserialize(FormatContext context)
-            => Expression.Call(Expression.Constant(this), nameof(Deserialize), null, context.Buffer);
+            => Call(Constant(this), nameof(Deserialize), null, context.Buffer);
 
         protected abstract void Serialize(TBuffer buffer, TObject obj);
         protected abstract TObject Deserialize(TBuffer buffer);
@@ -61,6 +63,8 @@ namespace SECCS
     [DebuggerDisplay("{Type.Name}")]
     internal class AutoTypeFormat : IStaticTypeFormat
     {
+        private static readonly MethodInfo DebugPrintMethod = typeof(AutoTypeFormat).GetMethod(nameof(DebugPrint), BindingFlags.Static | BindingFlags.NonPublic);
+
         public Type Type { get; }
 
         private readonly MethodInfo ReadMethod;
@@ -73,17 +77,52 @@ namespace SECCS
             this.WriteMethod = writeMethod;
         }
 
+        private static void DebugPrint(object obj, string reason, bool read, Type type)
+        {
+            Debug.WriteLine($"--{(read ? "Read": "Write")}: ({reason}){(type != null ? $" {type.Name}" : "")} {obj}");
+        }
+
         public bool CanFormat(Type type) => type == Type;
 
         public Expression Serialize(FormatContextWithValue context)
-            => WriteMethod != null
-                    ? Expression.Call(context.Buffer, WriteMethod, context.Value)
+        {
+            var serialExpr = WriteMethod != null
+                    ? Call(context.Buffer, WriteMethod, context.Value)
                     : throw new InvalidOperationException($"No serializator method was found for type {Type.FullName}");
 
+            return context.Options.DebugSerialize
+                ? (Expression)Block(
+                    serialExpr, 
+                    Call(DebugPrintMethod, 
+                        Convert(context.Value, typeof(object)),
+                        Constant(context.Reason, typeof(string)),
+                        Constant(false),
+                        Constant(null, typeof(Type))))
+                : serialExpr;
+        }
+
         public Expression Deserialize(FormatContext context)
-            => ReadMethod != null
-                    ? Expression.Call(context.Buffer, ReadMethod)
+        {
+            var deserExpr = ReadMethod != null
+                    ? Call(context.Buffer, ReadMethod)
                     : throw new InvalidOperationException($"No deserializator method was found for type {Type.FullName}");
+
+            if (context.Options.DebugDeserialize)
+            {
+                var readVar = Variable(context.DeserializableType);
+
+                return Block(new[] { readVar },
+                    Assign(readVar, deserExpr),
+                    Call(DebugPrintMethod,
+                        Convert(readVar, typeof(object)),
+                        Constant(context.Reason, typeof(string)),
+                        Constant(true),
+                        Constant(context.DeserializableType)),
+                    readVar);
+            }
+
+            return deserExpr;
+        }
     }
 
     internal class LambdaFormat<TBuffer, TObject> : TypedTypeFormat<TBuffer, TObject>

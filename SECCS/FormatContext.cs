@@ -33,15 +33,21 @@ namespace SECCS
         /// </summary>
         public Type ConcreteType { get; }
 
+        internal FormatterOptions Options { get; }
+
+        internal string Reason { get; }
+
         public Type DeserializableType => ConcreteType ?? Type;
 
-        internal FormatContext(IReadOnlyTypeFormatCollection formats, Type type, Type bufferType, Expression buffer, Type concreteType = null)
+        internal FormatContext(IReadOnlyTypeFormatCollection formats, Type type, Type bufferType, Expression buffer, FormatterOptions options, Type concreteType = null, string reason = null)
         {
             this.Formats = formats;
             this.Type = type;
             this.BufferType = bufferType;
             this.Buffer = buffer;
             this.ConcreteType = concreteType;
+            this.Reason = reason;
+            this.Options = options;
         }
 
         /// <summary>
@@ -52,12 +58,14 @@ namespace SECCS
         /// <summary>
         /// Creates a copy of the current context and changes the type to <paramref name="type"/>.
         /// </summary>
-        public FormatContext WithType(Type type) => new FormatContext(Formats, type, BufferType, Buffer);
+        public FormatContext WithType(Type type) => new FormatContext(Formats, type, BufferType, Buffer, Options, ConcreteType, Reason);
 
         /// <summary>
         /// Creates a copy of the current context and changes the concrete type to <paramref name="type"/>.
         /// </summary>
-        public FormatContext WithConcreteType(Type type) => new FormatContext(Formats, Type, BufferType, Buffer, type);
+        public FormatContext WithConcreteType(Type type) => new FormatContext(Formats, Type, BufferType, Buffer, Options, type, Reason);
+
+        internal FormatContext WithReason(string reason) => new FormatContext(Formats, Type, BufferType, Buffer, Options, ConcreteType, reason);
     }
 
     /// <summary>
@@ -70,8 +78,8 @@ namespace SECCS
         /// </summary>
         public Expression Value { get; }
 
-        internal FormatContextWithValue(IReadOnlyTypeFormatCollection formats, Type type, Type bufferType, Expression buffer, Expression value, Type concreteType = null)
-            : base(formats, type, bufferType, buffer, concreteType)
+        internal FormatContextWithValue(IReadOnlyTypeFormatCollection formats, Type type, Type bufferType, Expression buffer, Expression value, FormatterOptions options, Type concreteType = null, string reason = null)
+            : base(formats, type, bufferType, buffer, options, concreteType, reason)
         {
             this.Value = value;
         }
@@ -79,11 +87,13 @@ namespace SECCS
         /// <summary>
         /// Creates a copy of the current context and changes the type to <paramref name="type"/>.
         /// </summary>
-        public new FormatContextWithValue WithType(Type type) => new FormatContextWithValue(Formats, type, BufferType, Buffer, Value);
+        public new FormatContextWithValue WithType(Type type) => new FormatContextWithValue(Formats, type, BufferType, Buffer, Value, Options, ConcreteType, Reason);
+        
+        internal new FormatContextWithValue WithReason(string reason) => new FormatContextWithValue(Formats, Type, BufferType, Buffer, Value, Options, ConcreteType, reason);
 
         /// <summary>
         /// Creates a copy of the current context and changes the value to <paramref name="value"/>.
         /// </summary>
-        public FormatContextWithValue WithValue(Expression value) => new FormatContextWithValue(Formats, Type, BufferType, Buffer, value);
+        public FormatContextWithValue WithValue(Expression value) => new FormatContextWithValue(Formats, Type, BufferType, Buffer, value, Options, ConcreteType, Reason);
     }
 }

@@ -15,7 +15,9 @@ namespace SECCS.DefaultFormats
             var genericArgs = context.Type.GetGenericArguments();
 
             //new KeyValuePair<TKey, TValue>(Read(TKey), Read(TValue))
-            return New(context.Type.GetConstructor(genericArgs), context.Read(genericArgs[0]), context.Read(genericArgs[1]));
+            return New(context.Type.GetConstructor(genericArgs),
+                context.Read(genericArgs[0], reason: "kvp k"),
+                context.Read(genericArgs[1], reason: "kvp v"));
         }
 
         public Expression Serialize(FormatContextWithValue context)
@@ -25,8 +27,8 @@ namespace SECCS.DefaultFormats
             //Write(value.Key);
             //Write(value.Value);
             return Block(
-                context.Write(genericArgs[0], Property(context.Value, "Key")),
-                context.Write(genericArgs[1], Property(context.Value, "Value")));
+                context.Write("kvp k", genericArgs[0], Property(context.Value, "Key")),
+                context.Write("kvp v", genericArgs[1], Property(context.Value, "Value")));
         }
     }
 }

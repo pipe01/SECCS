@@ -41,7 +41,7 @@ namespace SECCS.DefaultFormats
             return Block(new[] { indexVar, arrLengthVar, resultVar },
                 Assign(indexVar, Constant(0)),
 
-                Assign(arrLengthVar, context.Read<int>()),
+                Assign(arrLengthVar, context.Read<int>("array length")),
 
                 Assign(resultVar, t.IsArray ? (Expression)NewArrayBounds(arrType, arrLengthVar) : New(t)),
 
@@ -49,7 +49,7 @@ namespace SECCS.DefaultFormats
                     LessThan(indexVar, arrLengthVar),
                     Block(
                         t.IsArray
-                            ? (Expression)Assign(ArrayAccess(resultVar, indexVar), context.Read(arrType))
+                            ? (Expression)Assign(ArrayAccess(resultVar, indexVar), context.Read(arrType, reason: "array item"))
                             : Call(resultVar, "Add", null, context.Read(arrType)),
                         PostIncrementAssign(indexVar)),
                     Break(breakLabel)), breakLabel),
@@ -69,7 +69,7 @@ namespace SECCS.DefaultFormats
             var block = new List<Expression>
             {
                 //msg.Write(length);
-                context.Formats.Get(typeof(int)).Serialize(context.WithType(typeof(int)).WithValue(arrLength)),
+                context.Write<int>("length", arrLength),
 
                 //i = 0;
                 Assign(indexVar, Constant(0)),
@@ -89,7 +89,7 @@ namespace SECCS.DefaultFormats
                 Loop(IfThenElse(
                     LessThan(indexVar, arrLength),
                     Block(
-                        context.Write(itemType, t.IsArray
+                        context.Write("array item", itemType, t.IsArray
                                     ? (Expression)ArrayAccess(context.Value, indexVar)
                                     : Call(context.Value, "get_Item", null, indexVar)),
                         PostIncrementAssign(indexVar)),

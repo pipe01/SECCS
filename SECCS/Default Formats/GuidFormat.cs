@@ -14,12 +14,12 @@ namespace SECCS.DefaultFormats
         {
             return Expression.New(
                 typeof(Guid).GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(byte[]) }, null),
-                context.Read<byte[]>());
+                context.Read<byte[]>("guid"));
         }
 
         public Expression Serialize(FormatContextWithValue context)
         {
-            return context.Write<byte[]>(Expression.Call(context.Value, nameof(Guid.ToByteArray), null));
+            return context.Write<byte[]>("guid", Expression.Call(context.Value, nameof(Guid.ToByteArray), null));
         }
     }
 }

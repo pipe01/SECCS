@@ -32,13 +32,13 @@ namespace SECCS.DefaultFormats
 
             return Block(new[] { countVar, resultVar, indexVar },
                 Assign(indexVar, Constant(0)),
-                Assign(countVar, context.Read<int>()),
+                Assign(countVar, context.Read<int>("coll length")),
                 Assign(resultVar, New(context.DeserializableType)),
 
                 Loop(IfThenElse(
                     LessThan(indexVar, countVar),
                     Block(
-                        Call(Convert(resultVar, addMethod.DeclaringType), addMethod, context.Read(itemType)),
+                        Call(Convert(resultVar, addMethod.DeclaringType), addMethod, context.Read(itemType, reason: "coll item")),
                         PostIncrementAssign(indexVar)),
                     Break(breakLabel)), breakLabel),
 
@@ -56,11 +56,11 @@ namespace SECCS.DefaultFormats
             return Block(new[] { enumerator },
                 Assign(enumerator, Call(Convert(context.Value, typeof(IEnumerable)), "GetEnumerator", null)),
 
-                context.Write<int>(Property(context.Value, collection.GetProperty("Count"))),
+                context.Write<int>("length", Property(context.Value, collection.GetProperty("Count"))),
 
                 Loop(IfThenElse(
                         IsTrue(Call(enumerator, "MoveNext", null)),
-                        context.Write(itemType, Convert(Property(enumerator, "Current"), itemType)),
+                        context.Write("list item", itemType, Convert(Property(enumerator, "Current"), itemType)),
                         Break(breakLabel)
                 ), breakLabel));
         }

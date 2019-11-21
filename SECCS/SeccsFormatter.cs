@@ -1,21 +1,26 @@
 ﻿using AgileObjects.ReadableExpressions;
-using SECCS.Attributes;
 using SECCS.DefaultFormats;
 using SECCS.Exceptions;
-using SECCS.Internal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.Serialization;
 
 namespace SECCS
 {
     using static Expression;
 
-    public class SeccsFormatter<TBuffer>
+    public interface IBufferFormatter<TBuffer>
+    {
+        TypeFormatCollection<TBuffer> Formats { get; }
+
+        void Serialize(TBuffer buffer, object obj, Type type = null);
+        object Deserialize(TBuffer buffer, Type type);
+    }
+
+    public class SeccsFormatter<TBuffer> : IBufferFormatter<TBuffer>
     {
         private const byte Magic = 243;
         private const byte MagicWithSignature = 244;
@@ -66,15 +71,6 @@ namespace SECCS
         }
 
         /// <summary>
-        /// Serializes <paramref name="obj"/> into <typeparamref name="TBuffer"/> using type formats.
-        /// </summary>
-        /// <typeparam name="T">The type of the object to serialize</typeparam>
-        /// <param name="buffer">The buffer to serialize the object into</param>
-        /// <param name="obj">The object to serialize</param>
-        public void Serialize<T>(TBuffer buffer, T obj)
-            => Serialize(buffer, obj, typeof(T));
-
-        /// <summary>
         /// Serializes an <paramref name="obj"/> of type <paramref name="type"/> into <paramref name="buffer"/>
         /// </summary>
         /// <param name="buffer">The buffer to serialize the object into</param>
@@ -93,52 +89,34 @@ namespace SECCS
                 if (Options.WriteHeader)
                 {
                     //Write 243, or 244 if Options.WriteStructureSignature is on
-                    exprs.Add(Formats.Get(typeof(byte)).Serialize(new FormatContextWithValue(Formats, typeof(byte), typeof(TBuffer), bufferParam, Constant(Options.WriteStructureSignature ? MagicWithSignature : Magic))));
+                    exprs.Add(Formats.Get(typeof(byte)).Serialize(Context(typeof(byte), Constant(Options.WriteStructureSignature ? MagicWithSignature : Magic), "magic")));
 
                     if (Options.WriteStructureSignature)
                     {
                         var hash = ClassSignature.Get(type);
-                        exprs.Add(Formats.Get(typeof(string)).Serialize(new FormatContextWithValue(Formats, typeof(string), typeof(TBuffer), bufferParam, Constant(hash))));
+                        exprs.Add(Formats.Get(typeof(string)).Serialize(Context(typeof(string), Constant(hash), "signature")));
                     }
                 }
 
-                exprs.Add(Formats.Get(type).Serialize(new FormatContextWithValue(Formats, type, typeof(TBuffer), bufferParam, objParam)));
+                exprs.Add(Formats.Get(type).Serialize(Context(type, objParam, "root")));
 
                 var lambda = Lambda<Action<TBuffer, object>>(Block(exprs), bufferParam, objParam);
 
 #if DEBUG
-                //Debug.WriteLine($"Serializer for {type.FullName}:\n{lambda.ToReadableString()}");
+                try
+                {
+                    Debug.WriteLine($"Serializer for {type.FullName}:\n{lambda.ToReadableString()}");
+                }
+                catch { }
 #endif
 
                 Serializers[type] = ser = lambda.Compile();
+
+                FormatContextWithValue Context(Type t, Expression value, string reason)
+                    => new FormatContextWithValue(Formats, t, typeof(TBuffer), bufferParam, value, Options, reason: reason);
             }
 
             ser(buffer, obj);
-        }
-
-        /// <summary>
-        /// Reads a <typeparamref name="T"/> from a <paramref name="buffer"/> of type <typeparamref name="TBuffer"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of the object to read</typeparam>
-        /// <param name="buffer">The buffer to read from</param>
-        public T Deserialize<T>(TBuffer buffer)
-            => (T)Deserialize(buffer, typeof(T));
-
-        /// <summary>
-        /// Reads a <typeparamref name="T"/> from a <paramref name="buffer"/> of type <typeparamref name="TBuffer"/>.
-        /// The type of <typeparamref name="T"/> can be inferred from the first parameter, which allows you to
-        /// pass in an anonymous object with the fields that you want to deserialize. For example:
-        /// <code>
-        /// DeserializeAnonymousObject(new { Foo = "asd" }, buffer);
-        /// </code>
-        /// </summary>
-        /// <typeparam name="T">The type of the object to read</typeparam>
-        /// <param name="anonymousTypeObject">The anonymous object whose type will be inferred</param>
-        /// <param name="buffer">The buffer to read from</param>
-        public T DeserializeAnonymousObject<T>(T anonymousTypeObject, TBuffer buffer)
-        {
-            _ = anonymousTypeObject; //Supress "parameter not used"
-            return Deserialize<T>(buffer);
         }
 
         /// <summary>
@@ -174,14 +152,14 @@ namespace SECCS
                      }
                      */
                     exprs.Add(Block(new[] { magicVar },
-                        Assign(magicVar, ReadG<byte>()),
+                        Assign(magicVar, ReadG<byte>("magic")),
                         IfThenElse(
                             Equal(magicVar, Constant(MagicWithSignature)),
-                            IfThen(NotEqual(ReadG<string>(), Constant(hash)), Options.CheckStructureSignature ? InvalidHeaderException.Throw("Class structure signature mismatch") : Block()),
+                            IfThen(NotEqual(ReadG<string>("structure"), Constant(hash)), Options.CheckStructureSignature ? InvalidHeaderException.Throw("Class structure signature mismatch") : Block()),
                             IfThen(NotEqual(magicVar, Constant(Magic)), InvalidHeaderException.Throw("Invalid magic number")))));
                 }
 
-                exprs.Add(Read(type));
+                exprs.Add(Read(type, "root"));
 
                 var lambda = Lambda<Func<TBuffer, object>>(Block(exprs), bufferParam);
 
@@ -191,8 +169,10 @@ namespace SECCS
 
                 Deserializers[type] = des = lambda.Compile();
 
-                Expression ReadG<T>() => Read(typeof(T));
-                Expression Read(Type t) => Formats.Get(t)?.Deserialize(new FormatContext(Formats, t, typeof(TBuffer), bufferParam)) ?? throw new InvalidOperationException("Cannot deserialize type " + t.FullName);
+                Expression ReadG<T>(string reason) => Read(typeof(T), reason);
+                Expression Read(Type t, string reason)
+                    => Formats.Get(t)?.Deserialize(new FormatContext(Formats, t, typeof(TBuffer), bufferParam, Options, reason: reason))
+                        ?? throw new InvalidOperationException("Cannot deserialize type " + t.FullName);
             }
 
             return des(buffer);

@@ -5,28 +5,36 @@ namespace SECCS
 {
     public static class FormatContextExtensions
     {
+        internal static Expression Write(this FormatContextWithValue context, string reason, Type type, Expression value)
+         => context.Formats.Get(type).Serialize(context.WithType(type).WithReason(reason).WithValue(value));
+
         /// <summary>
         /// Shortcut for <c>context.GetFormat(type).Serialize(context.WithType(type).WithValue(value))</c>
         /// </summary>
         public static Expression Write(this FormatContextWithValue context, Type type, Expression value)
-            => context.Formats.Get(type).Serialize(context.WithType(type).WithValue(value));
+            => context.Write(null, type, value);
+
+
+        internal static Expression Write<T>(this FormatContextWithValue context, string reason, Expression value)
+            => context.Write(reason, typeof(T), value);
 
         /// <summary>
         /// Shortcut for <c>context.Write(typeof(T), value)</c>
         /// </summary>
         public static Expression Write<T>(this FormatContextWithValue context, Expression value)
-            => context.Write(typeof(T), value);
+            => context.Write<T>(value);
+
 
         /// <summary>
         /// Shortcut for <c>context.GetFormat(type).Deserialize(context.WithType(type))</c>
         /// </summary>
-        public static Expression Read(this FormatContext context, Type type, Type concreteType = null)
-            => context.Formats.Get(type).Deserialize(context.WithType(type).WithConcreteType(concreteType));
+        public static Expression Read(this FormatContext context, Type type, Type concreteType = null, string reason = null)
+            => context.Formats.Get(type).Deserialize(context.WithType(type).WithConcreteType(concreteType).WithReason(reason));
 
         /// <summary>
         /// Shortcut for <c>context.Read(typeof(T))</c>
         /// </summary>
-        public static Expression Read<T>(this FormatContext context)
-            => context.Read(typeof(T));
+        public static Expression Read<T>(this FormatContext context, string reason = null)
+            => context.Read(typeof(T), reason: reason);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using SECCS.Exceptions;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -10,6 +11,8 @@ namespace SECCS.DefaultFormats
 
     internal class SeccsSerializableFormat : ITypeFormat
     {
+        private static readonly MethodInfo DebugWriteLine = typeof(Debug).GetMethod(nameof(Debug.WriteLine), new[] { typeof(string) });
+
         private Type GetInterface(Type type) => Array.Find(type.GetInterfaces(), o => o.IsGenericType && o.GetGenericTypeDefinition() == typeof(ISeccsSerializable<>));
 
         private static ConstructorInfo GetCtor(Type type, Type bufferType)
@@ -63,17 +66,29 @@ namespace SECCS.DefaultFormats
 
             var method = GetMethod(context.DeserializableType, context.BufferType);
 
-            if (method != null)
-                return Call(method, context.Buffer);
+            if (method == null)
+                throw new Exception();
 
-            throw new Exception();
+            var readExpr = Call(method, context.Buffer);
+
+            if (context.Options.DebugDeserialize)
+            {
+                return Block(
+                    Call(DebugWriteLine, Constant($"--Read: ({context.Reason}) {context.Type.Name}")),
+                    readExpr);
+            }
+
+            return readExpr;
         }
 
         public Expression Serialize(FormatContextWithValue context)
         {
             var intf = GetSerializableInterface(context.Type, context.BufferType);
+            var serialExpr = Call(Convert(context.Value, intf), intf.GetMethod("Serialize"), context.Buffer);
 
-            return Call(Convert(context.Value, intf), intf.GetMethod("Serialize"), context.Buffer);
+            return context.Options.DebugSerialize
+                ? (Expression)Block(Call(DebugWriteLine, Constant($"--Write: ({context.Reason}) {context.Type.Name}")), serialExpr)
+                : serialExpr;
         }
 
         private static Type GetSerializableInterface(Type type, Type bufferType)

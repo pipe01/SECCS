@@ -13,14 +13,12 @@ namespace Benchmarks
     {
         static void Main(string[] args)
         {
-            var t = new Test
+            var t = new Test2
             {
-                List = new[]
+                Dic = new Dictionary<int, int>
                 {
-                    new Nested { Hello = 123, Str = "hola" },
-                    null,
-                    new Nested { Hello = 41, Str = null },
-
+                    [5] = 123,
+                    [8] = 42
                 }
             };
 
@@ -37,8 +35,14 @@ namespace Benchmarks
             var readFormatter = new SeccsFormatter<BinaryReader>(TypeFormat.GetFromReadAndWrite<BinaryReader>(), opt);
             using var reader = new BinaryReader(mem);
 
-            var obj = readFormatter.Deserialize<Test>(reader);
+            var obj = readFormatter.Deserialize<Test2>(reader);
         }
+    }
+
+    public class Test2
+    {
+        [ConcreteType(typeof(Dictionary<int, int>))]
+        public IReadOnlyDictionary<int, int> Dic;
     }
 
     public class Test

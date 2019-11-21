@@ -16,7 +16,7 @@ namespace SECCS.DefaultFormats
             var genericArgs = context.Type.GetGenericArguments();
 
             //new ValueTuple<T1, T2, ..., T3>(Read(T1), Read(T2), ..., Read(TN))
-            return New(context.Type.GetConstructor(genericArgs), genericArgs.Select(o => context.Read(o)));
+            return New(context.Type.GetConstructor(genericArgs), genericArgs.Select((o, i) => context.Read(o, reason: $"tuple item {i}")));
         }
 
         public Expression Serialize(FormatContextWithValue context)
@@ -30,7 +30,7 @@ namespace SECCS.DefaultFormats
             //Write(value.ItemN);
             foreach (var item in context.Type.GetGenericArguments())
             {
-                block.Add(context.Write(item, Field(context.Value, "Item" + i++)));
+                block.Add(context.Write($"tuple item {i}", item, Field(context.Value, "Item" + i++)));
             }
 
             return Block(block);

@@ -12,13 +12,13 @@ namespace SECCS.DefaultFormats
         public Expression Deserialize(FormatContext context)
         {
             var enumType = context.Type.GetEnumUnderlyingType();
-            return Convert(context.Read(enumType), context.Type);
+            return Convert(context.Read(enumType, reason: "enum"), context.Type);
         }
 
         public Expression Serialize(FormatContextWithValue context)
         {
             var enumType = context.Type.GetEnumUnderlyingType();
-            return context.Write(enumType, Convert(context.Value, enumType));
+            return context.Write("enum", enumType, Convert(context.Value, enumType));
         }
     }
 }

@@ -15,6 +15,9 @@ namespace SECCS.DefaultFormats
     [Priority(-999)]
     public class ObjectFormat : ITypeFormat
     {
+        private static Expression NULL => Constant((byte)0);
+        private static Expression NOT_NULL => Constant((byte)1);
+
         public bool CanFormat(Type type) => !type.IsPrimitive;
 
         public Expression Deserialize(FormatContext context)
@@ -83,7 +86,7 @@ namespace SECCS.DefaultFormats
                 if (format == null)
                     throw new Exception($"Format not found for '{objType.Name}.{field.Name}'");
 
-                var readExpr = context.Read(field.MemberType, field.GetConcreteType());
+                var readExpr = context.Read(field.MemberType, field.GetConcreteType(), $"{field.Name} member");
 
                 return NullCheck(field.MemberType, readExpr);
             }
@@ -93,7 +96,7 @@ namespace SECCS.DefaultFormats
                 if (!type.IsValueType)
                 {
                     return Convert(Condition(
-                        test: Equal(context.Read(typeof(byte)), Constant((byte)0)),
+                        test: Equal(context.Read(typeof(byte), reason: "null?"), NULL),
                         ifTrue: Constant(null, type),
                         ifFalse: readExpr,
                         type: typeof(object)), type);
@@ -119,21 +122,21 @@ namespace SECCS.DefaultFormats
 
                 var fieldExpr = PropertyOrField(convertedObj, field.Name);
 
-                exprs.Add(NullCheck(field.MemberType, fieldExpr, context.Write(field.MemberType, fieldExpr)));
+                exprs.Add(NullCheck(field.MemberType, fieldExpr, context.Write($"{field.Name} member val", field.MemberType, fieldExpr), field));
             }
 
-            return NullCheck(context.Type, context.Value, Block(exprs));
+            return NullCheck(context.Type, context.Value, Block(exprs), null);
 
-            Expression NullCheck(Type type, Expression value, Expression writeExpr)
+            Expression NullCheck(Type type, Expression value, Expression writeExpr, ClassMember member)
             {
                 if (!type.IsValueType)
                 {
                     return IfThenElse(
                         Equal(value, Constant(null)),
-                        context.Write(typeof(byte), Constant((byte)0)),
+                        context.Write($"{member?.Name} is null", typeof(byte), NULL),
                         Block(new[]
                         {
-                            context.Write(typeof(byte), Constant((byte)1)),
+                            context.Write($"{member?.Name} not null", typeof(byte), NOT_NULL),
                             writeExpr
                         }));
                 }

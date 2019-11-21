@@ -3,7 +3,7 @@
     /// <summary>
     /// Options for <see cref="SeccsFormatter{TBuffer}"/>.
     /// </summary>
-    public sealed class SeccsOptions
+    public sealed class SeccsOptions : FormatterOptions
     {
         /// <summary>
         /// If a field with a class type is found when (de)serializing and this option is set to true, the field
