@@ -63,7 +63,8 @@ namespace SECCS.Tests.Formats
                     type: obj.GetType(),
                     bufferType: typeof(void),
                     buffer: Expression.Constant(null),
-                    value: Expression.Constant(obj));
+                    value: Expression.Constant(obj),
+                    options: new FormatterOptions());
 
             var serializeExpr = new CollectionFormat().Serialize(context);
 
