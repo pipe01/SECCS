@@ -1,4 +1,5 @@
-﻿using SECCS.Attributes;
+﻿using AgileObjects.NetStandardPolyfills;
+using SECCS.Attributes;
 using SECCS.Exceptions;
 using SECCS.Internal;
 using System;
@@ -150,9 +151,17 @@ namespace SECCS.DefaultFormats
 
         private static IEnumerable<ClassMember> GetMembers(Type t)
         {
-            var members = t.GetFields(BindingFlags.Public | BindingFlags.Instance).Where(o => !o.IsInitOnly || o.IsDefined(typeof(SeccsMemberAttribute))).Select(o => new ClassMember(o)).Concat(
-                          t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(o => (o.CanWrite && o.CanRead) || o.IsDefined(typeof(SeccsMemberAttribute))).Select(o => new ClassMember(o)))
-                    .Where(o => !o.Member.IsDefined(typeof(IgnoreDataMemberAttribute), false));
+            var fields = from f in t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                         let hasAttr = f.IsDefined(typeof(SeccsMemberAttribute))
+                         where hasAttr || f.IsPublic || !f.IsInitOnly
+                         select new ClassMember(f);
+
+            var props = from p in t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                        let hasAttr = p.IsDefined(typeof(SeccsMemberAttribute))
+                        where hasAttr || p.IsPublic() || (p.CanWrite && p.CanRead)
+                        select new ClassMember(p);
+
+            var members = fields.Concat(props).Where(o => !o.Member.IsDefined(typeof(IgnoreDataMemberAttribute), false));
 
             var optionsAttr = t.GetCustomAttribute<SeccsObjectAttribute>();
 

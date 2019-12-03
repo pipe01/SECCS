@@ -15,6 +15,8 @@ namespace SECCS.Internal
             this.MemberType = member is PropertyInfo p ? p.PropertyType : member is FieldInfo f ? f.FieldType : throw new ArgumentException();
         }
 
+        public bool HasAttribute<T>() => Member.IsDefined(typeof(T));
+
         public Type GetConcreteType() => Member.GetCustomAttribute<ConcreteTypeAttribute>()?.Type;
 
         public static implicit operator ClassMember(PropertyInfo prop) => new ClassMember(prop);
