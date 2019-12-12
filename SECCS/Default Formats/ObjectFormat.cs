@@ -153,12 +153,12 @@ namespace SECCS.DefaultFormats
         {
             var fields = from f in t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                          let hasAttr = f.IsDefined(typeof(SeccsMemberAttribute))
-                         where hasAttr || f.IsPublic || !f.IsInitOnly
+                         where hasAttr || (f.IsPublic && !f.IsInitOnly)
                          select new ClassMember(f);
 
             var props = from p in t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                         let hasAttr = p.IsDefined(typeof(SeccsMemberAttribute))
-                        where hasAttr || p.IsPublic() || (p.CanWrite && p.CanRead)
+                        where hasAttr || (p.IsPublic() && p.CanWrite && p.CanRead)
                         select new ClassMember(p);
 
             var members = fields.Concat(props).Where(o => !o.Member.IsDefined(typeof(IgnoreDataMemberAttribute), false));

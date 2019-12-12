@@ -5,22 +5,7 @@
     <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\bin\</OutputPath>
-    <BaseIntermediateOutputPath>..\obj\</BaseIntermediateOutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <OutputPath>..\bin\</OutputPath>
-    <BaseIntermediateOutputPath>..\obj\</BaseIntermediateOutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
-    <OutputPath>..\bin\</OutputPath>
-    <BaseIntermediateOutputPath>..\obj\</BaseIntermediateOutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|x86'">
+  <PropertyGroup>
     <OutputPath>..\bin\</OutputPath>
     <BaseIntermediateOutputPath>..\obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
