@@ -52,9 +52,14 @@ namespace SECCS
             return this;
         }
 
-        public TypeFormatCollection<TBuffer> Register<T>(Action<TBuffer, T> writer, Func<TBuffer, T> reader)
+        public TypeFormatCollection<TBuffer> Register<T>(Action<TBuffer, T> writer, Func<TBuffer, T> reader, bool prepend = false)
         {
-            Formats.Add(new LambdaFormat<TBuffer, T>(reader, writer));
+            var format = new LambdaFormat<TBuffer, T>(reader, writer);
+
+            if (prepend)
+                Formats.Insert(0, format);
+            else
+                Formats.Add(format);
 
             return this;
         }
