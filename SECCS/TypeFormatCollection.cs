@@ -45,9 +45,12 @@ namespace SECCS
         /// Registers a type format of type <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">The type format type</typeparam>
-        public TypeFormatCollection<TBuffer> Register<T>() where T : ITypeFormat, new()
+        public TypeFormatCollection<TBuffer> Register<T>(bool prepend = false) where T : ITypeFormat, new()
         {
-            Formats.Add(new T());
+            if (prepend)
+                Formats.Insert(0, new T());
+            else
+                Formats.Add(new T());
 
             return this;
         }
