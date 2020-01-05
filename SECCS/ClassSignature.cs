@@ -17,7 +17,13 @@ namespace SECCS
                     Transform(field.FieldType.FullName + " " + field.Name);
                 }
 
-                md5.TransformFinalBlock(new byte[0], 0, 0);
+                md5.TransformFinalBlock(
+#if NET45
+                    new byte[0],
+#else
+                    Array.Empty<byte>(),
+#endif
+                    0, 0);
 
                 return BitConverter.ToString(md5.Hash).Replace("-", "");
 

@@ -51,7 +51,7 @@ namespace SECCS
         bool ITypeFormat.CanFormat(Type type) => type == typeof(TObject);
 
         Expression ITypeFormat.Serialize(FormatContextWithValue context)
-            => Call(Constant(this), nameof(Serialize), null, context.Buffer, context.Value);
+            => Call(Constant(this), nameof(Serialize), null, context.Buffer, Convert(context.Value, typeof(TObject)));
 
         Expression ITypeFormat.Deserialize(FormatContext context)
             => Call(Constant(this), nameof(Deserialize), null, context.Buffer);
