@@ -27,8 +27,8 @@ namespace SECCS.DefaultFormats
             //Write(value.Key);
             //Write(value.Value);
             return Block(
-                context.Write("kvp k", genericArgs[0], Property(context.Value, "Key")),
-                context.Write("kvp v", genericArgs[1], Property(context.Value, "Value")));
+                context.Write("Key", genericArgs[0], Property(context.Value, "Key")),
+                context.Write("Value", genericArgs[1], Property(context.Value, "Value")));
         }
     }
 }

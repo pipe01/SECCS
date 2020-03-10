@@ -1,6 +1,7 @@
 ﻿using AgileObjects.ReadableExpressions;
 using SECCS.DefaultFormats;
 using SECCS.Exceptions;
+using SECCS.Internal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,6 +19,7 @@ namespace SECCS
 
         void Serialize(TBuffer buffer, object obj, Type type = null);
         object Deserialize(TBuffer buffer, Type type);
+        T Deserialize<T>(TBuffer buffer);
     }
 
     public class SeccsFormatter<TBuffer> : IBufferFormatter<TBuffer>
@@ -79,6 +81,8 @@ namespace SECCS
         public void Serialize(TBuffer buffer, object obj, Type type = null)
         {
             type = type ?? obj?.GetType() ?? throw new ArgumentNullException("obj is null and no type has been specified");
+
+            var pos = buffer.GetPosition();
 
             if (!Serializers.TryGetValue(type, out var ser))
             {
@@ -177,5 +181,13 @@ namespace SECCS
 
             return des(buffer);
         }
+
+
+        /// <summary>
+        /// Reads a <typeparamref name="T"/> from a <paramref name="buffer"/> of type <typeparamref name="TBuffer"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the object to read</typeparam>
+        /// <param name="buffer">The buffer to read from</param>
+        public T Deserialize<T>(TBuffer buffer) => (T)Deserialize(buffer, typeof(T));
     }
 }

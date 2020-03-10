@@ -18,7 +18,7 @@ namespace SECCS.DefaultFormats
         public Expression Serialize(FormatContextWithValue context)
         {
             var enumType = context.Type.GetEnumUnderlyingType();
-            return context.Write("enum", enumType, Convert(context.Value, enumType));
+            return context.Write(null, enumType, Convert(context.Value, enumType));
         }
     }
 }

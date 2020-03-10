@@ -33,11 +33,11 @@ namespace SECCS
         /// </summary>
         public Type ConcreteType { get; }
 
+        public Type DeserializableType => ConcreteType ?? Type;
+
         internal FormatterOptions Options { get; }
 
         internal string Reason { get; }
-
-        public Type DeserializableType => ConcreteType ?? Type;
 
         internal FormatContext(IReadOnlyTypeFormatCollection formats, Type type, Type bufferType, Expression buffer, FormatterOptions options, Type concreteType = null, string reason = null)
         {

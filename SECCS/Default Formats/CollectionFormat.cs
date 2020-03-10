@@ -60,7 +60,7 @@ namespace SECCS.DefaultFormats
 
                 Loop(IfThenElse(
                         IsTrue(Call(enumerator, "MoveNext", null)),
-                        context.Write("list item", itemType, Convert(Property(enumerator, "Current"), itemType)),
+                        context.Write($"[C]", itemType, Convert(Property(enumerator, "Current"), itemType)),
                         Break(breakLabel)
                 ), breakLabel));
         }

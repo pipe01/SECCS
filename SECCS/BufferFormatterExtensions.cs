@@ -23,14 +23,6 @@
         /// <param name="anonymousTypeObject">The anonymous object whose type will be inferred</param>
         /// <param name="buffer">The buffer to read from</param>
         public static T DeserializeAnonymousObject<T, TBuffer>(this IBufferFormatter<TBuffer> formatter, T anonymousTypeObject, TBuffer buffer)
-            => formatter.Deserialize<T, TBuffer>(buffer);
-
-        /// <summary>
-        /// Reads a <typeparamref name="T"/> from a <paramref name="buffer"/> of type <typeparamref name="TBuffer"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of the object to read</typeparam>
-        /// <param name="buffer">The buffer to read from</param>
-        public static T Deserialize<T, TBuffer>(this IBufferFormatter<TBuffer> formatter, TBuffer buffer)
-            => (T)formatter.Deserialize(buffer, typeof(T));
+            => formatter.Deserialize<T>(buffer);
     }
 }

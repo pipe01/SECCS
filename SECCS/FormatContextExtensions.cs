@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SECCS.Internal;
+using System;
 using System.Linq.Expressions;
 
 namespace SECCS
@@ -6,7 +7,12 @@ namespace SECCS
     public static class FormatContextExtensions
     {
         internal static Expression Write(this FormatContextWithValue context, string reason, Type type, Expression value)
-         => context.Formats.Get(type).Serialize(context.WithType(type).WithReason(reason).WithValue(value));
+        {
+            var ctx = context.WithType(type).WithReason(context.Reason + "." + reason).WithValue(value);
+            var expr = context.Formats.Get(type).Serialize(ctx);
+
+            return context.Options.DebugSerialize ? expr.Wrapped(ctx) : expr;
+        }
 
         /// <summary>
         /// Shortcut for <c>context.GetFormat(type).Serialize(context.WithType(type).WithValue(value))</c>

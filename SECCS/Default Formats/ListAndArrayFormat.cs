@@ -89,7 +89,7 @@ namespace SECCS.DefaultFormats
                 Loop(IfThenElse(
                     LessThan(indexVar, arrLength),
                     Block(
-                        context.Write("array item", itemType, t.IsArray
+                        context.Write("[A]", itemType, t.IsArray
                                     ? (Expression)ArrayAccess(context.Value, indexVar)
                                     : Call(context.Value, "get_Item", null, indexVar)),
                         PostIncrementAssign(indexVar)),

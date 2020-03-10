@@ -84,11 +84,8 @@ namespace SECCS.DefaultFormats
         public Expression Serialize(FormatContextWithValue context)
         {
             var intf = GetSerializableInterface(context.Type, context.BufferType);
-            var serialExpr = Call(Convert(context.Value, intf), intf.GetMethod("Serialize"), context.Buffer);
 
-            return context.Options.DebugSerialize
-                ? (Expression)Block(Call(DebugWriteLine, Constant($"--Write: ({context.Reason}) {context.Type.Name}")), serialExpr)
-                : serialExpr;
+            return Call(Convert(context.Value, intf), intf.GetMethod("Serialize"), context.Buffer);
         }
 
         private static Type GetSerializableInterface(Type type, Type bufferType)

@@ -30,7 +30,7 @@ namespace SECCS.DefaultFormats
             //Write(value.ItemN);
             foreach (var item in context.Type.GetGenericArguments())
             {
-                block.Add(context.Write($"tuple item {i}", item, Field(context.Value, "Item" + i++)));
+                block.Add(context.Write("[T]", item, Field(context.Value, "Item" + i++)));
             }
 
             return Block(block);

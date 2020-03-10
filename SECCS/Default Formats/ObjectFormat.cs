@@ -123,7 +123,7 @@ namespace SECCS.DefaultFormats
 
                 var fieldExpr = PropertyOrField(convertedObj, field.Name);
 
-                exprs.Add(NullCheck(field.MemberType, fieldExpr, context.Write($"{field.Name} member val", field.MemberType, fieldExpr), field));
+                exprs.Add(NullCheck(field.MemberType, fieldExpr, context.Write(field.Name, field.MemberType, fieldExpr), field));
             }
 
             return NullCheck(context.Type, context.Value, Block(exprs), null);
@@ -134,10 +134,10 @@ namespace SECCS.DefaultFormats
                 {
                     return IfThenElse(
                         Equal(value, Constant(null)),
-                        context.Write($"{member?.Name} is null", typeof(byte), NULL),
+                        context.Write($"{member?.Name ?? "<>"}.<null>", typeof(byte), NULL),
                         Block(new[]
                         {
-                            context.Write($"{member?.Name} not null", typeof(byte), NOT_NULL),
+                            context.Write($"{member?.Name ?? "<>"}.<notnull>", typeof(byte), NOT_NULL),
                             writeExpr
                         }));
                 }
@@ -170,6 +170,5 @@ namespace SECCS.DefaultFormats
             else
                 return members.Where(o => o.Member.IsDefined(typeof(SeccsMemberAttribute)));
         }
-
     }
 }

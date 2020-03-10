@@ -79,7 +79,7 @@ namespace SECCS
 
         private static void DebugPrint(object obj, string reason, bool read, Type type)
         {
-            Debug.WriteLine($"--{(read ? "Read": "Write")}: ({reason}){(type != null ? $" {type.Name}" : "")} {obj}");
+            //Debug.WriteLine($"--{(read ? "Read": "Write")}: ({reason}){(type != null ? $" {type.Name}" : "")} {obj}");
         }
 
         public bool CanFormat(Type type) => type == Type;

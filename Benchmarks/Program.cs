@@ -23,9 +23,16 @@ namespace Benchmarks
             };
 
             using var mem = new MemoryStream();
-            using var writer = new BinaryWriter(mem);
-            var opt = new SeccsOptions { WriteHeader = false, WriteStructureSignature = false, CheckHeader = false, CheckStructureSignature = false };
-            var formatter = new SeccsFormatter<BinaryWriter>(TypeFormat.GetFromReadAndWrite<BinaryWriter>(), opt);
+            using var writer = new MyBinaryWriter(mem);
+            var opt = new SeccsOptions
+            {
+                WriteHeader = false, 
+                WriteStructureSignature = false,
+                CheckHeader = false,
+                CheckStructureSignature = false,
+                DebugSerialize = true
+            };
+            var formatter = new SeccsFormatter<MyBinaryWriter>(TypeFormat.GetFromReadAndWrite<MyBinaryWriter>(), opt);
 
             formatter.Serialize(writer, t);
             writer.Flush();
@@ -35,7 +42,9 @@ namespace Benchmarks
             var readFormatter = new SeccsFormatter<BinaryReader>(TypeFormat.GetFromReadAndWrite<BinaryReader>(), opt);
             using var reader = new BinaryReader(mem);
 
-            var obj = readFormatter.Deserialize<Test2>(reader);
+            //var obj = readFormatter.Deserialize<Test2>(reader);
+
+            Console.ReadKey();
         }
     }
 
