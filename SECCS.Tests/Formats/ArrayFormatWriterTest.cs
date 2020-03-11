@@ -3,18 +3,11 @@ using NUnit.Framework;
 using SECCS.Formats.Write;
 using SECCS.Tests.Classes;
 using SECCS.Tests.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SECCS.Tests.Formats
 {
-    public class ArrayFormatWriterTest
+    public class ArrayFormatWriterTest : BaseFormatTest<ArrayFormatWriter<DummyBuffer>>
     {
-        private ArrayFormatWriter<DummyBuffer> Format => new ArrayFormatWriter<DummyBuffer>();
-
         [Test]
         public void CanFormat_NonArrayType_False()
         {
@@ -40,8 +33,6 @@ namespace SECCS.Tests.Formats
         [TestCaseSource(nameof(TestData))]
         public void Write_Array_CallsBufferWriter(TestClass1[] data)
         {
-            var writer = new ArrayFormatWriter<DummyBuffer>();
-
             var bufferWriterMock = new Mock<IBufferWriter<DummyBuffer>>();
             bufferWriterMock.SetupPath("Length", data.Length, "Length not written");
             for (int i = 0; i < data.Length; i++)
@@ -50,7 +41,7 @@ namespace SECCS.Tests.Formats
             }
 
             var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, new DummyBuffer(), "");
-            writer.Write(new DummyBuffer(), data, context);
+            Format.Write(new DummyBuffer(), data, context);
 
             bufferWriterMock.Verify();
         }
