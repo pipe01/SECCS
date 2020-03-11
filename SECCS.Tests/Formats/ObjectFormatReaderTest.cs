@@ -3,11 +3,6 @@ using NUnit.Framework;
 using SECCS.Formats.Read;
 using SECCS.Tests.Classes;
 using SECCS.Tests.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SECCS.Tests.Formats
 {
@@ -25,8 +20,8 @@ namespace SECCS.Tests.Formats
             var reader = new ObjectFormatReader<DummyBuffer>();
 
             var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
-            bufferReaderMock.SetupPath<int>(".Field1");
-            bufferReaderMock.SetupPath<string>(".Field2");
+            bufferReaderMock.SetupPath<int>(nameof(TestClass1.Field1));
+            bufferReaderMock.SetupPath<string>(nameof(TestClass1.Field2));
 
             var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, new DummyBuffer(), "");
             reader.Read(new DummyBuffer(), typeof(TestClass1), context);
