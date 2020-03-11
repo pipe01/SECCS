@@ -31,7 +31,7 @@ namespace SECCS.Tests.Formats
             bufferWriterMock.SetupPath(nameof(data.Field2), data.Field2);
 
             var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, new DummyBuffer(), "");
-            writer.Write(new DummyBuffer(), data, context);
+            writer.Write(data, context);
 
             bufferWriterMock.Verify();
         }

@@ -28,7 +28,7 @@ namespace SECCS.Tests
 
             var formatMock = new Mock<IWriteFormat<DummyBuffer>>();
             formatMock.Setup(o => o.CanFormat(typeof(object))).Returns(true).Verifiable();
-            formatMock.Setup(o => o.Write(It.IsAny<DummyBuffer>(), It.IsAny<object>(), It.IsAny<WriteFormatContext<DummyBuffer>>())).Callback(Assert.Pass).Verifiable();
+            formatMock.Setup(o => o.Write(It.IsAny<object>(), It.IsAny<WriteFormatContext<DummyBuffer>>())).Callback(Assert.Pass).Verifiable();
 
             writer.WriteFormats.Add(formatMock.Object);
 

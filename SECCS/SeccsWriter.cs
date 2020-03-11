@@ -23,7 +23,7 @@ namespace SECCS
 
             context ??= new WriteFormatContext<TWriter>(this, writer, "");
 
-            format.Write(writer, obj, context.Value);
+            format.Write(obj, context.Value);
         }
     }
 }

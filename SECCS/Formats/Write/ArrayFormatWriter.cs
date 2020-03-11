@@ -6,7 +6,7 @@ namespace SECCS.Formats.Write
     {
         public bool CanFormat(Type type) => type.IsArray;
 
-        public void Write(TWriter writer, object obj, WriteFormatContext<TWriter> context)
+        public void Write(object obj, WriteFormatContext<TWriter> context)
         {
             var arr = (Array)obj;
 

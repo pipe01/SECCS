@@ -41,7 +41,7 @@ namespace SECCS.Tests.Formats
             }
 
             var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, new DummyBuffer(), "");
-            Format.Write(new DummyBuffer(), data, context);
+            Format.Write(data, context);
 
             bufferWriterMock.Verify();
         }
