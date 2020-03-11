@@ -12,7 +12,7 @@ namespace SECCS
 
         public bool IsReadOnly => false;
 
-        public TFormat GetFor(Type type)
+        public TFormat? GetFor(Type type)
         {
             foreach (var item in InnerList)
             {
