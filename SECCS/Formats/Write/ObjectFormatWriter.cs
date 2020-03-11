@@ -13,7 +13,7 @@ namespace SECCS.Formats.Write
             foreach (var item in t.GetProperties())
             {
                 if (item.CanRead)
-                    context.Serialize(item, item.Name);
+                    context.Serialize(item.GetValue(obj), item.Name);
             }
         }
     }
