@@ -1,4 +1,6 @@
 # SECCS
+![Build badge](https://github.com/pipe01/SECCS/workflows/.NET%20Core/badge.svg)
+
 Speedy & Easy C# Class Serialization
 
 ## Purpose
