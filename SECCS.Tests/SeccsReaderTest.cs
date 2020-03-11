@@ -27,7 +27,7 @@ namespace SECCS.Tests
 
             var formatMock = new Mock<IReadFormat<DummyBuffer>>();
             formatMock.Setup(o => o.CanFormat(typeof(object))).Returns(true).Verifiable();
-            formatMock.Setup(o => o.Read(It.IsAny<DummyBuffer>(), It.IsAny<Type>(), It.IsAny<ReadFormatContext<DummyBuffer>>())).Verifiable();
+            formatMock.Setup(o => o.Read(It.IsAny<Type>(), It.IsAny<ReadFormatContext<DummyBuffer>>())).Verifiable();
 
             reader.ReadFormats.Add(formatMock.Object);
 

@@ -21,7 +21,7 @@ namespace SECCS
 
             context ??= new ReadFormatContext<TReader>(this, reader, "");
 
-            return format.Read(reader, objType, context.Value);
+            return format.Read(objType, context.Value);
         }
 
         public T Deserialize<T>(TReader reader, ReadFormatContext<TReader>? context = null)

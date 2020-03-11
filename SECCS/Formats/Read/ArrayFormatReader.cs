@@ -6,7 +6,7 @@ namespace SECCS.Formats.Read
     {
         public bool CanFormat(Type type) => type.IsArray;
 
-        public object Read(TReader reader, Type type, ReadFormatContext<TReader> context)
+        public object Read(Type type, ReadFormatContext<TReader> context)
         {
             var itemType = type.GetElementType();
 

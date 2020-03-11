@@ -6,7 +6,7 @@ namespace SECCS.Formats.Read
     {
         public bool CanFormat(Type type) => true;
 
-        public object Read(TReader reader, Type type, ReadFormatContext<TReader> context)
+        public object Read(Type type, ReadFormatContext<TReader> context)
         {
             var obj = Activator.CreateInstance(type);
 

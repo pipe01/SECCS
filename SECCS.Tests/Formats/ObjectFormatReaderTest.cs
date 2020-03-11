@@ -22,7 +22,7 @@ namespace SECCS.Tests.Formats
             bufferReaderMock.SetupPath<string>(nameof(TestClass1.Field2));
 
             var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, new DummyBuffer(), "");
-            Format.Read(new DummyBuffer(), typeof(TestClass1), context);
+            Format.Read(typeof(TestClass1), context);
 
             bufferReaderMock.Verify();
         }

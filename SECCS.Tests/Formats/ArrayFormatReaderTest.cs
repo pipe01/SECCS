@@ -27,7 +27,7 @@ namespace SECCS.Tests.Formats
             bufferReaderMock.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(TestClass1), It.IsAny<ReadFormatContext<DummyBuffer>>())).Callback(() => timesCalled++);
 
             var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, new DummyBuffer(), "");
-            Format.Read(new DummyBuffer(), typeof(TestClass1[]), context);
+            Format.Read(typeof(TestClass1[]), context);
 
             bufferReaderMock.Verify();
             Assert.AreEqual(arrayLength, timesCalled);
