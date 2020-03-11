@@ -21,7 +21,7 @@ namespace SECCS
             if (format == null)
                 throw new FormatNotFoundException(t);
 
-            context ??= new WriteFormatContext<TWriter>(this, writer, path: ".");
+            context ??= new WriteFormatContext<TWriter>(this, writer, "");
 
             format.Write(writer, obj, context.Value);
         }

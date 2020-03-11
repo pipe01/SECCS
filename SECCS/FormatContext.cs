@@ -38,9 +38,9 @@ namespace SECCS
             this.Path = path ?? "";
         }
 
-        public object Deserialize(Type type)
+        public object Deserialize(Type type, string path)
         {
-            return BufferReader.Deserialize(Reader, type, new ReadFormatContext<TReader>(BufferReader, Reader, $"{Path}.{Path}"));
+            return BufferReader.Deserialize(Reader, type, new ReadFormatContext<TReader>(BufferReader, Reader, $"{Path}.{path}"));
         }
     }
 }

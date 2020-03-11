@@ -27,7 +27,7 @@ namespace SECCS.Tests.Formats
             var bufferWriterMock = new Mock<IBufferWriter<DummyBuffer>>();
             bufferWriterMock.Setup(o => o.Serialize(It.IsAny<DummyBuffer>(), It.IsAny<object>(), It.IsAny<WriteFormatContext<DummyBuffer>>())).Verifiable();
 
-            var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, new DummyBuffer(), ".");
+            var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, new DummyBuffer(), "");
             writer.Write(new DummyBuffer(), new TestClass1(), context);
 
             bufferWriterMock.Verify();

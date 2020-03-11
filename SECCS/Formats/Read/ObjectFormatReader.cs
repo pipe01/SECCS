@@ -12,7 +12,7 @@ namespace SECCS.Formats.Read
 
             foreach (var item in type.GetProperties())
             {
-                var value = context.Deserialize(item.PropertyType);
+                var value = context.Deserialize(item.PropertyType, item.Name);
                 item.SetValue(obj, value);
             }
 

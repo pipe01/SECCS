@@ -25,10 +25,10 @@ namespace SECCS.Tests.Formats
             var reader = new ObjectFormatReader<DummyBuffer>();
 
             var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
-            bufferReaderMock.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(int), It.IsAny<ReadFormatContext<DummyBuffer>>())).Verifiable();
-            bufferReaderMock.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(string), It.IsAny<ReadFormatContext<DummyBuffer>>())).Verifiable();
+            bufferReaderMock.SetupPath<int>(".Field1");
+            bufferReaderMock.SetupPath<string>(".Field2");
 
-            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, new DummyBuffer(), ".");
+            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, new DummyBuffer(), "");
             reader.Read(new DummyBuffer(), typeof(TestClass1), context);
 
             bufferReaderMock.Verify();
