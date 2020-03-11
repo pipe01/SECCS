@@ -5,11 +5,6 @@
     <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <OutputPath>..\bin\</OutputPath>
-    <BaseIntermediateOutputPath>..\obj\</BaseIntermediateOutputPath>
-  </PropertyGroup>
-
   <ItemGroup>
     <None Remove="**/*.meta" />
   </ItemGroup>
