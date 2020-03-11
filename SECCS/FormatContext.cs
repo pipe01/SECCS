@@ -37,5 +37,10 @@ namespace SECCS
             this.Reader = reader ?? throw new ArgumentNullException(nameof(reader));
             this.Path = path ?? "";
         }
+
+        public object Deserialize(Type type)
+        {
+            return BufferReader.Deserialize(Reader, type, new ReadFormatContext<TReader>(BufferReader, Reader, $"{Path}.{Path}"));
+        }
     }
 }

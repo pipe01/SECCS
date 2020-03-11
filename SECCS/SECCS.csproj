@@ -14,9 +14,5 @@
   <ItemGroup>
     <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.3.2" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Formats\Read\" />
-  </ItemGroup>
   
 </Project>

@@ -2,7 +2,7 @@
 
 namespace SECCS.Formats.Write
 {
-    public class ObjectFormatWriter<TWriter> : IWriteFormat<TWriter>
+    public sealed class ObjectFormatWriter<TWriter> : IWriteFormat<TWriter>
     {
         public bool CanFormat(Type type) => true;
 

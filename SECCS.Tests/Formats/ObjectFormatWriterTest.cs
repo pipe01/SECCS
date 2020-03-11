@@ -1,6 +1,7 @@
 ﻿using Moq;
 using NUnit.Framework;
 using SECCS.Formats.Write;
+using SECCS.Tests.Classes;
 using SECCS.Tests.Utils;
 using System;
 using System.Collections.Generic;
@@ -24,19 +25,12 @@ namespace SECCS.Tests.Formats
             var writer = new ObjectFormatWriter<DummyBuffer>();
 
             var bufferWriterMock = new Mock<IBufferWriter<DummyBuffer>>();
-            bufferWriterMock.Setup(o => o.Serialize(It.IsAny<DummyBuffer>(), It.IsAny<object>(), It.IsAny<WriteFormatContext<DummyBuffer>>()))
-                .Callback(Assert.Pass);
+            bufferWriterMock.Setup(o => o.Serialize(It.IsAny<DummyBuffer>(), It.IsAny<object>(), It.IsAny<WriteFormatContext<DummyBuffer>>())).Verifiable();
 
             var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, new DummyBuffer(), ".");
             writer.Write(new DummyBuffer(), new TestClass1(), context);
 
-            Assert.Fail("Buffer not called");
-        }
-
-        private class TestClass1
-        {
-            public int Field1 { get; set; }
-            public string Field2 { get; set; }
+            bufferWriterMock.Verify();
         }
     }
 }
