@@ -18,7 +18,7 @@ namespace SECCS.Tests
         {
             var writer = new SeccsWriter<DummyBuffer>();
 
-            Assert.Throws<FormatNotFoundException>(() => writer.Serialize(null, new object()));
+            Assert.Throws<FormatNotFoundException>(() => writer.Serialize(new DummyBuffer(), new object()));
         }
 
         [Test]

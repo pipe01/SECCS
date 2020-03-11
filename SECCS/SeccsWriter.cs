@@ -9,6 +9,9 @@ namespace SECCS
 
         public void Serialize(TWriter writer, object obj, WriteFormatContext<TWriter>? context = null)
         {
+            if (writer == null)
+                throw new ArgumentNullException(nameof(writer));
+
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj), "Cannot directly serialize a null object");
 

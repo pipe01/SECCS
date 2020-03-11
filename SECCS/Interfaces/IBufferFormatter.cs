@@ -7,8 +7,8 @@ namespace SECCS
     {
         FormatCollection<IReadFormat<TReader>> ReadFormats { get; }
 
-        object Deserialize(TReader reader, Type objType);
-        T Deserialize<T>(TReader reader);
+        object Deserialize(TReader reader, Type objType, ReadFormatContext<TReader>? context = null);
+        T Deserialize<T>(TReader reader, ReadFormatContext<TReader>? context = null);
     }
 
     public interface IBufferWriter<TWriter>

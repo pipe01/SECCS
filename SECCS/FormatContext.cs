@@ -22,4 +22,20 @@ namespace SECCS
             BufferWriter.Serialize(Writer, obj, new WriteFormatContext<TWriter>(BufferWriter, Writer, $"{Path}.{path}"));
         }
     }
+
+    public readonly struct ReadFormatContext<TReader>
+    {
+        public IBufferReader<TReader> BufferReader { get; }
+
+        public TReader Reader { get; }
+
+        internal string Path { get; }
+
+        internal ReadFormatContext(IBufferReader<TReader> bufferReader, TReader reader, string path)
+        {
+            this.BufferReader = bufferReader ?? throw new ArgumentNullException(nameof(bufferReader));
+            this.Reader = reader ?? throw new ArgumentNullException(nameof(reader));
+            this.Path = path ?? "";
+        }
+    }
 }
