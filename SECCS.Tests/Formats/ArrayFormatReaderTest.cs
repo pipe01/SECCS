@@ -15,7 +15,7 @@ namespace SECCS.Tests.Formats
         }
 
         [Test]
-        public void Read_TestClassArray_CallsBufferWriter()
+        public void Read_TestClassArray_CallsBufferReader()
         {
             const int arrayLength = 2;
 

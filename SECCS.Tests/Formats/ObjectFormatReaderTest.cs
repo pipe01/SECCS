@@ -15,7 +15,7 @@ namespace SECCS.Tests.Formats
         }
 
         [Test]
-        public void Read_TestClass_CallsBufferWriter()
+        public void Read_TestClass_CallsBufferReader()
         {
             var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
             bufferReaderMock.SetupPath<int>(nameof(TestClass1.Field1));
