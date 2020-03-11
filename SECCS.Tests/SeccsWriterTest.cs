@@ -27,14 +27,14 @@ namespace SECCS.Tests
             var writer = new SeccsWriter<DummyBuffer>();
 
             var formatMock = new Mock<IWriteFormat<DummyBuffer>>();
-            formatMock.Setup(o => o.CanFormat(typeof(object))).Returns(true);
-            formatMock.Setup(o => o.Write(It.IsAny<DummyBuffer>(), It.IsAny<object>(), It.IsAny<WriteFormatContext<DummyBuffer>>()))
-                .Callback(Assert.Pass);
+            formatMock.Setup(o => o.CanFormat(typeof(object))).Returns(true).Verifiable();
+            formatMock.Setup(o => o.Write(It.IsAny<DummyBuffer>(), It.IsAny<object>(), It.IsAny<WriteFormatContext<DummyBuffer>>())).Callback(Assert.Pass).Verifiable();
 
             writer.WriteFormats.Add(formatMock.Object);
 
             writer.Serialize(new DummyBuffer(), new object());
-            Assert.Fail("Format not called");
+
+            formatMock.Verify();
         }
     }
 }

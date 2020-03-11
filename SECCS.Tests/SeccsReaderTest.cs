@@ -26,14 +26,14 @@ namespace SECCS.Tests
             var reader = new SeccsReader<DummyBuffer>();
 
             var formatMock = new Mock<IReadFormat<DummyBuffer>>();
-            formatMock.Setup(o => o.CanFormat(typeof(object))).Returns(true);
-            formatMock.Setup(o => o.Read(It.IsAny<DummyBuffer>(), It.IsAny<Type>(), It.IsAny<ReadFormatContext<DummyBuffer>>()))
-                .Callback(Assert.Pass);
+            formatMock.Setup(o => o.CanFormat(typeof(object))).Returns(true).Verifiable();
+            formatMock.Setup(o => o.Read(It.IsAny<DummyBuffer>(), It.IsAny<Type>(), It.IsAny<ReadFormatContext<DummyBuffer>>())).Verifiable();
 
             reader.ReadFormats.Add(formatMock.Object);
 
             reader.Deserialize(new DummyBuffer(), typeof(object));
-            Assert.Fail("Format not called");
+
+            formatMock.Verify();
         }
     }
 }
