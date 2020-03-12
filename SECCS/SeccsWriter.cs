@@ -1,6 +1,4 @@
 ﻿using SECCS.Exceptions;
-using SECCS.Formats.Read;
-using SECCS.Formats.Write;
 using System;
 
 namespace SECCS

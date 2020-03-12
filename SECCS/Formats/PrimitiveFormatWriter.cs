@@ -1,17 +1,14 @@
 ﻿using AgileObjects.NetStandardPolyfills;
-using SECCS.Exceptions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SECCS.Formats.Write
+namespace SECCS.Formats
 {
     using static Expression;
 
+    [FormatPriority(100)]
     public class PrimitiveFormatWriter<TWriter> : IWriteFormat<TWriter>
     {
         private static readonly IDictionary<Type, Action<TWriter, object>> WriterMethods = new Dictionary<Type, Action<TWriter, object>>();

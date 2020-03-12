@@ -28,8 +28,8 @@ namespace SECCS
                 }
             }
 
-            InnerList.Sort((a, b) => (a.GetType().GetCustomAttribute<FormatPriorityAttribute>()?.Priority ?? 0)
-                                   - (b.GetType().GetCustomAttribute<FormatPriorityAttribute>()?.Priority ?? 0));
+            InnerList.Sort((a, b) => (b.GetType().GetCustomAttribute<FormatPriorityAttribute>()?.Priority ?? 0)
+                                   - (a.GetType().GetCustomAttribute<FormatPriorityAttribute>()?.Priority ?? 0));
         }
 
         public TFormat? GetFor(Type type)
