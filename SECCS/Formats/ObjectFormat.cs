@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace SECCS.Formats
 {
@@ -11,7 +13,7 @@ namespace SECCS.Formats
         {
             var obj = Activator.CreateInstance(type);
 
-            foreach (var item in type.GetProperties())
+            foreach (var item in GetProperties(type))
             {
                 var value = context.Deserialize(item.PropertyType, item.Name);
                 item.SetValue(obj, value);
@@ -24,10 +26,22 @@ namespace SECCS.Formats
         {
             Type t = obj.GetType();
 
-            foreach (var item in t.GetProperties())
+            foreach (var item in GetProperties(t))
             {
                 if (item.CanRead)
                     context.Serialize(item.GetValue(obj), item.Name);
+            }
+        }
+
+        private static IEnumerable<PropertyInfo> GetProperties(Type t)
+        {
+            foreach (var prop in t.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (!prop.CanRead && !prop.CanWrite)
+                    continue;
+
+                if ((prop.GetMethod.IsPublic && prop.SetMethod.IsPublic) || prop.GetCustomAttribute<SeccsMemberAttribute>() != null)
+                    yield return prop;
             }
         }
     }
