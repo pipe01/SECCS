@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 
 namespace SECCS.Formats
 {
-    [FormatPriority(-1)]
+    [FormatPriority(-10)]
     public class ListFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
         public bool CanFormat(Type type) => typeof(IList).IsAssignableFrom(type) && type.GetGenericArguments().Length > 0;

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SECCS.Formats
 {
-    [FormatPriority(-1)]
+    [FormatPriority(-10)]
     public class ArrayFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
         public bool CanFormat(Type type) => type.IsArray;

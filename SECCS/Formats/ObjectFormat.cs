@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SECCS.Formats
 {
-    [FormatPriority(-2)]
+    [FormatPriority(-20)]
     public class ObjectFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
         public bool CanFormat(Type type) => !type.IsPrimitive;
