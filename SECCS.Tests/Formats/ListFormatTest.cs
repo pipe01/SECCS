@@ -58,14 +58,15 @@ namespace SECCS.Tests.Formats
         public void Read_List_CallsBufferWriter(int listSize)
         {
             int timesCalled = 0;
+            var buffer = new DummyBuffer();
 
             var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
-            bufferReaderMock.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(int), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path == ".Count")))
+            bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(int), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path == ".Count")))
                             .Returns(listSize).Verifiable();
-            bufferReaderMock.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(TestClass1), It.IsAny<ReadFormatContext<DummyBuffer>>()))
+            bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(TestClass1), It.IsAny<ReadFormatContext<DummyBuffer>>()))
                             .Callback(() => timesCalled++);
 
-            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, new DummyBuffer(), "");
+            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, buffer, "");
             Format.Read(typeof(List<TestClass1>), context);
 
             bufferReaderMock.Verify();

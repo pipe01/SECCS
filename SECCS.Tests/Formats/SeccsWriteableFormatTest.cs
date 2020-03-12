@@ -24,10 +24,12 @@ namespace SECCS.Tests.Formats
         [Test]
         public void Write_Writeable_CallsWritableWrite()
         {
-            var writeableMock = new Mock<ISeccsWriteable<DummyBuffer>>();
-            writeableMock.Setup(o => o.Write(It.IsAny<DummyBuffer>())).Verifiable();
+            var buffer = new DummyBuffer();
 
-            Format.Write(writeableMock.Object, new WriteFormatContext<DummyBuffer>(Mock.Of<IBufferWriter<DummyBuffer>>(), new DummyBuffer(), ""));
+            var writeableMock = new Mock<ISeccsWriteable<DummyBuffer>>();
+            writeableMock.Setup(o => o.Write(buffer)).Verifiable();
+
+            Format.Write(writeableMock.Object, new WriteFormatContext<DummyBuffer>(Mock.Of<IBufferWriter<DummyBuffer>>(), buffer, ""));
 
             writeableMock.Verify();
         }
