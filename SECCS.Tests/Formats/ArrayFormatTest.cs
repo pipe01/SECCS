@@ -1,12 +1,12 @@
 ﻿using Moq;
 using NUnit.Framework;
-using SECCS.Formats.Write;
+using SECCS.Formats;
 using SECCS.Tests.Classes;
 using SECCS.Tests.Utils;
 
 namespace SECCS.Tests.Formats
 {
-    public class ArrayFormatWriterTest : BaseFormatTest<ArrayFormatWriter<DummyBuffer>>
+    public class ArrayFormatTest : BaseFormatTest<ArrayFormat<DummyBuffer>>
     {
         [Test]
         public void CanFormat_NonArrayType_False()
@@ -44,6 +44,24 @@ namespace SECCS.Tests.Formats
             Format.Write(data, context);
 
             bufferWriterMock.Verify();
+        }
+
+        [Test]
+        public void Read_TestClassArray_CallsBufferReader()
+        {
+            const int arrayLength = 2;
+
+            int timesCalled = 0;
+
+            var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
+            bufferReaderMock.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(int), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path == ".Length"))).Returns(arrayLength).Verifiable();
+            bufferReaderMock.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(TestClass1), It.IsAny<ReadFormatContext<DummyBuffer>>())).Callback(() => timesCalled++);
+
+            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, new DummyBuffer(), "");
+            Format.Read(typeof(TestClass1[]), context);
+
+            bufferReaderMock.Verify();
+            Assert.AreEqual(arrayLength, timesCalled);
         }
     }
 }

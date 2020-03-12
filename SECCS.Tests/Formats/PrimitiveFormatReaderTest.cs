@@ -1,6 +1,6 @@
 ﻿using Moq;
 using NUnit.Framework;
-using SECCS.Formats.Read;
+using SECCS.Formats;
 using SECCS.Tests.Classes;
 using SECCS.Tests.Utils;
 
