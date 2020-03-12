@@ -7,6 +7,11 @@ namespace SECCS
     {
         public FormatCollection<IReadFormat<TReader>> ReadFormats { get; } = new FormatCollection<IReadFormat<TReader>>();
 
+        public SeccsReader()
+        {
+            ReadFormats.Discover();
+        }
+
         public object Deserialize(TReader reader, Type objType, ReadFormatContext<TReader>? context = null)
         {
             if (reader == null)

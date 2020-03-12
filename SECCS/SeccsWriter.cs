@@ -1,4 +1,6 @@
 ﻿using SECCS.Exceptions;
+using SECCS.Formats.Read;
+using SECCS.Formats.Write;
 using System;
 
 namespace SECCS
@@ -6,6 +8,11 @@ namespace SECCS
     public sealed class SeccsWriter<TWriter> : IBufferWriter<TWriter>
     {
         public FormatCollection<IWriteFormat<TWriter>> WriteFormats { get; } = new FormatCollection<IWriteFormat<TWriter>>();
+
+        public SeccsWriter()
+        {
+            WriteFormats.Discover();
+        }
 
         public void Serialize(TWriter writer, object obj, WriteFormatContext<TWriter>? context = null)
         {

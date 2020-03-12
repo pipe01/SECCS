@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace SECCS
 {
@@ -11,6 +12,25 @@ namespace SECCS
         public int Count => this.InnerList.Count;
 
         public bool IsReadOnly => false;
+
+        internal void Discover()
+        {
+            var baseType = typeof(TFormat).GetGenericTypeDefinition();
+            var bufferType = typeof(TFormat).GetGenericArguments()[0];
+
+            foreach (var item in Assembly.GetExecutingAssembly().GetTypes())
+            {
+                if (item.Namespace.StartsWith($"{nameof(SECCS)}.{nameof(Formats)}") && item.GetInterface(baseType.Name) != null)
+                {
+                    var specialized = item.MakeGenericType(bufferType);
+
+                    Add((TFormat)Activator.CreateInstance(specialized));
+                }
+            }
+
+            InnerList.Sort((a, b) => (a.GetType().GetCustomAttribute<FormatPriorityAttribute>()?.Priority ?? 0)
+                                   - (b.GetType().GetCustomAttribute<FormatPriorityAttribute>()?.Priority ?? 0));
+        }
 
         public TFormat? GetFor(Type type)
         {
@@ -29,6 +49,11 @@ namespace SECCS
         }
 
         public void AddRange(IEnumerable<TFormat> items)
+        {
+            this.InnerList.AddRange(items);
+        }
+
+        public void AddRange(params TFormat[] items)
         {
             this.InnerList.AddRange(items);
         }

@@ -4,7 +4,7 @@ namespace SECCS.Formats.Read
 {
     public sealed class ObjectFormatReader<TReader> : IReadFormat<TReader>
     {
-        public bool CanFormat(Type type) => true;
+        public bool CanFormat(Type type) => !type.IsPrimitive;
 
         public object Read(Type type, ReadFormatContext<TReader> context)
         {

@@ -11,6 +11,7 @@ namespace SECCS.Formats.Read
 {
     using static Expression;
 
+    [FormatPriority(100)]
     public class PrimitiveFormatReader<TReader> : IReadFormat<TReader>
     {
         private static readonly IDictionary<Type, Func<TReader, object>> ReaderMethods = new Dictionary<Type, Func<TReader, object>>();
@@ -21,7 +22,7 @@ namespace SECCS.Formats.Read
             {
                 var methodParams = method.GetParameters();
 
-                if (!method.Name.StartsWith("Read") || methodParams.Length > 0)
+                if (method.Name == "Read" || !method.Name.StartsWith("Read") || methodParams.Length > 0)
                     continue;
 
                 var readerValueType = method.ReturnType;

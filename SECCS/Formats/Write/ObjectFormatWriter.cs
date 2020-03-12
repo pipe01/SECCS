@@ -4,7 +4,7 @@ namespace SECCS.Formats.Write
 {
     public sealed class ObjectFormatWriter<TWriter> : IWriteFormat<TWriter>
     {
-        public bool CanFormat(Type type) => true;
+        public bool CanFormat(Type type) => !type.IsPrimitive;
 
         public void Write(object obj, WriteFormatContext<TWriter> context)
         {

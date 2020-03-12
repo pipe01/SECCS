@@ -10,9 +10,7 @@ namespace SECCS.Exceptions
     {
         public Type ObjectType { get; }
 
-        public override string Message => $"A format could not be found for type '{ObjectType}'";
-
-        public FormatNotFoundException(Type objType)
+        public FormatNotFoundException(Type objType) : base($"A format could not be found for type {objType}")
         {
             this.ObjectType = objType;
         }
