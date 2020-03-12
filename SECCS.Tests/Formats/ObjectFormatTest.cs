@@ -6,7 +6,7 @@ using SECCS.Tests.Utils;
 
 namespace SECCS.Tests.Formats
 {
-    public class ObjectFormatReaderTest : BaseFormatTest<ObjectFormat<DummyBuffer>>
+    public class ObjectFormatTest : BaseFormatTest<ObjectFormat<DummyBuffer>>
     {
         [Test]
         public void CanFormat_AnyType_ReturnsTrue()
