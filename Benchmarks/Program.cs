@@ -1,4 +1,5 @@
 ﻿using SECCS;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Benchmarks
@@ -15,6 +16,16 @@ namespace Benchmarks
             {
                 Number = 42,
                 Byte = 255,
+                List = new List<int>
+                {
+                    1, 2, 3, 4
+                },
+                List2 = new List<ClassInner>
+                {
+                    new ClassInner { InnerNumber = 13, String = "one" },
+                    new ClassInner { InnerNumber = 13, String = "two" },
+                    new ClassInner { InnerNumber = 13, String = "three" },
+                },
                 Inner = new ClassInner
                 {
                     InnerNumber = 69,
@@ -36,6 +47,9 @@ namespace Benchmarks
     {
         public int Number { get; set; }
         public byte Byte { get; set; }
+        public List<int> List { get; set; }
+        public List<ClassInner> List2 { get; set; }
+
         public ClassInner Inner { get; set; }
     }
 

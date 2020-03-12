@@ -46,16 +46,19 @@ namespace SECCS.Tests.Formats
             bufferWriterMock.Verify();
         }
 
-        [Test]
-        public void Read_TestClassArray_CallsBufferReader()
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(200)]
+        public void Read_TestClassArray_CallsBufferReader(int arrayLength)
         {
-            const int arrayLength = 2;
-
             int timesCalled = 0;
 
             var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
-            bufferReaderMock.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(int), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path == ".Length"))).Returns(arrayLength).Verifiable();
-            bufferReaderMock.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(TestClass1), It.IsAny<ReadFormatContext<DummyBuffer>>())).Callback(() => timesCalled++);
+            bufferReaderMock.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(int), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path == ".Length")))
+                            .Returns(arrayLength).Verifiable();
+            bufferReaderMock.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(TestClass1), It.IsAny<ReadFormatContext<DummyBuffer>>()))
+                            .Callback(() => timesCalled++);
 
             var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, new DummyBuffer(), "");
             Format.Read(typeof(TestClass1[]), context);
