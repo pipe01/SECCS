@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SECCS.Internal;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -8,25 +9,27 @@ namespace SECCS
     public class FormatCollection<TFormat> : ICollection<TFormat> where TFormat : class, IFormat
     {
         private readonly List<TFormat> InnerList = new List<TFormat>();
+        private readonly IFormatFinder<TFormat> FormatFinder;
 
         public int Count => this.InnerList.Count;
 
         public bool IsReadOnly => false;
+
+        internal FormatCollection() : this(new FormatFinder<TFormat>())
+        {
+        }
+
+        internal FormatCollection(IFormatFinder<TFormat> formatFinder)
+        {
+            this.FormatFinder = formatFinder;
+        }
 
         internal void Discover()
         {
             var baseType = typeof(TFormat).GetGenericTypeDefinition();
             var bufferType = typeof(TFormat).GetGenericArguments()[0];
 
-            foreach (var item in Assembly.GetExecutingAssembly().GetTypes())
-            {
-                if (item.Namespace.StartsWith($"{nameof(SECCS)}.{nameof(Formats)}") && item.GetInterface(baseType.Name) != null)
-                {
-                    var specialized = item.MakeGenericType(bufferType);
-
-                    Add((TFormat)Activator.CreateInstance(specialized));
-                }
-            }
+            AddRange(FormatFinder.FindAll(bufferType));
 
             InnerList.Sort((a, b) => (b.GetType().GetCustomAttribute<FormatPriorityAttribute>()?.Priority ?? 0)
                                    - (a.GetType().GetCustomAttribute<FormatPriorityAttribute>()?.Priority ?? 0));

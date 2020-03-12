@@ -12,6 +12,11 @@ namespace SECCS
             ReadFormats.Discover();
         }
 
+        internal SeccsReader(FormatCollection<IReadFormat<TReader>> formats)
+        {
+            this.ReadFormats = formats ?? throw new ArgumentNullException(nameof(formats));
+        }
+
         public object Deserialize(TReader reader, Type objType, ReadFormatContext<TReader>? context = null)
         {
             if (reader == null)

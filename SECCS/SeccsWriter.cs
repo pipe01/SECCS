@@ -12,6 +12,11 @@ namespace SECCS
             WriteFormats.Discover();
         }
 
+        internal SeccsWriter(FormatCollection<IWriteFormat<TWriter>> formats)
+        {
+            this.WriteFormats = formats ?? throw new ArgumentNullException(nameof(formats));
+        }
+
         public void Serialize(TWriter writer, object obj, WriteFormatContext<TWriter>? context = null)
         {
             if (writer == null)
