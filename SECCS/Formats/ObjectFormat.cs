@@ -40,7 +40,11 @@ namespace SECCS.Formats
                 if (!prop.CanRead && !prop.CanWrite)
                     continue;
 
-                if ((prop.GetMethod.IsPublic && prop.SetMethod.IsPublic) || prop.GetCustomAttribute<SeccsMemberAttribute>() != null)
+                var isPublic = prop.GetMethod.IsPublic && prop.SetMethod.IsPublic;
+                var isMember = prop.GetCustomAttribute<SeccsMemberAttribute>() != null;
+                var isIgnored = prop.GetCustomAttribute<SeccsIgnoreAttribute>() != null;
+
+                if ((isPublic || isMember) && !isIgnored)
                     yield return prop;
             }
         }
