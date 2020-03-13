@@ -9,7 +9,7 @@ namespace SECCS.Formats
     using static Expression;
 
     [FormatPriority(100)]
-    public class PrimitiveFormatReader<TReader> : IReadFormat<TReader>
+    internal class PrimitiveFormatReader<TReader> : IReadFormat<TReader>
     {
         private static readonly IDictionary<Type, Func<TReader, object>> ReaderMethods = new Dictionary<Type, Func<TReader, object>>();
 

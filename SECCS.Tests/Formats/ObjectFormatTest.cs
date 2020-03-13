@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace SECCS.Tests.Formats
 {
-    public class ObjectFormatTest : BaseFormatTest<ObjectFormat<DummyBuffer>>
+    internal class ObjectFormatTest : BaseFormatTest<ObjectFormat<DummyBuffer>>
     {
         [Test]
         public void CanFormat_AnyType_ReturnsTrue()

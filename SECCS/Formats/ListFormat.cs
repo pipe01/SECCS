@@ -4,7 +4,7 @@ using System.Collections;
 namespace SECCS.Formats
 {
     [FormatPriority(-10)]
-    public class ListFormat<T> : IReadFormat<T>, IWriteFormat<T>
+    internal class ListFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
         public bool CanFormat(Type type) => typeof(IList).IsAssignableFrom(type) && type.GetGenericArguments().Length > 0;
 

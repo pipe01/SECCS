@@ -7,7 +7,7 @@ using SECCS.Tests.Utils;
 
 namespace SECCS.Tests.Formats
 {
-    public class SeccsWriteableFormatTest : BaseFormatTest<SeccsWriteableFormat<DummyBuffer>>
+    internal class SeccsWriteableFormatTest : BaseFormatTest<SeccsWriteableFormat<DummyBuffer>>
     {
         [Test]
         public void CanFormat_NonSeccsWriteable_False()

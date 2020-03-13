@@ -6,7 +6,7 @@ using SECCS.Tests.Utils;
 
 namespace SECCS.Tests.Formats
 {
-    public class PrimitiveFormatWriterTest : BaseFormatTest<PrimitiveFormatWriter<DummyBuffer>>
+    internal class PrimitiveFormatWriterTest : BaseFormatTest<PrimitiveFormatWriter<DummyBuffer>>
     {
         [Test]
         public void CanFormat_NonPrimitive_False()

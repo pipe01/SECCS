@@ -9,7 +9,7 @@ namespace SECCS.Formats
     using static Expression;
 
     [FormatPriority(100)]
-    public class PrimitiveFormatWriter<TWriter> : IWriteFormat<TWriter>
+    internal class PrimitiveFormatWriter<TWriter> : IWriteFormat<TWriter>
     {
         private static readonly IDictionary<Type, Action<TWriter, object>> WriterMethods = new Dictionary<Type, Action<TWriter, object>>();
 

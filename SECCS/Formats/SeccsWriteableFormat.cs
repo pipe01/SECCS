@@ -3,7 +3,7 @@ using System;
 
 namespace SECCS.Formats
 {
-    public class SeccsWriteableFormat<TWriter> : IWriteFormat<TWriter>
+    internal class SeccsWriteableFormat<TWriter> : IWriteFormat<TWriter>
     {
         public bool CanFormat(Type type) => typeof(ISeccsWriteable<TWriter>).IsAssignableFrom(type);
 

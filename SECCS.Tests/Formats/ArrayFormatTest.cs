@@ -6,7 +6,7 @@ using SECCS.Tests.Utils;
 
 namespace SECCS.Tests.Formats
 {
-    public class ArrayFormatTest : BaseFormatTest<ArrayFormat<DummyBuffer>>
+    internal class ArrayFormatTest : BaseFormatTest<ArrayFormat<DummyBuffer>>
     {
         [Test]
         public void CanFormat_NonArrayType_False()

@@ -2,7 +2,7 @@
 
 namespace SECCS.Formats.MiscTypes
 {
-    public class GuidFormat<T> : IReadFormat<T>, IWriteFormat<T>
+    internal class GuidFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
         internal const string BytesPath = "GuidBytes";
 

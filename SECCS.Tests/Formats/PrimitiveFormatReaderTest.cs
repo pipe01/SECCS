@@ -6,7 +6,7 @@ using SECCS.Tests.Utils;
 
 namespace SECCS.Tests.Formats
 {
-    public class PrimitiveFormatReaderTest : BaseFormatTest<PrimitiveFormatReader<DummyBuffer>>
+    internal class PrimitiveFormatReaderTest : BaseFormatTest<PrimitiveFormatReader<DummyBuffer>>
     {
         [Test]
         public void CanFormat_NonPrimitive_False()

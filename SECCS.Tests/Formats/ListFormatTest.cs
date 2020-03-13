@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace SECCS.Tests.Formats
 {
-    public class ListFormatTest : BaseFormatTest<ListFormat<DummyBuffer>>
+    internal class ListFormatTest : BaseFormatTest<ListFormat<DummyBuffer>>
     {
         [Test]
         public void CanFormat_NonListType_False()

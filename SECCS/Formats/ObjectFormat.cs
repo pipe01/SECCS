@@ -7,7 +7,7 @@ using System.Reflection;
 namespace SECCS.Formats
 {
     [FormatPriority(-20)]
-    public class ObjectFormat<T> : IReadFormat<T>, IWriteFormat<T>
+    internal class ObjectFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
         private static readonly IDictionary<Type, Func<object>> NewExpressions = new Dictionary<Type, Func<object>>();
 

@@ -3,7 +3,7 @@ using System;
 
 namespace SECCS.Formats
 {
-    public class SeccsReadableFormat<TReader> : IReadFormat<TReader>
+    internal class SeccsReadableFormat<TReader> : IReadFormat<TReader>
     {
         public bool CanFormat(Type type) => typeof(ISeccsReadable<TReader>).IsAssignableFrom(type);
 

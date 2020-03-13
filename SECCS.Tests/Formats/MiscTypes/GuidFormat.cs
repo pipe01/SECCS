@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace SECCS.Tests.Formats.MiscTypes
 {
-    public class GuidFormat : BaseFormatTest<GuidFormat<DummyBuffer>>
+    internal class GuidFormat : BaseFormatTest<GuidFormat<DummyBuffer>>
     {
         [Test]
         public void Write_Guid_CallsBufferWriter()
