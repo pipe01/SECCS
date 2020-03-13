@@ -14,11 +14,11 @@ namespace SECCS.Formats
 
             var l = (IList)Activator.CreateInstance(type);
 
-            int count = context.Deserialize<int>("Count");
+            int count = context.Read<int>("Count");
 
             for (int i = 0; i < count; i++)
             {
-                var value = context.Deserialize(elementType, $"[{i}]");
+                var value = context.Read(elementType, $"[{i}]");
                 l.Add(value);
             }
 
@@ -29,12 +29,12 @@ namespace SECCS.Formats
         {
             var l = (IList)obj;
 
-            context.Serialize(l.Count, "Count");
+            context.Write(l.Count, "Count");
 
             int i = 0;
             foreach (var item in l)
             {
-                context.Serialize(item, $"[{i++}]");
+                context.Write(item, $"[{i++}]");
             }
         }
     }

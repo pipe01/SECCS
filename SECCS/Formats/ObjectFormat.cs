@@ -15,7 +15,7 @@ namespace SECCS.Formats
 
             foreach (var item in GetProperties(type))
             {
-                var value = context.Deserialize(item.PropertyType, item.Name);
+                var value = context.Read(item.PropertyType, item.Name);
                 item.SetValue(obj, value);
             }
 
@@ -29,7 +29,7 @@ namespace SECCS.Formats
             foreach (var item in GetProperties(t))
             {
                 if (item.CanRead)
-                    context.Serialize(item.GetValue(obj), item.Name);
+                    context.Write(item.GetValue(obj), item.Name);
             }
         }
 

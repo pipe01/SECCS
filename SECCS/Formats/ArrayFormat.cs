@@ -11,12 +11,12 @@ namespace SECCS.Formats
         {
             var itemType = type.GetElementType();
 
-            int length = context.Deserialize<int>("Length");
+            int length = context.Read<int>("Length");
             var arr = (Array)Activator.CreateInstance(type, length);
 
             for (int i = 0; i < length; i++)
             {
-                var value = context.Deserialize(itemType, $"[{i}]");
+                var value = context.Read(itemType, $"[{i}]");
                 arr.SetValue(value, i);
             }
 
@@ -27,12 +27,12 @@ namespace SECCS.Formats
         {
             var arr = (Array)obj;
 
-            context.Serialize(arr.Length, "Length");
+            context.Write(arr.Length, "Length");
 
             int i = 0;
             foreach (var item in arr)
             {
-                context.Serialize(item, $"[{i++}]");
+                context.Write(item, $"[{i++}]");
             }
         }
     }
