@@ -5,16 +5,16 @@ namespace SECCS
 {
     public sealed class SeccsWriter<TWriter> : IBufferWriter<TWriter>
     {
-        public FormatCollection<IWriteFormat<TWriter>> WriteFormats { get; } = new FormatCollection<IWriteFormat<TWriter>>();
+        public FormatCollection<IWriteFormat<TWriter>> Formats { get; } = new FormatCollection<IWriteFormat<TWriter>>();
 
         public SeccsWriter()
         {
-            WriteFormats.Discover();
+            Formats.Discover();
         }
 
         internal SeccsWriter(FormatCollection<IWriteFormat<TWriter>> formats)
         {
-            this.WriteFormats = formats ?? throw new ArgumentNullException(nameof(formats));
+            this.Formats = formats ?? throw new ArgumentNullException(nameof(formats));
         }
 
         public void Serialize(TWriter writer, object obj, WriteFormatContext<TWriter>? context = null)
@@ -27,7 +27,7 @@ namespace SECCS
 
             Type t = obj.GetType();
 
-            var format = WriteFormats.GetFor(t);
+            var format = Formats.GetFor(t);
             if (format == null)
                 throw new FormatNotFoundException(t);
 

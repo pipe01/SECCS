@@ -5,7 +5,7 @@ namespace SECCS
 {
     public interface IBufferReader<TReader>
     {
-        FormatCollection<IReadFormat<TReader>> ReadFormats { get; }
+        FormatCollection<IReadFormat<TReader>> Formats { get; }
 
         object Deserialize(TReader reader, Type objType, ReadFormatContext<TReader>? context = null);
         T Deserialize<T>(TReader reader, ReadFormatContext<TReader>? context = null);
@@ -13,12 +13,8 @@ namespace SECCS
 
     public interface IBufferWriter<TWriter>
     {
-        FormatCollection<IWriteFormat<TWriter>> WriteFormats { get; }
+        FormatCollection<IWriteFormat<TWriter>> Formats { get; }
 
         void Serialize(TWriter writer, object obj, WriteFormatContext<TWriter>? context = null);
-    }
-
-    public interface IBufferFormatter<TBuffer> : IBufferReader<TBuffer>, IBufferWriter<TBuffer>
-    {
     }
 }

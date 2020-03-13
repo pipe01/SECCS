@@ -5,16 +5,16 @@ namespace SECCS
 {
     public sealed class SeccsReader<TReader> : IBufferReader<TReader>
     {
-        public FormatCollection<IReadFormat<TReader>> ReadFormats { get; } = new FormatCollection<IReadFormat<TReader>>();
+        public FormatCollection<IReadFormat<TReader>> Formats { get; } = new FormatCollection<IReadFormat<TReader>>();
 
         public SeccsReader()
         {
-            ReadFormats.Discover();
+            Formats.Discover();
         }
 
         internal SeccsReader(FormatCollection<IReadFormat<TReader>> formats)
         {
-            this.ReadFormats = formats ?? throw new ArgumentNullException(nameof(formats));
+            this.Formats = formats ?? throw new ArgumentNullException(nameof(formats));
         }
 
         public object Deserialize(TReader reader, Type objType, ReadFormatContext<TReader>? context = null)
@@ -25,7 +25,7 @@ namespace SECCS
             if (objType == null)
                 throw new ArgumentNullException(nameof(objType));
 
-            var format = ReadFormats.GetFor(objType);
+            var format = Formats.GetFor(objType);
             if (format == null)
                 throw new FormatNotFoundException(objType);
 
