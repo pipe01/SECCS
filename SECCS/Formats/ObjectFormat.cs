@@ -1,5 +1,4 @@
-﻿using SECCS.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -9,7 +8,7 @@ namespace SECCS.Formats
     [FormatPriority(-20)]
     public class ObjectFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
-        private static IDictionary<Type, Func<object>> NewExpressions = new Dictionary<Type, Func<object>>();
+        private static readonly IDictionary<Type, Func<object>> NewExpressions = new Dictionary<Type, Func<object>>();
 
         public bool CanFormat(Type type) => !type.IsPrimitive;
 
