@@ -6,7 +6,7 @@ namespace SECCS.Exceptions
     /// Thrown when a type is serialized or deserialized and a format can't be found
     /// for it.
     /// </summary>
-    public class FormatNotFoundException : Exception
+    public sealed class FormatNotFoundException : Exception
     {
         public Type ObjectType { get; }
 

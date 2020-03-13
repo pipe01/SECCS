@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SECCS.Exceptions;
+using System;
 
 namespace SECCS
 {
@@ -34,7 +35,17 @@ namespace SECCS
         /// <param name="path">The path of this object</param>
         public WriteFormatContext<TWriter> Write(object obj, string path = "<>")
         {
-            BufferWriter.Serialize(Writer, obj, new WriteFormatContext<TWriter>(BufferWriter, Writer, $"{Path}.{path}"));
+            var fullPath = $"{Path}.{path}";
+
+            try
+            {
+                BufferWriter.Serialize(Writer, obj, new WriteFormatContext<TWriter>(BufferWriter, Writer, fullPath));
+            }
+            catch (Exception ex)
+            {
+                throw new FormattingException($"Failed to write object of type {obj.GetType()} at path {fullPath}", ex);
+            }
+
             return this;
         }
     }
@@ -54,7 +65,19 @@ namespace SECCS
             this.Path = path ?? "";
         }
 
-        public object Read(Type type, string path = "<>") => BufferReader.Deserialize(Reader, type, new ReadFormatContext<TReader>(BufferReader, Reader, $"{Path}.{path}"));
+        public object Read(Type type, string path = "<>")
+        {
+            var fullPath = $"{Path}.{path}";
+
+            try
+            {
+                return BufferReader.Deserialize(Reader, type, new ReadFormatContext<TReader>(BufferReader, Reader, fullPath));
+            }
+            catch (Exception ex)
+            {
+                throw new FormattingException($"Failed to read type {type} at path {fullPath}", ex);
+            }
+        }
 
         public T Read<T>(string path = "<>") => (T)Read(typeof(T), path);
     }
