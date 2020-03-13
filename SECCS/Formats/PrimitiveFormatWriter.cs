@@ -1,5 +1,4 @@
-﻿using AgileObjects.NetStandardPolyfills;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -15,7 +14,7 @@ namespace SECCS.Formats
 
         static PrimitiveFormatWriter()
         {
-            foreach (var method in typeof(TWriter).GetPublicInstanceMethods())
+            foreach (var method in typeof(TWriter).GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
                 var methodParams = method.GetParameters();
 
