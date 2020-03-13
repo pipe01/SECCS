@@ -19,10 +19,21 @@ namespace SECCS.Formats
 
             var obj = maker();
 
-            foreach (var item in GetProperties(type))
+            foreach (var prop in GetProperties(type))
             {
-                var value = context.Read(item.PropertyType, item.Name);
-                item.SetValue(obj, value);
+                var propType = prop.PropertyType;
+
+                var concreteAttr = prop.GetCustomAttribute<ConcreteTypeAttribute>();
+                if (concreteAttr != null)
+                {
+                    if (!prop.PropertyType.IsAssignableFrom(concreteAttr.Type))
+                        throw new Exception($"The concrete type {concreteAttr.Type} is not assignable to {prop.PropertyType}");
+
+                    propType = concreteAttr.Type;
+                }
+
+                var value = context.Read(propType, prop.Name);
+                prop.SetValue(obj, value);
             }
 
             return obj;

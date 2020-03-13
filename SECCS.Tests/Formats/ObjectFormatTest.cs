@@ -3,6 +3,7 @@ using NUnit.Framework;
 using SECCS.Formats;
 using SECCS.Tests.Classes;
 using SECCS.Tests.Utils;
+using System.Collections.Generic;
 
 namespace SECCS.Tests.Formats
 {
@@ -27,6 +28,19 @@ namespace SECCS.Tests.Formats
             bufferReaderMock.Verify();
         }
 
+        [Test]
+        public void Read_ObjectWithConcreteType_CallsBufferReader()
+        {
+            var buffer = new DummyBuffer();
+
+            var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>(MockBehavior.Strict);
+            bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(List<int>), It.IsAny<ReadFormatContext<DummyBuffer>>())).Returns(null).Verifiable();
+
+            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, buffer, "");
+            Format.Read(typeof(TestClassConcrete), context);
+
+            bufferReaderMock.Verify();
+        }
 
         [Test]
         public void Write_Object_CallsBufferWriter()
