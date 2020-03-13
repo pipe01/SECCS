@@ -25,8 +25,8 @@ namespace SECCS.Tests.Formats
             new TestClass1[0],
             new[]
             {
-                new TestClass1 { Field1 = 123, Field2 = "nice" },
-                new TestClass1 { Field1 = 42, Field2 = "foo" },
+                new TestClass1 { Prop1 = 123, Prop2 = "nice", Field1 = 56, Field2 = "asdoisajd" },
+                new TestClass1 { Prop1 = 42, Prop2 = "foo", Field1 = 3948, Field2 = "soigjofdgij" },
             }
         };
 

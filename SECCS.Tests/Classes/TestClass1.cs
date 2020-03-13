@@ -2,7 +2,10 @@
 {
     public class TestClass1
     {
-        public int Field1 { get; set; }
-        public string Field2 { get; set; }
+        public int Prop1 { get; set; }
+        public string Prop2 { get; set; }
+
+        public int Field1;
+        public string Field2;
     }
 }

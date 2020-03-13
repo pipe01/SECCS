@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SECCS.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -19,20 +20,9 @@ namespace SECCS.Formats
 
             var obj = maker();
 
-            foreach (var prop in GetProperties(type))
+            foreach (var prop in GetMembers(type))
             {
-                var propType = prop.PropertyType;
-
-                var concreteAttr = prop.GetCustomAttribute<ConcreteTypeAttribute>();
-                if (concreteAttr != null)
-                {
-                    if (!prop.PropertyType.IsAssignableFrom(concreteAttr.Type))
-                        throw new Exception($"The concrete type {concreteAttr.Type} is not assignable to {prop.PropertyType}");
-
-                    propType = concreteAttr.Type;
-                }
-
-                var value = context.Read(propType, prop.Name);
+                var value = context.Read(prop.GetTypeOrConcrete(), prop.Name);
                 prop.SetValue(obj, value);
             }
 
@@ -43,16 +33,17 @@ namespace SECCS.Formats
         {
             Type t = obj.GetType();
 
-            foreach (var item in GetProperties(t))
+            foreach (var item in GetMembers(t))
             {
-                if (item.CanRead)
-                    context.Write(item.GetValue(obj), item.Name);
+                context.Write(item.GetValue(obj), item.Name);
             }
         }
 
-        private static IEnumerable<PropertyInfo> GetProperties(Type t)
+        private static IEnumerable<ClassMember> GetMembers(Type t)
         {
-            foreach (var prop in t.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
+            const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
+
+            foreach (var prop in t.GetProperties(flags))
             {
                 if (!prop.CanRead && !prop.CanWrite)
                     continue;
@@ -63,6 +54,18 @@ namespace SECCS.Formats
 
                 if ((isPublic || isMember) && !isIgnored)
                     yield return prop;
+            }
+
+            foreach (var field in t.GetFields(flags))
+            {
+                if (field.IsInitOnly)
+                    continue;
+
+                var isMember = field.IsDefined(typeof(SeccsMemberAttribute));
+                var isIgnored = field.IsDefined(typeof(SeccsIgnoreAttribute));
+
+                if ((field.IsPublic || isMember) || isIgnored)
+                    yield return field;
             }
         }
 
