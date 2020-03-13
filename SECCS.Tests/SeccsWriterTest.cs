@@ -11,7 +11,7 @@ namespace SECCS.Tests
         public void Serialize_TypeWithNoFormat_Throws()
         {
             var writer = new SeccsWriter<DummyBuffer>();
-            writer.WriteFormats.Clear();
+            writer.Formats.Clear();
 
             Assert.Throws<FormatNotFoundException>(() => writer.Serialize(new DummyBuffer(), new object()));
         }
@@ -25,8 +25,8 @@ namespace SECCS.Tests
             formatMock.Setup(o => o.CanFormat(typeof(object))).Returns(true).Verifiable();
             formatMock.Setup(o => o.Write(It.IsAny<object>(), It.IsAny<WriteFormatContext<DummyBuffer>>())).Callback(Assert.Pass).Verifiable();
 
-            writer.WriteFormats.Clear();
-            writer.WriteFormats.Add(formatMock.Object);
+            writer.Formats.Clear();
+            writer.Formats.Add(formatMock.Object);
 
             writer.Serialize(new DummyBuffer(), new object());
 

@@ -12,7 +12,7 @@ namespace SECCS.Tests
         public void Deserialize_TypeWithNoFormat_Throws()
         {
             var reader = new SeccsReader<DummyBuffer>();
-            reader.ReadFormats.Clear();
+            reader.Formats.Clear();
 
             Assert.Throws<FormatNotFoundException>(() => reader.Deserialize<object>(new DummyBuffer()));
         }
@@ -25,8 +25,8 @@ namespace SECCS.Tests
             formatMock.Setup(o => o.Read(It.IsAny<Type>(), It.IsAny<ReadFormatContext<DummyBuffer>>())).Verifiable();
 
             var reader = new SeccsReader<DummyBuffer>();
-            reader.ReadFormats.Clear();
-            reader.ReadFormats.Add(formatMock.Object);
+            reader.Formats.Clear();
+            reader.Formats.Add(formatMock.Object);
 
             reader.Deserialize(new DummyBuffer(), typeof(object));
 
