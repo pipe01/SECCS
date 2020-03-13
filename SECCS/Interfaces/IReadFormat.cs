@@ -15,7 +15,7 @@ namespace SECCS
         public abstract T Read(ReadFormatContext<TReader> context);
     }
 
-    public delegate T ReadDelegate<T, TReader>(TReader reader);
+    public delegate T ReadDelegate<T, TReader>(ReadFormatContext<TReader> reader);
 
     public sealed class DelegateReadFormat<T, TReader> : ReadFormat<T, TReader>
     {
@@ -26,6 +26,6 @@ namespace SECCS
             this.Reader = readFunc ?? throw new ArgumentNullException(nameof(readFunc));
         }
 
-        public override T Read(ReadFormatContext<TReader> context) => Reader(context.Reader);
+        public override T Read(ReadFormatContext<TReader> context) => Reader(context);
     }
 }

@@ -32,9 +32,10 @@ namespace SECCS
         /// </summary>
         /// <param name="obj">The object to serialize</param>
         /// <param name="path">The path of this object</param>
-        public void Serialize(object obj, string path)
+        public WriteFormatContext<TWriter> Serialize(object obj, string path)
         {
             BufferWriter.Serialize(Writer, obj, new WriteFormatContext<TWriter>(BufferWriter, Writer, $"{Path}.{path}"));
+            return this;
         }
     }
 
