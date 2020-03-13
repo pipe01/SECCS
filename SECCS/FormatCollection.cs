@@ -32,6 +32,11 @@ namespace SECCS
 
             AddRange(FormatFinder.FindAll(bufferType));
 
+            Sort();
+        }
+
+        private void Sort()
+        {
             InnerList.Sort((a, b) => (b.GetType().GetCustomAttribute<FormatPriorityAttribute>()?.Priority ?? 0)
                                    - (a.GetType().GetCustomAttribute<FormatPriorityAttribute>()?.Priority ?? 0));
         }
@@ -50,16 +55,19 @@ namespace SECCS
         public void Add(TFormat item)
         {
             this.InnerList.Add(item);
+            Sort();
         }
 
         public void AddRange(IEnumerable<TFormat> items)
         {
             this.InnerList.AddRange(items);
+            Sort();
         }
 
         public void AddRange(params TFormat[] items)
         {
             this.InnerList.AddRange(items);
+            Sort();
         }
 
         public void Clear()
