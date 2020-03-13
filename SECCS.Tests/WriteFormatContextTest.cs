@@ -34,7 +34,7 @@ namespace SECCS.Tests
             Assert.Throws(Is.TypeOf<FormattingException>()
                             .And.Message.EqualTo($"Failed to read type {typeof(TestClass1)} at path Path.InnerPath")
                             .And.InnerException.Message.EqualTo("Inner exception"),
-                () => context.Read(typeof(TestClass1), "InnerPath"));
+                () => context.Read(typeof(TestClass1), "InnerPath", false));
         }
     }
 }

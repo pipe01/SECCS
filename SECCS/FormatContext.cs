@@ -39,7 +39,7 @@ namespace SECCS
         /// </summary>
         /// <param name="obj">The object to serialize</param>
         /// <param name="path">The path of this object</param>
-        public WriteFormatContext<TWriter> Write(object obj, string path = "<>")
+        public WriteFormatContext<TWriter> Write(object obj, string path = "<>", bool nullMark = true)
         {
             var fullPath = $"{Path}.{path}";
 
@@ -77,9 +77,23 @@ namespace SECCS
             this.Path = path ?? "";
         }
 
-        public object Read(Type type, string path = "<>")
+        public object Read(Type type, string path = "<>", bool nullCheck = true)
         {
             var fullPath = $"{Path}.{path}";
+
+            if (nullCheck && !type.IsValueType)
+            {
+                var nullByte = Read<byte>("@Null");
+
+                if (nullByte == 0)
+                {
+                    return null;
+                }
+                else if (nullByte != 1)
+                {
+                    throw new FormattingException($"Invalid null marker found: {nullByte}");
+                }
+            }
 
             try
             {
@@ -91,6 +105,6 @@ namespace SECCS
             }
         }
 
-        public T Read<T>(string path = "<>") => (T)Read(typeof(T), path);
+        public T Read<T>(string path = "<>", bool nullCheck = true) => (T)(Read(typeof(T), path, nullCheck) ?? default(T));
     }
 }

@@ -56,6 +56,7 @@ namespace SECCS.Tests.Formats
             var buffer = new DummyBuffer();
 
             var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
+            bufferReaderMock.SetupNullMarker();
             bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(int), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path == ".Length")))
                             .Returns(arrayLength).Verifiable();
             bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(TestClass1), It.IsAny<ReadFormatContext<DummyBuffer>>()))

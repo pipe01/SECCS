@@ -19,6 +19,7 @@ namespace SECCS.Tests.Formats
         public void Read_TestClass_CallsBufferReader()
         {
             var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
+            bufferReaderMock.SetupNullMarker();
             bufferReaderMock.SetupPath<int>(nameof(TestClass1.Prop1));
             bufferReaderMock.SetupPath<string>(nameof(TestClass1.Prop2));
             bufferReaderMock.SetupPath<int>(nameof(TestClass1.Field1));
@@ -36,6 +37,7 @@ namespace SECCS.Tests.Formats
             var buffer = new DummyBuffer();
 
             var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
+            bufferReaderMock.SetupNullMarker();
             bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(List<int>), It.IsAny<ReadFormatContext<DummyBuffer>>())).Returns(null).Verifiable();
 
             var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, buffer, "");
@@ -59,6 +61,27 @@ namespace SECCS.Tests.Formats
             Format.Write(data, context);
 
             bufferWriterMock.Verify();
+        }
+
+        [Test]
+        public void Write_ObjectWithNullMember_WritesZero()
+        {
+            var data = new NullClass();
+
+            var bufferWriterMock = new Mock<IBufferWriter<DummyBuffer>>();
+            bufferWriterMock.SetupPath(ObjectFormat<DummyBuffer>.NullPath, (byte)0);
+
+            var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, new DummyBuffer(), "");
+            Format.Write(data, context);
+
+            bufferWriterMock.Verify();
+        }
+
+        private class NullClass
+        {
+#pragma warning disable 649
+            public string IsNull;
+#pragma warning restore 649
         }
     }
 }

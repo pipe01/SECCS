@@ -1,4 +1,5 @@
-﻿using SECCS.Internal;
+﻿using SECCS.Exceptions;
+using SECCS.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -11,6 +12,8 @@ namespace SECCS.Formats
     {
         private static readonly IDictionary<Type, Func<object>> NewExpressions = new Dictionary<Type, Func<object>>();
 
+        internal const string NullPath = "@Null";
+
         public bool CanFormat(Type type) => !type.IsPrimitive;
 
         public object Read(Type type, ReadFormatContext<T> context)
@@ -20,10 +23,11 @@ namespace SECCS.Formats
 
             var obj = maker();
 
-            foreach (var prop in GetMembers(type))
+            foreach (var member in GetMembers(type))
             {
-                var value = context.Read(prop.GetTypeOrConcrete(), prop.Name);
-                prop.SetValue(obj, value);
+                object value = context.Read(member.GetTypeOrConcrete(), member.Name);
+
+                member.SetValue(obj, value);
             }
 
             return obj;
@@ -33,9 +37,14 @@ namespace SECCS.Formats
         {
             Type t = obj.GetType();
 
-            foreach (var item in GetMembers(t))
+            foreach (var member in GetMembers(t))
             {
-                context.Write(item.GetValue(obj), item.Name);
+                var value = member.GetValue(obj);
+
+                if (!t.IsValueType)
+                    context.Write((byte)(value == null ? 0 : 1), NullPath);
+
+                context.Write(value, member.Name);
             }
         }
 
@@ -45,7 +54,7 @@ namespace SECCS.Formats
 
             foreach (var prop in t.GetProperties(flags))
             {
-                if (!prop.CanRead && !prop.CanWrite)
+                if (!prop.CanRead || !prop.CanWrite)
                     continue;
 
                 var isPublic = prop.GetMethod.IsPublic && prop.SetMethod.IsPublic;

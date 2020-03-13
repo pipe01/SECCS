@@ -31,6 +31,7 @@ namespace SECCS.Tests.Formats.MiscTypes
             var buffer = new DummyBuffer();
 
             var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
+            bufferReaderMock.SetupNullMarker();
             bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(byte[]), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path == "." + GuidFormat<DummyBuffer>.BytesPath)))
                 .Returns(Enumerable.Repeat((byte)0, 16).ToArray())
                 .Verifiable();
