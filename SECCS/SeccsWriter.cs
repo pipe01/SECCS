@@ -28,9 +28,6 @@ namespace SECCS
             Type t = obj.GetType();
 
             var format = Formats.GetFor(t);
-            if (format == null)
-                throw new FormatNotFoundException(t);
-
             context = context ?? new WriteFormatContext<TWriter>(this, writer, "");
 
             format.Write(obj, context.Value);

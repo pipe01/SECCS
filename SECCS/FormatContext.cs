@@ -23,8 +23,14 @@ namespace SECCS
 
         internal WriteFormatContext(IBufferWriter<TWriter> bufferWriter, TWriter writer, string path)
         {
-            this.BufferWriter = bufferWriter ?? throw new ArgumentNullException(nameof(bufferWriter));
-            this.Writer = writer ?? throw new ArgumentNullException(nameof(writer));
+            if (bufferWriter == null)
+                throw new ArgumentNullException(nameof(bufferWriter));
+
+            if (writer == null)
+                throw new ArgumentNullException(nameof(writer));
+
+            this.BufferWriter = bufferWriter;
+            this.Writer = writer;
             this.Path = path ?? "";
         }
 
@@ -60,8 +66,14 @@ namespace SECCS
 
         internal ReadFormatContext(IBufferReader<TReader> bufferReader, TReader reader, string path)
         {
-            this.BufferReader = bufferReader ?? throw new ArgumentNullException(nameof(bufferReader));
-            this.Reader = reader ?? throw new ArgumentNullException(nameof(reader));
+            if (bufferReader == null)
+                throw new ArgumentNullException(nameof(bufferReader));
+
+            if (reader == null)
+                throw new ArgumentNullException(nameof(reader));
+
+            this.BufferReader = bufferReader;
+            this.Reader = reader;
             this.Path = path ?? "";
         }
 

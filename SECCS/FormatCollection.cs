@@ -1,4 +1,5 @@
-﻿using SECCS.Internal;
+﻿using SECCS.Exceptions;
+using SECCS.Internal;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -35,7 +36,7 @@ namespace SECCS
                                    - (a.GetType().GetCustomAttribute<FormatPriorityAttribute>()?.Priority ?? 0));
         }
 
-        public TFormat? GetFor(Type type)
+        public TFormat GetFor(Type type)
         {
             foreach (var item in InnerList)
             {
@@ -43,7 +44,7 @@ namespace SECCS
                     return item;
             }
 
-            return null; //throw?
+            throw new FormatNotFoundException(type);
         }
 
         public void Add(TFormat item)

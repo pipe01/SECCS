@@ -71,7 +71,7 @@ namespace SECCS.Formats
 
         private static Func<object> CreateExpression(Type t)
         {
-            ConstructorInfo? ctor = null;
+            ConstructorInfo ctor = null;
 
             foreach (var item in t.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
