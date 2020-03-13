@@ -39,12 +39,7 @@ namespace SECCS.Formats
 
             foreach (var member in GetMembers(t))
             {
-                var value = member.GetValue(obj);
-
-                if (!t.IsValueType)
-                    context.Write((byte)(value == null ? 0 : 1), NullPath);
-
-                context.Write(value, member.Name);
+                context.Write(member.GetValue(obj), member.Name);
             }
         }
 

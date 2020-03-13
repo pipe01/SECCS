@@ -43,6 +43,9 @@ namespace SECCS
         {
             var fullPath = $"{Path}.{path}";
 
+            if (nullMark && !(obj is ValueType))
+                Write((byte)(obj == null ? 0 : 1), "@Null");
+
             try
             {
                 BufferWriter.Serialize(Writer, obj, new WriteFormatContext<TWriter>(BufferWriter, Writer, fullPath));
