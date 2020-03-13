@@ -56,6 +56,6 @@ namespace SECCS
 
         public object Read(Type type, string path = "<>") => BufferReader.Deserialize(Reader, type, new ReadFormatContext<TReader>(BufferReader, Reader, $"{Path}.{path}"));
 
-        public T Read<T>(string path) => (T)Read(typeof(T), path);
+        public T Read<T>(string path = "<>") => (T)Read(typeof(T), path);
     }
 }
