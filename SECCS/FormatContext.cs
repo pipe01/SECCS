@@ -2,10 +2,20 @@
 
 namespace SECCS
 {
+    /// <summary>
+    /// Represents a write format's context information.
+    /// </summary>
+    /// <typeparam name="TWriter">The type of the writer</typeparam>
     public readonly struct WriteFormatContext<TWriter>
     {
+        /// <summary>
+        /// The buffer writer that invoked this operation.
+        /// </summary>
         public IBufferWriter<TWriter> BufferWriter { get; }
 
+        /// <summary>
+        /// The low-level writer.
+        /// </summary>
         public TWriter Writer { get; }
 
         internal string Path { get; }
@@ -17,6 +27,11 @@ namespace SECCS
             this.Path = path ?? "";
         }
 
+        /// <summary>
+        /// Serializes an object to the writer using the same buffer writer that invoked the operation this context represents.
+        /// </summary>
+        /// <param name="obj">The object to serialize</param>
+        /// <param name="path">The path of this object</param>
         public void Serialize(object obj, string path)
         {
             BufferWriter.Serialize(Writer, obj, new WriteFormatContext<TWriter>(BufferWriter, Writer, $"{Path}.{path}"));
