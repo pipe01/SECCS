@@ -32,7 +32,7 @@ namespace SECCS
         /// </summary>
         /// <param name="obj">The object to serialize</param>
         /// <param name="path">The path of this object</param>
-        public WriteFormatContext<TWriter> Serialize(object obj, string path)
+        public WriteFormatContext<TWriter> Serialize(object obj, string path = "<>")
         {
             BufferWriter.Serialize(Writer, obj, new WriteFormatContext<TWriter>(BufferWriter, Writer, $"{Path}.{path}"));
             return this;
@@ -54,7 +54,7 @@ namespace SECCS
             this.Path = path ?? "";
         }
 
-        public object Deserialize(Type type, string path) => BufferReader.Deserialize(Reader, type, new ReadFormatContext<TReader>(BufferReader, Reader, $"{Path}.{path}"));
+        public object Deserialize(Type type, string path = "<>") => BufferReader.Deserialize(Reader, type, new ReadFormatContext<TReader>(BufferReader, Reader, $"{Path}.{path}"));
 
         public T Deserialize<T>(string path) => (T)Deserialize(typeof(T), path);
     }
