@@ -29,7 +29,7 @@ namespace SECCS
             if (format == null)
                 throw new FormatNotFoundException(objType);
 
-            context ??= new ReadFormatContext<TReader>(this, reader, "");
+            context = context ?? new ReadFormatContext<TReader>(this, reader, "");
 
             return format.Read(objType, context.Value);
         }

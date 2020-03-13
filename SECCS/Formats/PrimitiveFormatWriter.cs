@@ -27,8 +27,7 @@ namespace SECCS.Formats
                 WriterMethods.Add(writerValueType, CreateMethodAction(method, writerValueType));
             }
 
-
-            static Action<TWriter, object> CreateMethodAction(MethodInfo method, Type writerValueType)
+            Action<TWriter, object> CreateMethodAction(MethodInfo method, Type writerValueType)
             {
                 var writerParam = Parameter(typeof(TWriter));
                 var objParam = Parameter(typeof(object));

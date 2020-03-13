@@ -10,7 +10,11 @@ namespace SECCS
     public abstract class ReadFormat<T, TReader> : IReadFormat<TReader>
     {
         bool IFormat.CanFormat(Type type) => type == typeof(T);
-        object IReadFormat<TReader>.Read(Type type, ReadFormatContext<TReader> context) => Read(context)!;
+        object IReadFormat<TReader>.Read(Type type, ReadFormatContext<TReader> context) => Read(context)
+            #if CS8
+            ! //Mark as not null
+            #endif
+        ;
 
         public abstract T Read(ReadFormatContext<TReader> context);
     }

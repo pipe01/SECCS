@@ -5,6 +5,7 @@
     <Platforms>AnyCPU;x86</Platforms>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <DefineConstants>CS8</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

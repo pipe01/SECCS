@@ -30,8 +30,7 @@ namespace SECCS.Formats
                 ReaderMethods.Add(readerValueType, CreateMethodAction(method));
             }
 
-
-            static Func<TReader, object> CreateMethodAction(MethodInfo method)
+            Func<TReader, object> CreateMethodAction(MethodInfo method)
             {
                 var readerParam = Parameter(typeof(TReader));
 
