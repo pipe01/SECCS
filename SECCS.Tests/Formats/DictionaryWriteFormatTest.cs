@@ -27,17 +27,25 @@ namespace SECCS.Tests.Formats
         };
 
         [TestCaseSource(nameof(WriteData))]
-        public void Write_Dictionary_CallsBufferWriter(IEnumerable data)
+        public void Write_Dictionary_CallsBufferWriter(IDictionary data)
         {
             var count = data.Cast<object>().Count();
 
             var buffer = new DummyBuffer();
 
             var bufferWriterMock = new Mock<IBufferWriter<DummyBuffer>>(MockBehavior.Strict);
+            bufferWriterMock.Setup(o => o.Serialize(buffer, It.IsAny<byte>(), It.Is<WriteFormatContext<DummyBuffer>>(o => o.Path.EndsWith("@Null"))));
             bufferWriterMock.Setup(o => o.Serialize(buffer, count, It.IsAny<WriteFormatContext<DummyBuffer>>())).Verifiable();
-            foreach (var item in data)
+
+            int i = 0;
+            foreach (var key in data.Keys)
             {
-                bufferWriterMock.Setup(o => o.Serialize(buffer, item, It.IsAny<WriteFormatContext<DummyBuffer>>())).Verifiable();
+                int ii = i;
+
+                bufferWriterMock.Setup(o => o.Serialize(buffer, key, It.Is<WriteFormatContext<DummyBuffer>>(o => o.Path == $".[{ii}].Key"))).Verifiable();
+                bufferWriterMock.Setup(o => o.Serialize(buffer, data[key], It.Is<WriteFormatContext<DummyBuffer>>(o => o.Path == $".[{ii}].Value"))).Verifiable();
+
+                i++;
             }
 
             var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, buffer, "");

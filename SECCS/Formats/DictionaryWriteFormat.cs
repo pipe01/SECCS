@@ -16,12 +16,15 @@ namespace SECCS.Formats
 
             context.Write(count, "Count");
 
-            var enumerable = (IEnumerable)obj;
+            var dic = (IDictionary)obj;
 
             int i = 0;
-            foreach (var kvp in enumerable)
+            foreach (var key in dic.Keys)
             {
-                context.Write(kvp, $"[{i++}]");
+                context.Write(key, $"[{i}].Key");
+                context.Write(dic[key], $"[{i}].Value");
+
+                i++;
             }
         }
     }
