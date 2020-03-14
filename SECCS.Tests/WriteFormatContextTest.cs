@@ -20,7 +20,7 @@ namespace SECCS.Tests
             Assert.Throws(Is.TypeOf<FormattingException>()
                             .And.Message.EqualTo($"Failed to write object of type {typeof(TestClass1)} at path Path.InnerPath")
                             .And.InnerException.Message.EqualTo("Inner exception"),
-                () => context.Write(new TestClass1(), "InnerPath"));
+                () => context.Write(new TestClass1(), "InnerPath", false));
         }
 
         [Test]

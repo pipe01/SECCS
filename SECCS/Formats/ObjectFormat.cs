@@ -23,7 +23,7 @@ namespace SECCS.Formats
 
             var obj = maker();
 
-            foreach (var member in GetMembers(type))
+            foreach (var member in GetMembers(type, writeable: true))
             {
                 object value = context.Read(member.GetTypeOrConcrete(), member.Name);
 
@@ -37,19 +37,19 @@ namespace SECCS.Formats
         {
             Type t = obj.GetType();
 
-            foreach (var member in GetMembers(t))
+            foreach (var member in GetMembers(t, readable: true))
             {
                 context.Write(member.GetValue(obj), member.Name);
             }
         }
 
-        private static IEnumerable<ClassMember> GetMembers(Type t)
+        private static IEnumerable<ClassMember> GetMembers(Type t, bool readable = true, bool writeable = true)
         {
             const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
 
             foreach (var prop in t.GetProperties(flags))
             {
-                if (!prop.CanRead || !prop.CanWrite)
+                if ((!prop.CanRead && readable) || (!prop.CanWrite && writeable))
                     continue;
 
                 var isPublic = prop.GetMethod.IsPublic && prop.SetMethod.IsPublic;
@@ -62,7 +62,7 @@ namespace SECCS.Formats
 
             foreach (var field in t.GetFields(flags))
             {
-                if (field.IsInitOnly)
+                if (field.IsInitOnly && readable)
                     continue;
 
                 var isMember = field.IsDefined(typeof(SeccsMemberAttribute));

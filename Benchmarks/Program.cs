@@ -30,6 +30,12 @@ namespace Benchmarks
                 {
                     InnerNumber = 69,
                     String = "asdasd"
+                },
+                Dic = new Dictionary<int, string>
+                {
+                    { 1, "one" },
+                    { 2, "two" },
+                    { 3, "three" },
                 }
             });
 
@@ -49,6 +55,7 @@ namespace Benchmarks
         public byte Byte { get; set; }
         public List<int> List { get; set; }
         public List<ClassInner> List2 { get; set; }
+        public Dictionary<int, string> Dic { get; set; }
 
         public ClassInner Inner { get; set; }
     }

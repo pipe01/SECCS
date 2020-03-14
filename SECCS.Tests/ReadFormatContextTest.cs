@@ -40,7 +40,9 @@ namespace SECCS.Tests
 
         private struct TestStruct
         {
+#pragma warning disable 649
             public int ID;
+#pragma warning restore 649
 
             public override bool Equals(object obj)
             {
