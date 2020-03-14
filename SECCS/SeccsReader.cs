@@ -1,5 +1,6 @@
 ﻿using SECCS.Exceptions;
 using System;
+using System.Runtime.Serialization;
 
 namespace SECCS
 {
@@ -28,7 +29,12 @@ namespace SECCS
             var format = Formats.GetFor(objType);
             context = context ?? new ReadFormatContext<TReader>(this, reader, "");
 
-            return format.Read(objType, context.Value);
+            var obj = format.Read(objType, context.Value);
+
+            if (obj is IDeserializationCallback callback)
+                callback.OnDeserialization(this);
+
+            return obj;
         }
 
         public T Deserialize<T>(TReader reader, ReadFormatContext<TReader>? context = null)
