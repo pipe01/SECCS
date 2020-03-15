@@ -7,7 +7,7 @@ namespace SECCS.Formats
     {
         public bool CanFormat(Type type) => type.IsGenericType && !type.IsInterface && typeof(IDictionary).IsAssignableFrom(type);
 
-        public object Read(Type type, ReadFormatContext<TReader> context)
+        public object Read(Type type, IReadFormatContext<TReader> context)
         {
             var dic = (IDictionary)Activator.CreateInstance(type);
 

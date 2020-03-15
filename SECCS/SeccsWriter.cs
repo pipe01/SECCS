@@ -28,7 +28,7 @@ namespace SECCS
             Type t = obj.GetType();
 
             var format = Formats.GetFor(t);
-            context = context ?? new WriteFormatContext<TWriter>(this, writer, "");
+            context = context ?? new WriteFormatContext<TWriter>(this, writer, t.Name);
 
             format.Write(obj, context.Value);
         }

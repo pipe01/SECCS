@@ -10,7 +10,7 @@ namespace SECCS.Formats
             => type.Name == typeof(IReadOnlyDictionary<,>).Name
             || type.GetInterface(typeof(IReadOnlyDictionary<,>).Name) != null;
 
-        public void Write(object obj, WriteFormatContext<TWriter> context)
+        public void Write(object obj, IWriteFormatContext<TWriter> context)
         {
             var count = (int)obj.GetType().GetProperty("Count").GetValue(obj);
 

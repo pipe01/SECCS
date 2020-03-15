@@ -7,7 +7,7 @@ namespace SECCS.Formats
     {
         public bool CanFormat(Type type) => typeof(ISeccsReadable<TReader>).IsAssignableFrom(type);
 
-        public object Read(Type type, ReadFormatContext<TReader> context)
+        public object Read(Type type, IReadFormatContext<TReader> context)
         {
             var obj = Activator.CreateInstance(type);
             var readable = (ISeccsReadable<TReader>)obj;

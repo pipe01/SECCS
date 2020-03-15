@@ -8,7 +8,7 @@ namespace SECCS.Formats
     {
         public bool CanFormat(Type type) => typeof(IList).IsAssignableFrom(type) && type.GetGenericArguments().Length > 0;
 
-        public object Read(Type type, ReadFormatContext<T> context)
+        public object Read(Type type, IReadFormatContext<T> context)
         {
             var elementType = type.GetGenericArguments()[0];
 
@@ -25,7 +25,7 @@ namespace SECCS.Formats
             return l;
         }
 
-        public void Write(object obj, WriteFormatContext<T> context)
+        public void Write(object obj, IWriteFormatContext<T> context)
         {
             var l = (IList)obj;
 

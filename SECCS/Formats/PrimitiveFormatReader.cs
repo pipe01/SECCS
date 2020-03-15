@@ -44,7 +44,7 @@ namespace SECCS.Formats
 
         public bool CanFormat(Type type) => ReaderMethods.ContainsKey(type);
 
-        public object Read(Type type, ReadFormatContext<TReader> context)
+        public object Read(Type type, IReadFormatContext<TReader> context)
         {
             return ReaderMethods[type](context.Reader);
         }

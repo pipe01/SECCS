@@ -7,7 +7,7 @@ namespace SECCS.Formats
     {
         public bool CanFormat(Type type) => type.IsArray;
 
-        public object Read(Type type, ReadFormatContext<T> context)
+        public object Read(Type type, IReadFormatContext<T> context)
         {
             var itemType = type.GetElementType();
 
@@ -23,7 +23,7 @@ namespace SECCS.Formats
             return arr;
         }
 
-        public void Write(object obj, WriteFormatContext<T> context)
+        public void Write(object obj, IWriteFormatContext<T> context)
         {
             var arr = (Array)obj;
 

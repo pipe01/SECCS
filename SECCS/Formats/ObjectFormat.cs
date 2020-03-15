@@ -16,7 +16,7 @@ namespace SECCS.Formats
 
         public bool CanFormat(Type type) => !type.IsPrimitive;
 
-        public object Read(Type type, ReadFormatContext<T> context)
+        public object Read(Type type, IReadFormatContext<T> context)
         {
             if (!NewExpressions.TryGetValue(type, out var maker))
                 NewExpressions[type] = maker = CreateExpression(type);
@@ -33,7 +33,7 @@ namespace SECCS.Formats
             return obj;
         }
 
-        public void Write(object obj, WriteFormatContext<T> context)
+        public void Write(object obj, IWriteFormatContext<T> context)
         {
             Type t = obj.GetType();
 

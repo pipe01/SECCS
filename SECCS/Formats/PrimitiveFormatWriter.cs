@@ -39,7 +39,7 @@ namespace SECCS.Formats
 
         public bool CanFormat(Type type) => WriterMethods.ContainsKey(type);
 
-        public void Write(object obj, WriteFormatContext<TWriter> context)
+        public void Write(object obj, IWriteFormatContext<TWriter> context)
         {
             WriterMethods[obj.GetType()](context.Writer, obj);
         }

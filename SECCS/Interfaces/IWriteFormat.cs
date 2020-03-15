@@ -4,20 +4,20 @@ namespace SECCS
 {
     public interface IWriteFormat<TWriter> : IFormat
     {
-        void Write(object obj, WriteFormatContext<TWriter> context);
+        void Write(object obj, IWriteFormatContext<TWriter> context);
     }
 
     public abstract class WriteFormat<T, TWriter> : IWriteFormat<TWriter>
     {
         bool IFormat.CanFormat(Type type) => CanFormatInheritedTypes ? typeof(T).IsAssignableFrom(type) : type == typeof(T);
-        void IWriteFormat<TWriter>.Write(object obj, WriteFormatContext<TWriter> context) => Write((T)obj, context);
+        void IWriteFormat<TWriter>.Write(object obj, IWriteFormatContext<TWriter> context) => Write((T)obj, context);
 
         protected virtual bool CanFormatInheritedTypes => true;
 
-        protected abstract void Write(T obj, WriteFormatContext<TWriter> context);
+        protected abstract void Write(T obj, IWriteFormatContext<TWriter> context);
     }
 
-    public delegate void WriteDelegate<T, TWriter>(T obj, WriteFormatContext<TWriter> context);
+    public delegate void WriteDelegate<T, TWriter>(T obj, IWriteFormatContext<TWriter> context);
 
     public class DelegateWriteFormat<T, TWriter> : WriteFormat<T, TWriter>
     {
@@ -31,6 +31,6 @@ namespace SECCS
             this.CanFormatInheritedTypes = canFormatInheritedTypes;
         }
 
-        protected override void Write(T obj, WriteFormatContext<TWriter> context) => Writer(obj, context);
+        protected override void Write(T obj, IWriteFormatContext<TWriter> context) => Writer(obj, context);
     }
 }

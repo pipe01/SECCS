@@ -8,14 +8,14 @@ namespace SECCS.Formats.MiscTypes
 
         public bool CanFormat(Type type) => type == typeof(Guid);
 
-        public object Read(Type type, ReadFormatContext<T> context)
+        public object Read(Type type, IReadFormatContext<T> context)
         {
             var guidBytes = context.Read<byte[]>(BytesPath);
 
             return new Guid(guidBytes);
         }
 
-        public void Write(object obj, WriteFormatContext<T> context)
+        public void Write(object obj, IWriteFormatContext<T> context)
         {
             var guid = (Guid)obj;
 

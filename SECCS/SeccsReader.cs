@@ -27,7 +27,7 @@ namespace SECCS
                 throw new ArgumentNullException(nameof(objType));
 
             var format = Formats.GetFor(objType);
-            context = context ?? new ReadFormatContext<TReader>(this, reader, "");
+            context = context ?? new ReadFormatContext<TReader>(this, reader, objType.Name);
 
             var obj = format.Read(objType, context.Value);
 
