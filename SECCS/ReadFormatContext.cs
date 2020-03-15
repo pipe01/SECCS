@@ -3,12 +3,14 @@ using System;
 
 namespace SECCS
 {
-    public interface IReadFormatContext<TReader>
+    public interface IReadFormatContext
+    {
+        object Read(Type type, string path = "<>", bool nullCheck = true);
+    }
+
+    public interface IReadFormatContext<TReader> : IReadFormatContext
     {
         TReader Reader { get; }
-
-        object Read(Type type, string path = "<>", bool nullCheck = true);
-        T Read<T>(string path = "<>", bool nullCheck = true);
     }
 
     public readonly struct ReadFormatContext<TReader> : IReadFormatContext<TReader>
@@ -38,7 +40,7 @@ namespace SECCS
 
             if (nullCheck && !type.IsValueType)
             {
-                var nullByte = Read<byte>("@Null");
+                var nullByte = this.Read<byte>("@Null");
 
                 if (nullByte == 0)
                 {
@@ -59,7 +61,5 @@ namespace SECCS
                 throw new FormattingException($"Failed to read type {type} at path {fullPath}", ex);
             }
         }
-
-        public T Read<T>(string path = "<>", bool nullCheck = true) => (T)(Read(typeof(T), path, nullCheck) ?? default(T));
     }
 }
