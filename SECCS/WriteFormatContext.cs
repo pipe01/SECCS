@@ -15,7 +15,7 @@ namespace SECCS
         /// </summary>
         /// <param name="obj">The object to serialize</param>
         /// <param name="path">The path of this object</param>
-        WriteFormatContext<TWriter> Write(object obj, string path = "<>", bool nullMark = true);
+        IWriteFormatContext<TWriter> Write(object obj, string path = "<>", bool nullMark = true);
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ namespace SECCS
         }
 
         /// <inheritdoc/>
-        public WriteFormatContext<TWriter> Write(object obj, string path = "<>", bool nullMark = true)
+        public IWriteFormatContext<TWriter> Write(object obj, string path = "<>", bool nullMark = true)
         {
             var fullPath = $"{Path}.{path}";
 
