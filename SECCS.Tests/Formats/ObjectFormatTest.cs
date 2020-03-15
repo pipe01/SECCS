@@ -18,32 +18,26 @@ namespace SECCS.Tests.Formats
         [Test]
         public void Read_TestClass_CallsBufferReader()
         {
-            var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
-            bufferReaderMock.SetupNullMarker();
-            bufferReaderMock.SetupPath<int>(nameof(TestClass1.Prop1));
-            bufferReaderMock.SetupPath<string>(nameof(TestClass1.Prop2));
-            bufferReaderMock.SetupPath<int>(nameof(TestClass1.Field1));
-            bufferReaderMock.SetupPath<string>(nameof(TestClass1.Field2));
+            var contextMock = NewReadContextMock();
+            contextMock.SetupPath<int>(nameof(TestClass1.Prop1));
+            contextMock.SetupPath<string>(nameof(TestClass1.Prop2));
+            contextMock.SetupPath<int>(nameof(TestClass1.Field1));
+            contextMock.SetupPath<string>(nameof(TestClass1.Field2));
 
-            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, new DummyBuffer(), "");
-            Format.Read(typeof(TestClass1), context);
+            Format.Read(typeof(TestClass1), contextMock.Object);
 
-            bufferReaderMock.Verify();
+            contextMock.Verify();
         }
 
         [Test]
         public void Read_ObjectWithConcreteType_CallsBufferReader()
         {
-            var buffer = new DummyBuffer();
+            var contextMock = NewReadContextMock();
+            contextMock.SetupPath<List<int>>(nameof(TestClassConcrete.List));
 
-            var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
-            bufferReaderMock.SetupNullMarker();
-            bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(List<int>), It.IsAny<ReadFormatContext<DummyBuffer>>())).Returns(null).Verifiable();
+            Format.Read(typeof(TestClassConcrete), contextMock.Object);
 
-            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, buffer, "");
-            Format.Read(typeof(TestClassConcrete), context);
-
-            bufferReaderMock.Verify();
+            contextMock.Verify();
         }
 
         [Test]
@@ -51,30 +45,15 @@ namespace SECCS.Tests.Formats
         {
             var data = new TestClass1 { Prop1 = 123, Prop2 = "nice", Field1 = 42, Field2 = "adasd" };
 
-            var bufferWriterMock = new Mock<IBufferWriter<DummyBuffer>>();
-            bufferWriterMock.SetupPath(nameof(data.Prop1), data.Prop1);
-            bufferWriterMock.SetupPath(nameof(data.Prop2), data.Prop2);
-            bufferWriterMock.SetupPath(nameof(data.Field1), data.Field1);
-            bufferWriterMock.SetupPath(nameof(data.Field2), data.Field2);
+            var contextMock = NewWriteContextMock();
+            contextMock.SetupPath(nameof(data.Prop1), data.Prop1);
+            contextMock.SetupPath(nameof(data.Prop2), data.Prop2);
+            contextMock.SetupPath(nameof(data.Field1), data.Field1);
+            contextMock.SetupPath(nameof(data.Field2), data.Field2);
 
-            var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, new DummyBuffer(), "");
-            Format.Write(data, context);
+            Format.Write(data, contextMock.Object);
 
-            bufferWriterMock.Verify();
-        }
-
-        [Test]
-        public void Write_ObjectWithNullMember_WritesZero()
-        {
-            var data = new NullClass();
-
-            var bufferWriterMock = new Mock<IBufferWriter<DummyBuffer>>();
-            bufferWriterMock.SetupPath(ObjectFormat<DummyBuffer>.NullPath, (byte)0);
-
-            var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, new DummyBuffer(), "");
-            Format.Write(data, context);
-
-            bufferWriterMock.Verify();
+            contextMock.Verify();
         }
 
         private class NullClass

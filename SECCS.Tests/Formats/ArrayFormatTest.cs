@@ -3,6 +3,7 @@ using NUnit.Framework;
 using SECCS.Formats;
 using SECCS.Tests.Classes;
 using SECCS.Tests.Utils;
+using System;
 
 namespace SECCS.Tests.Formats
 {
@@ -20,53 +21,53 @@ namespace SECCS.Tests.Formats
             Assert.IsTrue(Format.CanFormat(typeof(TestClass1[])));
         }
 
-        public static readonly TestClass1[][] TestData = new[]
+        public static readonly object[] TestData = new object[]
         {
             new TestClass1[0],
             new[]
             {
                 new TestClass1 { Prop1 = 123, Prop2 = "nice", Field1 = 56, Field2 = "asdoisajd" },
                 new TestClass1 { Prop1 = 42, Prop2 = "foo", Field1 = 3948, Field2 = "soigjofdgij" },
-            }
+            },
+            new[] { 1, 2, 3, 4 },
+            new[] { "asd", "nice", "123" }
         };
 
         [TestCaseSource(nameof(TestData))]
-        public void Write_Array_CallsBufferWriter(TestClass1[] data)
+        public void Write_Array_CallsBufferWriter(Array data)
         {
-            var bufferWriterMock = new Mock<IBufferWriter<DummyBuffer>>();
-            bufferWriterMock.SetupPath("Length", data.Length, "Length not written");
+            var contextMock = NewWriteContextMock();
+            contextMock.SetupPath("Length", data.Length);
             for (int i = 0; i < data.Length; i++)
             {
-                bufferWriterMock.SetupPath($"[{i}]", data[i], $"Item {i} not written");
+                contextMock.SetupPath($"[{i}]", data.GetValue(i));
             }
 
-            var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, new DummyBuffer(), "");
-            Format.Write(data, context);
+            Format.Write(data, contextMock.Object);
 
-            bufferWriterMock.Verify();
+            contextMock.Verify();
         }
 
-        [TestCase(0)]
-        [TestCase(1)]
-        [TestCase(2)]
-        [TestCase(200)]
-        public void Read_TestClassArray_CallsBufferReader(int arrayLength)
+        [TestCase(0, typeof(int))]
+        [TestCase(0, typeof(TestClass1))]
+        [TestCase(1, typeof(int))]
+        [TestCase(1, typeof(TestClass1))]
+        [TestCase(2, typeof(int))]
+        [TestCase(2, typeof(TestClass1))]
+        [TestCase(10, typeof(int))]
+        [TestCase(10, typeof(TestClass1))]
+        public void Read_TestClassArray_CallsBufferReader(int arrayLength, Type elementType)
         {
-            int timesCalled = 0;
-            var buffer = new DummyBuffer();
+            var contextMock = NewReadContextMock();
+            contextMock.SetupPath("Length", arrayLength);
+            for (int i = 0; i < arrayLength; i++)
+            {
+                contextMock.SetupPath(elementType, $"[{i}]");
+            }
 
-            var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
-            bufferReaderMock.SetupNullMarker();
-            bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(int), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path == ".Length")))
-                            .Returns(arrayLength).Verifiable();
-            bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(TestClass1), It.IsAny<ReadFormatContext<DummyBuffer>>()))
-                            .Callback(() => timesCalled++);
+            Format.Read(elementType.MakeArrayType(1), contextMock.Object);
 
-            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, buffer, "");
-            Format.Read(typeof(TestClass1[]), context);
-
-            bufferReaderMock.Verify();
-            Assert.AreEqual(arrayLength, timesCalled);
+            contextMock.Verify();
         }
     }
 }

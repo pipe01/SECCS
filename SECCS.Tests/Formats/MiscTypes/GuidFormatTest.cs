@@ -12,34 +12,23 @@ namespace SECCS.Tests.Formats.MiscTypes
         [Test]
         public void Write_Guid_CallsBufferWriter()
         {
-            var bytes = Enumerable.Repeat((byte)0, 16).ToArray();
+            var contextMock = NewWriteContextMock();
+            contextMock.Setup(o => o.Write(It.Is<byte[]>(o => o.All(i => i == 0)), GuidFormat<DummyBuffer>.BytesPath, It.IsAny<bool>())).ReturnsNull().Verifiable();
 
-            var buffer = new DummyBuffer();
+            Format.Write(new Guid(), contextMock.Object);
 
-            var bufferWriterMock = new Mock<IBufferWriter<DummyBuffer>>();
-            bufferWriterMock.SetupPath(GuidFormat<DummyBuffer>.BytesPath, bytes);
-
-            var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, buffer, "");
-            Format.Write(new Guid(bytes), context);
-
-            bufferWriterMock.Verify();
+            contextMock.Verify();
         }
 
         [Test]
         public void Read_Guid_CallsBufferReader()
         {
-            var buffer = new DummyBuffer();
+            var contextMock = NewReadContextMock();
+            contextMock.SetupPath(GuidFormat<DummyBuffer>.BytesPath, new byte[16]);
 
-            var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
-            bufferReaderMock.SetupNullMarker();
-            bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(byte[]), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path == "." + GuidFormat<DummyBuffer>.BytesPath)))
-                .Returns(Enumerable.Repeat((byte)0, 16).ToArray())
-                .Verifiable();
+            Format.Read(typeof(Guid), contextMock.Object);
 
-            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, buffer, "");
-            Format.Read(typeof(Guid), context);
-
-            bufferReaderMock.Verify();
+            contextMock.Verify();
         }
     }
 }

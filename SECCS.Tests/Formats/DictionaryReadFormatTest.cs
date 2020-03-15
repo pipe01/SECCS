@@ -38,20 +38,17 @@ namespace SECCS.Tests.Formats
 
             var buffer = new DummyBuffer();
 
-            var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
-            bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(int), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path == ".Count"))).Returns(dicSize).Verifiable();
+            var contextMock = NewReadContextMock();
+            contextMock.SetupPath("Count", dicSize);
             for (int i = 0; i < dicSize; i++)
             {
-                var ii = i;
-
-                bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(float), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path == $".[{ii}].Key"))).Returns(3.3f).Verifiable();
-                bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(double), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path == $".[{ii}].Value"))).Returns(3.3).Verifiable();
+                contextMock.SetupPath($"[{i}].Key", 3.3f);
+                contextMock.SetupPath($"[{i}].Value", 3.3);
             }
 
-            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, buffer, "");
-            Format.Read(typeof(Dictionary<float, double>), context);
+            Format.Read(typeof(Dictionary<float, double>), contextMock.Object);
 
-            bufferReaderMock.Verify();
+            contextMock.Verify();
         }
     }
 }

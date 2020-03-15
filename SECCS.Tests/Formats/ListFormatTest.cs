@@ -38,17 +38,16 @@ namespace SECCS.Tests.Formats
         [TestCaseSource(nameof(TestData))]
         public void Write_List_CallsBufferWriter(IList data)
         {
-            var bufferWriterMock = new Mock<IBufferWriter<DummyBuffer>>();
-            bufferWriterMock.SetupPath("Count", data.Count, "Count not written");
+            var contextMock = NewWriteContextMock();
+            contextMock.SetupPath("Count", data.Count);
             for (int i = 0; i < data.Count; i++)
             {
-                bufferWriterMock.SetupPath($"[{i}]", data[i], $"Item {i} not written");
+                contextMock.SetupPath($"[{i}]", data[i]);
             }
 
-            var context = new WriteFormatContext<DummyBuffer>(bufferWriterMock.Object, new DummyBuffer(), "");
-            Format.Write(data, context);
+            Format.Write(data, contextMock.Object);
 
-            bufferWriterMock.Verify();
+            contextMock.Verify();
         }
 
         [TestCase(0)]
