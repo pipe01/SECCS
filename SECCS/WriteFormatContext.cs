@@ -55,13 +55,16 @@ namespace SECCS
             if (nullMark && !(obj is ValueType))
                 Write((byte)(obj == null ? 0 : 1), "@Null");
 
-            try
+            if (obj != null)
             {
-                BufferWriter.Serialize(Writer, obj, new WriteFormatContext<TWriter>(BufferWriter, Writer, fullPath));
-            }
-            catch (Exception ex)
-            {
-                throw new FormattingException($"Failed to write object of type {obj.GetType()} at path {fullPath}", ex);
+                try
+                {
+                    BufferWriter.Serialize(Writer, obj, new WriteFormatContext<TWriter>(BufferWriter, Writer, fullPath));
+                }
+                catch (Exception ex)
+                {
+                    throw new FormattingException($"Failed to write object of type {obj.GetType()} at path {fullPath}", ex);
+                }
             }
 
             return this;
