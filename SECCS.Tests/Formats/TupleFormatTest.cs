@@ -1,12 +1,11 @@
-﻿#if !NET45
-
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SECCS.Formats;
 using SECCS.Tests.Utils;
 using System;
 
 namespace SECCS.Tests.Formats
 {
+    [TestOf(typeof(TupleFormat<>))]
     internal class TupleFormatTest : BaseFormatTest<TupleFormat<DummyBuffer>>
     {
         public static readonly object[] CanFormatCases = new object[]
@@ -56,5 +55,3 @@ namespace SECCS.Tests.Formats
         }
     }
 }
-
-#endif

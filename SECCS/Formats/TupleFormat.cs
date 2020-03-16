@@ -1,6 +1,4 @@
-﻿#if !NET45
-
-using System;
+﻿using System;
 using System.Runtime.CompilerServices;
 
 namespace SECCS.Formats
@@ -26,7 +24,7 @@ namespace SECCS.Formats
 
         public void Write(object obj, IWriteFormatContext<T> context)
         {
-#if NETSTANDARD2_1 || NETCOREAPP2_1 || NETCOREAPP3_1
+#if NETSTANDARD2_1 || NETCOREAPP
             var tuple = (ITuple)obj;
 
             context.Write(tuple.Length, "Length");
@@ -45,11 +43,9 @@ namespace SECCS.Formats
             {
                 var item = t.GetField($"Item{i}");
 
-                context.Write(item, $"Item{i}");
+                context.Write(item.GetValue(obj), $"Item{i}");
             }
 #endif
         }
     }
 }
-
-#endif
