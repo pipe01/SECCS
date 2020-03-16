@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace SECCS.Internal
 {
+    [DebuggerDisplay("{Name}")]
     public class ClassMember
     {
         public MemberInfo Member { get; }

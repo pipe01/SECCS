@@ -9,7 +9,7 @@ namespace SECCS.Tests.Utils
     {
         public static IReturnsResult<IBufferReader<DummyBuffer>> SetupNullMarker(this Mock<IBufferReader<DummyBuffer>> buffer, bool isNull = false, bool invalid = false)
         {
-            return buffer.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(byte), It.Is<ReadFormatContext<DummyBuffer>>(o => o.Path.EndsWith(ObjectFormat<DummyBuffer>.NullPath))))
+            return buffer.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), typeof(byte), It.Is<ReadFormatContext<DummyBuffer>>(i => i.Path.EndsWith(ObjectFormat<DummyBuffer>.NullPath))))
                          .Returns((byte)(isNull ? 0 : invalid ? 2 : 1));
         }
 

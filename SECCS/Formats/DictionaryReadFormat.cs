@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace SECCS.Formats
 {
-    public class DictionaryReadFormat<TReader> : IReadFormat<TReader>
+    internal class DictionaryReadFormat<TReader> : IReadFormat<TReader>
     {
         public bool CanFormat(Type type) => type.IsGenericType && !type.IsInterface && typeof(IDictionary).IsAssignableFrom(type);
 

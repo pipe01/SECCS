@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace SECCS
 {
-    public class FormatCollection<TFormat> : ICollection<TFormat> where TFormat : class, IFormat
+    public sealed class FormatCollection<TFormat> : ICollection<TFormat> where TFormat : class, IFormat
     {
         private readonly List<TFormat> InnerList = new List<TFormat>();
         private readonly IFormatFinder<TFormat> FormatFinder;
@@ -27,7 +27,6 @@ namespace SECCS
 
         internal void Discover()
         {
-            var baseType = typeof(TFormat).GetGenericTypeDefinition();
             var bufferType = typeof(TFormat).GetGenericArguments()[0];
 
             AddRange(FormatFinder.FindAll(bufferType));

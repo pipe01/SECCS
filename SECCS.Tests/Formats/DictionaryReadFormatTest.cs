@@ -1,22 +1,23 @@
-﻿using Moq;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SECCS.Formats;
 using SECCS.Tests.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+#if NETCOREAPP
+using System.Collections.Immutable;
+#endif
 
 namespace SECCS.Tests.Formats
 {
-    public class DictionaryReadFormatTest : BaseFormatTest<DictionaryReadFormat<DummyBuffer>>
+    internal class DictionaryReadFormatTest : BaseFormatTest<DictionaryReadFormat<DummyBuffer>>
     {
-        [TestCase(typeof(Dictionary<int, int>))]
+#if NETCOREAPP
         [TestCase(typeof(ImmutableDictionary<int, int>))]
+#endif
+        [TestCase(typeof(Dictionary<int, int>))]
         public void CanFormat_TypeIsDictionary_True(Type type)
         {
             Assert.IsTrue(Format.CanFormat(type));

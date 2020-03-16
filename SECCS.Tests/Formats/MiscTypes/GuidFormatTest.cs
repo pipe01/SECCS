@@ -13,7 +13,7 @@ namespace SECCS.Tests.Formats.MiscTypes
         public void Write_Guid_CallsBufferWriter()
         {
             var contextMock = NewWriteContextMock();
-            contextMock.Setup(o => o.Write(It.Is<byte[]>(o => o.All(i => i == 0)), GuidFormat<DummyBuffer>.BytesPath, It.IsAny<bool>())).ReturnsNull().Verifiable();
+            contextMock.Setup(o => o.Write(It.Is<byte[]>(i => i.All(j => j == 0)), GuidFormat<DummyBuffer>.BytesPath, It.IsAny<bool>())).ReturnsNull().Verifiable();
 
             Format.Write(new Guid(), contextMock.Object);
 
