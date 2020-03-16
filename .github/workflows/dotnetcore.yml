@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  test2.1:
+  test2_1:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -18,7 +18,7 @@ jobs:
     - name: Run tests
       run: dotnet test -f netcoreapp2.1
       
-  test3.1:
+  test3_1:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -29,7 +29,7 @@ jobs:
     - name: Run tests
       run: dotnet test -f netcoreapp3.1
 
-  test4.5:
+  test4_5:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
