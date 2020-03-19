@@ -49,11 +49,13 @@ namespace SECCS.Formats
 
             foreach (var prop in t.GetProperties(flags))
             {
-                if ((!prop.CanRead && readable) || (!prop.CanWrite && writeable))
+                if ((!prop.CanRead && readable) || (!prop.CanWrite && writeable) || prop.GetIndexParameters().Length != 0)
                     continue;
 
-                var isPublic = prop.GetMethod.IsPublic && prop.SetMethod.IsPublic;
-                var isMember = prop.IsDefined(typeof(SeccsMemberAttribute));
+                var isPublic = (prop.GetMethod.IsPublic || prop.GetMethod.HasSeccsMember())
+                            && (prop.SetMethod.IsPublic || prop.SetMethod.HasSeccsMember());
+
+                var isMember = prop.HasSeccsMember();
                 var isIgnored = prop.IsDefined(typeof(SeccsIgnoreAttribute));
 
                 if ((isPublic || isMember) && !isIgnored)
@@ -75,27 +77,38 @@ namespace SECCS.Formats
 
         private static Func<object> CreateExpression(Type t)
         {
-            ConstructorInfo ctor = null;
+            Expression expr;
 
-            foreach (var item in t.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            if (t.IsValueType)
             {
-                if (item.IsDefined(typeof(SeccsConstructorAttribute)))
+                expr = Expression.Convert(Expression.New(t), typeof(object));
+            }
+            else
+            {
+                ConstructorInfo ctor = null;
+
+                foreach (var item in t.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
-                    ctor = item;
-                    break;
+                    if (item.IsDefined(typeof(SeccsConstructorAttribute)))
+                    {
+                        ctor = item;
+                        break;
+                    }
+                    else if (item.IsPublic && item.GetParameters().Length == 0)
+                    {
+                        ctor = item;
+                    }
                 }
-                else if (item.IsPublic && item.GetParameters().Length == 0)
+
+                if (ctor == null)
                 {
-                    ctor = item;
+                    throw new MissingMemberException($"No public parameterless constructor found for type {t.FullName}");
                 }
+
+                expr = Expression.New(ctor);
             }
 
-            if (ctor == null)
-            {
-                throw new MissingMemberException($"No public parameterless constructor found for type {t.FullName}");
-            }
-
-            return Expression.Lambda<Func<object>>(Expression.New(ctor)).Compile();
+            return Expression.Lambda<Func<object>>(expr).Compile();
         }
     }
 }
