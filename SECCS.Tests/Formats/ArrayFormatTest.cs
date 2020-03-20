@@ -4,6 +4,7 @@ using SECCS.Formats;
 using SECCS.Tests.Classes;
 using SECCS.Tests.Utils;
 using System;
+using System.Collections;
 
 namespace SECCS.Tests.Formats
 {
@@ -48,26 +49,22 @@ namespace SECCS.Tests.Formats
             contextMock.Verify();
         }
 
-        [TestCase(0, typeof(int))]
-        [TestCase(0, typeof(TestClass1))]
-        [TestCase(1, typeof(int))]
-        [TestCase(1, typeof(TestClass1))]
-        [TestCase(2, typeof(int))]
-        [TestCase(2, typeof(TestClass1))]
-        [TestCase(10, typeof(int))]
-        [TestCase(10, typeof(TestClass1))]
-        public void Read_TestClassArray_CallsBufferReader(int arrayLength, Type elementType)
+        [Test]
+        public void Read_TestClassArray_CallsBufferReader()
         {
+            var array = new[] { 1, 2, 3, 4, 5 };
+
             var contextMock = NewReadContextMock();
-            contextMock.SetupPath("Length", arrayLength);
-            for (int i = 0; i < arrayLength; i++)
+            contextMock.SetupPath("Length", array.Length);
+            for (int i = 0; i < array.Length; i++)
             {
-                contextMock.SetupPath(elementType, $"[{i}]");
+                contextMock.SetupPath($"[{i}]", array[i]);
             }
 
-            Format.Read(elementType.MakeArrayType(1), contextMock.Object);
+            var read = Format.Read(array.GetType(), contextMock.Object);
 
             contextMock.Verify();
+            CollectionAssert.AreEqual(array, (IList)read);
         }
     }
 }

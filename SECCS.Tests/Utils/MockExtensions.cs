@@ -14,7 +14,7 @@ namespace SECCS.Tests.Utils
         }
 
         public static void SetupPath<T>(this Mock<IReadFormatContext<DummyBuffer>> contextMock, string path, T value = default) 
-            => contextMock.SetupPath(typeof(T), path, value);
+            => contextMock.SetupPath(value?.GetType() ?? typeof(T), path, value);
         
         public static void SetupPath(this Mock<IReadFormatContext<DummyBuffer>> contextMock, Type type, string path, object value = null)
         {

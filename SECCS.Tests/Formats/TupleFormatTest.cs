@@ -33,9 +33,9 @@ namespace SECCS.Tests.Formats
             contextMock.SetupPath("Item3", expected.Item3);
 
             var result = Format.Read(expected.GetType(), contextMock.Object);
-            Assert.AreEqual(expected, result);
 
             contextMock.Verify();
+            Assert.AreEqual(expected, result);
         }
 
         [Test]

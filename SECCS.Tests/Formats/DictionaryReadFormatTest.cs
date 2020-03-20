@@ -35,21 +35,29 @@ namespace SECCS.Tests.Formats
         [Test]
         public void Read_Dictionary_CallsBufferReader()
         {
-            const int dicSize = 3;
-
-            var buffer = new DummyBuffer();
+            var dic = new Dictionary<int, string>
+            {
+                [1] = "one",
+                [2] = "two",
+                [3] = "three"
+            };
 
             var contextMock = NewReadContextMock();
-            contextMock.SetupPath("Count", dicSize);
-            for (int i = 0; i < dicSize; i++)
+            contextMock.SetupPath("Count", dic.Count);
+
+            int i = 0;
+            foreach (var item in dic)
             {
-                contextMock.SetupPath($"[{i}].Key", 3.3f);
-                contextMock.SetupPath($"[{i}].Value", 3.3);
+                contextMock.SetupPath($"[{i}].Key", item.Key);
+                contextMock.SetupPath($"[{i}].Value", item.Value);
+
+                i++;
             }
 
-            Format.Read(typeof(Dictionary<float, double>), contextMock.Object);
+            var read = Format.Read(dic.GetType(), contextMock.Object);
 
             contextMock.Verify();
+            CollectionAssert.AreEqual(dic, (IEnumerable)read);
         }
     }
 }

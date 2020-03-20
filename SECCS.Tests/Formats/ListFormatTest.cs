@@ -50,27 +50,26 @@ namespace SECCS.Tests.Formats
             contextMock.Verify();
         }
 
-        [TestCase(0)]
-        [TestCase(1)]
-        [TestCase(2)]
-        [TestCase(200)]
-        public void Read_List_CallsBufferWriter(int listSize)
+        public static object[] ReadSource = new object[]
         {
-            int timesCalled = 0;
-            var buffer = new DummyBuffer();
+            new List<int> { 1, 2, 3 },
+            new List<string> { "asd", "sadsd", "lol" }
+        };
 
-            var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
-            bufferReaderMock.SetupNullMarker();
-            bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(int), It.Is<ReadFormatContext<DummyBuffer>>(i => i.Path == ".Count")))
-                            .Returns(listSize).Verifiable();
-            bufferReaderMock.Setup(o => o.Deserialize(buffer, typeof(TestClass1), It.IsAny<ReadFormatContext<DummyBuffer>>()))
-                            .Callback(() => timesCalled++);
+        [TestCaseSource(nameof(ReadSource))]
+        public void Read_List_CallsBufferWriter(IList list)
+        {
+            var contextMock = NewReadContextMock();
+            contextMock.SetupPath("Count", list.Count);
+            for (int i = 0; i < list.Count; i++)
+            {
+                contextMock.SetupPath($"[{i}]", list[i]);
+            }
 
-            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, buffer, "");
-            Format.Read(typeof(List<TestClass1>), context);
+            var read = Format.Read(list.GetType(), contextMock.Object);
 
-            bufferReaderMock.Verify();
-            Assert.AreEqual(listSize, timesCalled);
+            contextMock.Verify();
+            CollectionAssert.AreEqual(list, (IEnumerable)read);
         }
     }
 }
