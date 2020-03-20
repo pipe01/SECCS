@@ -33,4 +33,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run benchmarks
-      run: cd Benchmarks && dotnet run -c Release -- --filter * -a artifacts/ -j short -m
+      run: cd Benchmarks && dotnet run -c Release -- --filter "*" -a artifacts/ -j short -m
