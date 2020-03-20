@@ -2,6 +2,7 @@
 using SECCS.Internal;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -25,7 +26,7 @@ namespace SECCS.Formats
 
             var obj = maker();
 
-            foreach (var member in GetMembers(type, false, true))
+            foreach (var member in GetReadableMembers(type))
             {
                 object value = context.Read(member.GetTypeOrConcrete(), member.Name);
 
@@ -39,10 +40,30 @@ namespace SECCS.Formats
         {
             Type t = obj.GetType();
 
-            foreach (var member in GetMembers(t, true, false))
+            foreach (var member in GetWriteableMembers(t))
             {
                 context.Write(member.GetValue(obj), member.Name);
             }
+        }
+
+        private static IEnumerable<ClassMember> GetReadableMembers(Type t)
+        {
+            if (!ReadableMembers.TryGetValue(t, out var members))
+            {
+                ReadableMembers[t] = members = GetMembers(t, true, false).ToArray();
+            }
+
+            return members;
+        }
+        
+        private static IEnumerable<ClassMember> GetWriteableMembers(Type t)
+        {
+            if (!WriteableMembers.TryGetValue(t, out var members))
+            {
+                WriteableMembers[t] = members = GetMembers(t, false, true).ToArray();
+            }
+
+            return members;
         }
 
         private static IEnumerable<ClassMember> GetMembers(Type t, bool readable, bool writeable)
