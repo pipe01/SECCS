@@ -26,20 +26,51 @@ namespace SECCS.Benchmarks
         private readonly DummyBuffer Buffer = new DummyBuffer();
 
         [Benchmark]
-        [ArgumentsSource(nameof(Arguments))]
-        public void GuidFormatWrite(object value)
+        public void WriteString()
         {
-            Writer.Serialize(Buffer, value);
+            Writer.Serialize(Buffer, "hello");
         }
+        
+        [Benchmark]
+        public void WriteInteger()
+        {
+            Writer.Serialize(Buffer, 123);
+        }
+        
+        [Benchmark]
+        public void WriteTuple()
+        {
+            Writer.Serialize(Buffer, (123, "nice"));
+        }
+        
+        [Benchmark]
+        public void WriteObject()
+        {
+            Writer.Serialize(Buffer, new Class1 { String = "asdasd", Integer = 123 });
+        }
+        
+        [Benchmark]
+        public void WriteDictionary()
+        {
+            Writer.Serialize(Buffer, new Dictionary<int, int> { [1] = 2, [3] = 4, [5] = 6 });
+        }
+        
+        [Benchmark]
+        public void WriteKeyValuePair()
+        {
+            Writer.Serialize(Buffer, new KeyValuePair<int, int>(23, 34));
+        }
+        
+        [Benchmark]
+        public void WriteList()
+        {
+            Writer.Serialize(Buffer, new List<int> { 1, 2, 3, 4, 5 });
+        }
+    }
 
-        public IEnumerable<object> Arguments()
-        {
-            return new object[]
-            {
-                "hello",
-                123,
-                (123, "nice"),
-            };
-        }
+    public class Class1
+    {
+        public string String;
+        public int Integer { get; set; }
     }
 }
