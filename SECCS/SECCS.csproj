@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.3" Condition="'$(TargetFramework)' != 'netstandard2.1'" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" Condition="'$(TargetFramework)' == 'net45'" />
   </ItemGroup>
 
 </Project>

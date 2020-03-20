@@ -30,7 +30,9 @@ namespace SECCS.Formats
             {
                 object value = context.Read(member.GetTypeOrConcrete(), member.Name);
 
-                member.SetValue(obj, value);
+                var setter = ExpressionUtils.MemberSetter(type, member);
+
+                setter(obj, value);
             }
 
             return obj;
@@ -42,7 +44,9 @@ namespace SECCS.Formats
 
             foreach (var member in GetWriteableMembers(t))
             {
-                context.Write(member.GetValue(obj), member.Name);
+                var getter = ExpressionUtils.MemberGetter(t, member);
+
+                context.Write(getter(obj), member.Name);
             }
         }
 
