@@ -4,6 +4,6 @@ namespace SECCS
 {
     public interface IFormat
     {
-        bool CanFormat(Type type);
+        bool CanFormat(Type type, FormatOptions options);
     }
 }

@@ -18,7 +18,7 @@ namespace SECCS.Tests.Formats
         [TestCaseSource(nameof(CanFormatCases))]
         public void CanFormat_ValueTuple_True(object obj)
         {
-            Assert.IsTrue(Format.CanFormat(obj.GetType()));
+            Assert.IsTrue(Format.CanFormat(obj.GetType(), new FormatOptions()));
         }
 
         [Test]

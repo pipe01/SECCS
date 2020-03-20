@@ -12,13 +12,13 @@ namespace SECCS.Tests.Formats
         [Test]
         public void CanFormat_NonSeccsWriteable_False()
         {
-            Assert.IsFalse(Format.CanFormat(typeof(TestClass1)));
+            Assert.IsFalse(Format.CanFormat(typeof(TestClass1), new FormatOptions()));
         }
 
         [Test]
         public void CanFormat_SeccsWriteable_True()
         {
-            Assert.IsTrue(Format.CanFormat(typeof(Writeable1)));
+            Assert.IsTrue(Format.CanFormat(typeof(Writeable1), new FormatOptions()));
         }
 
         [Test]

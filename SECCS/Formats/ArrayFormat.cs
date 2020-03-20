@@ -5,7 +5,7 @@ namespace SECCS.Formats
     [FormatPriority(-10)]
     internal class ArrayFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
-        public bool CanFormat(Type type) => type.IsArray;
+        public bool CanFormat(Type type, FormatOptions options) => type.IsArray;
 
         public object Read(Type type, IReadFormatContext<T> context)
         {

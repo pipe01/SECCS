@@ -12,7 +12,7 @@ namespace SECCS.Tests.Formats
         [Test]
         public void CanFormat_AnyType_ReturnsTrue()
         {
-            Assert.IsTrue(Format.CanFormat(typeof(object)));
+            Assert.IsTrue(Format.CanFormat(typeof(object), new FormatOptions()));
         }
 
         [Test]

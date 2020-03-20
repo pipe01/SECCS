@@ -11,7 +11,7 @@ namespace SECCS.Tests.Formats
         [Test]
         public void CanFormat_NonPrimitive_False()
         {
-            Assert.IsFalse(Format.CanFormat(typeof(TestClass1)));
+            Assert.IsFalse(Format.CanFormat(typeof(TestClass1), new FormatOptions()));
         }
 
         [Test]

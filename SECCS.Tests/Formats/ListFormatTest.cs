@@ -13,19 +13,19 @@ namespace SECCS.Tests.Formats
         [Test]
         public void CanFormat_NonListType_False()
         {
-            Assert.IsFalse(Format.CanFormat(typeof(object)));
+            Assert.IsFalse(Format.CanFormat(typeof(object), new FormatOptions()));
         }
 
         [Test]
         public void CanFormat_ListTypeNonGeneric_False()
         {
-            Assert.IsFalse(Format.CanFormat(typeof(ArrayList)));
+            Assert.IsFalse(Format.CanFormat(typeof(ArrayList), new FormatOptions()));
         }
 
         [Test]
         public void CanFormat_ListType_True()
         {
-            Assert.IsTrue(Format.CanFormat(typeof(List<TestClass1>)));
+            Assert.IsTrue(Format.CanFormat(typeof(List<TestClass1>), new FormatOptions()));
         }
 
         public static readonly object[] TestData = new object[]

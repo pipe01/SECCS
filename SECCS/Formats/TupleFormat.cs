@@ -5,7 +5,7 @@ namespace SECCS.Formats
 {
     internal class TupleFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
-        public bool CanFormat(Type type) => type.Name.StartsWith("ValueTuple") && type.Namespace == "System";
+        public bool CanFormat(Type type, FormatOptions options) => type.Name.StartsWith("ValueTuple") && type.Namespace == "System";
 
         public object Read(Type type, IReadFormatContext<T> context)
         {

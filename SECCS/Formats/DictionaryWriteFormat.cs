@@ -6,7 +6,7 @@ namespace SECCS.Formats
 {
     internal class DictionaryWriteFormat<TWriter> : IWriteFormat<TWriter>
     {
-        public bool CanFormat(Type type)
+        public bool CanFormat(Type type, FormatOptions options)
             => type.Name == typeof(IReadOnlyDictionary<,>).Name
             || type.GetInterface(typeof(IReadOnlyDictionary<,>).Name) != null;
 

@@ -5,6 +5,8 @@ namespace SECCS
 {
     public interface IReadFormatContext
     {
+        FormatOptions Options { get; }
+
         object Read(Type type, string path = "<>", bool nullCheck = true);
     }
 
@@ -19,9 +21,11 @@ namespace SECCS
 
         public TReader Reader { get; }
 
+        public FormatOptions Options { get; }
+
         internal string Path { get; }
 
-        internal ReadFormatContext(IBufferReader<TReader> bufferReader, TReader reader, string path)
+        internal ReadFormatContext(IBufferReader<TReader> bufferReader, TReader reader, string path, FormatOptions options = null)
         {
             if (bufferReader == null)
                 throw new ArgumentNullException(nameof(bufferReader));
@@ -32,6 +36,7 @@ namespace SECCS
             this.BufferReader = bufferReader;
             this.Reader = reader;
             this.Path = path ?? "";
+            this.Options = options ?? new FormatOptions();
         }
 
         public object Read(Type type, string path = "<>", bool nullCheck = true)

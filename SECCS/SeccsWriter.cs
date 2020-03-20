@@ -7,12 +7,16 @@ namespace SECCS
     {
         public FormatCollection<IWriteFormat<TWriter>> Formats { get; } = new FormatCollection<IWriteFormat<TWriter>>();
 
-        public SeccsWriter()
+        public FormatOptions Options { get; }
+
+        public SeccsWriter(FormatOptions options = null)
         {
+            this.Options = options;
+
             Formats.Discover();
         }
 
-        internal SeccsWriter(FormatCollection<IWriteFormat<TWriter>> formats)
+        internal SeccsWriter(FormatCollection<IWriteFormat<TWriter>> formats, FormatOptions options = null) : this(options)
         {
             this.Formats = formats ?? throw new ArgumentNullException(nameof(formats));
         }
@@ -27,7 +31,7 @@ namespace SECCS
 
             Type t = obj.GetType();
 
-            var format = Formats.GetFor(t);
+            var format = Formats.GetFor(t, Options);
             context = context ?? new WriteFormatContext<TWriter>(this, writer, t.Name);
 
             format.Write(obj, context.Value);

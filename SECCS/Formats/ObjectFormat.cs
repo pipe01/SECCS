@@ -11,10 +11,12 @@ namespace SECCS.Formats
     internal class ObjectFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
         private static readonly IDictionary<Type, Func<object>> NewExpressions = new Dictionary<Type, Func<object>>();
+        private static readonly IDictionary<Type, IEnumerable<ClassMember>> ReadableMembers = new Dictionary<Type, IEnumerable<ClassMember>>();
+        private static readonly IDictionary<Type, IEnumerable<ClassMember>> WriteableMembers = new Dictionary<Type, IEnumerable<ClassMember>>();
 
         internal const string NullPath = "@Null";
 
-        public bool CanFormat(Type type) => !type.IsPrimitive;
+        public bool CanFormat(Type type, FormatOptions options) => !type.IsPrimitive;
 
         public object Read(Type type, IReadFormatContext<T> context)
         {
@@ -23,7 +25,7 @@ namespace SECCS.Formats
 
             var obj = maker();
 
-            foreach (var member in GetMembers(type, writeable: true))
+            foreach (var member in GetMembers(type, false, true))
             {
                 object value = context.Read(member.GetTypeOrConcrete(), member.Name);
 
@@ -37,13 +39,13 @@ namespace SECCS.Formats
         {
             Type t = obj.GetType();
 
-            foreach (var member in GetMembers(t, readable: true))
+            foreach (var member in GetMembers(t, true, false))
             {
                 context.Write(member.GetValue(obj), member.Name);
             }
         }
 
-        private static IEnumerable<ClassMember> GetMembers(Type t, bool readable = true, bool writeable = true)
+        private static IEnumerable<ClassMember> GetMembers(Type t, bool readable, bool writeable)
         {
             const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
 

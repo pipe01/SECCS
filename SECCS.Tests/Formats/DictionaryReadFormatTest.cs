@@ -20,7 +20,7 @@ namespace SECCS.Tests.Formats
         [TestCase(typeof(Dictionary<int, int>))]
         public void CanFormat_TypeIsDictionary_True(Type type)
         {
-            Assert.IsTrue(Format.CanFormat(type));
+            Assert.IsTrue(Format.CanFormat(type, new FormatOptions()));
         }
 
         [TestCase(typeof(IDictionary))]
@@ -29,7 +29,7 @@ namespace SECCS.Tests.Formats
         [TestCase(typeof(OrderedDictionary))]
         public void CanFormat_TypeIsNotReadable_False(Type type)
         {
-            Assert.IsFalse(Format.CanFormat(type));
+            Assert.IsFalse(Format.CanFormat(type, new FormatOptions()));
         }
 
         [Test]

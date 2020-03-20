@@ -8,12 +8,16 @@ namespace SECCS
     {
         public FormatCollection<IReadFormat<TReader>> Formats { get; } = new FormatCollection<IReadFormat<TReader>>();
 
-        public SeccsReader()
+        public FormatOptions Options { get; }
+
+        public SeccsReader(FormatOptions options = null)
         {
+            this.Options = options;
+
             Formats.Discover();
         }
 
-        internal SeccsReader(FormatCollection<IReadFormat<TReader>> formats)
+        internal SeccsReader(FormatCollection<IReadFormat<TReader>> formats, FormatOptions options = null) : this(options)
         {
             this.Formats = formats ?? throw new ArgumentNullException(nameof(formats));
         }
@@ -26,7 +30,7 @@ namespace SECCS
             if (objType == null)
                 throw new ArgumentNullException(nameof(objType));
 
-            var format = Formats.GetFor(objType);
+            var format = Formats.GetFor(objType, Options);
             context = context ?? new ReadFormatContext<TReader>(this, reader, objType.Name);
 
             var obj = format.Read(objType, context.Value);

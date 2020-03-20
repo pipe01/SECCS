@@ -22,7 +22,7 @@ namespace SECCS.Tests
             var writer = new SeccsWriter<DummyBuffer>();
 
             var formatMock = new Mock<IWriteFormat<DummyBuffer>>();
-            formatMock.Setup(o => o.CanFormat(typeof(object))).Returns(true).Verifiable();
+            formatMock.Setup(o => o.CanFormat(typeof(object), It.IsAny<FormatOptions>())).Returns(true).Verifiable();
             formatMock.Setup(o => o.Write(It.IsAny<object>(), It.IsAny<WriteFormatContext<DummyBuffer>>())).Callback(Assert.Pass).Verifiable();
 
             writer.Formats.Clear();

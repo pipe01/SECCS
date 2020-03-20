@@ -5,7 +5,7 @@ namespace SECCS.Formats
 {
     internal class DictionaryReadFormat<TReader> : IReadFormat<TReader>
     {
-        public bool CanFormat(Type type) => type.IsGenericType && !type.IsInterface && typeof(IDictionary).IsAssignableFrom(type);
+        public bool CanFormat(Type type, FormatOptions options) => type.IsGenericType && !type.IsInterface && typeof(IDictionary).IsAssignableFrom(type);
 
         public object Read(Type type, IReadFormatContext<TReader> context)
         {

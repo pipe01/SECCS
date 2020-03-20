@@ -16,7 +16,7 @@ namespace SECCS.Tests.Formats
         [TestCase(typeof(IReadOnlyDictionary<int, int>))]
         public void CanFormat_Dictionary_True(Type type)
         {
-            Assert.True(Format.CanFormat(type));
+            Assert.True(Format.CanFormat(type, new FormatOptions()));
         }
 
         public static readonly object[] WriteData = new object[]

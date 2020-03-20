@@ -4,7 +4,7 @@ namespace SECCS.Formats
 {
     internal class KeyValuePairFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
-        public bool CanFormat(Type type) => type.Name == "KeyValuePair`2";
+        public bool CanFormat(Type type, FormatOptions options) => type.Name == "KeyValuePair`2";
 
         public object Read(Type type, IReadFormatContext<T> context)
         {

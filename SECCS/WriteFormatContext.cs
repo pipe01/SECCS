@@ -5,6 +5,8 @@ namespace SECCS
 {
     public interface IWriteFormatContext<TWriter>
     {
+        FormatOptions Options { get; }
+
         /// <summary>
         /// The low-level writer.
         /// </summary>
@@ -32,9 +34,11 @@ namespace SECCS
         /// <inheritdoc/>
         public TWriter Writer { get; }
 
+        public FormatOptions Options { get; }
+
         internal string Path { get; }
 
-        internal WriteFormatContext(IBufferWriter<TWriter> bufferWriter, TWriter writer, string path)
+        internal WriteFormatContext(IBufferWriter<TWriter> bufferWriter, TWriter writer, string path, FormatOptions options = null)
         {
             if (bufferWriter == null)
                 throw new ArgumentNullException(nameof(bufferWriter));
@@ -45,6 +49,7 @@ namespace SECCS
             this.BufferWriter = bufferWriter;
             this.Writer = writer;
             this.Path = path ?? "";
+            this.Options = options ?? new FormatOptions();
         }
 
         /// <inheritdoc/>

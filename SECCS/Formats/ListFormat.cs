@@ -6,7 +6,7 @@ namespace SECCS.Formats
     [FormatPriority(-10)]
     internal class ListFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
-        public bool CanFormat(Type type) => typeof(IList).IsAssignableFrom(type) && type.GetGenericArguments().Length > 0;
+        public bool CanFormat(Type type, FormatOptions options) => typeof(IList).IsAssignableFrom(type) && type.GetGenericArguments().Length > 0;
 
         public object Read(Type type, IReadFormatContext<T> context)
         {

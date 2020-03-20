@@ -21,7 +21,7 @@ namespace SECCS.Tests
         public void Deserialize_TypeWithFormat_CallsRead()
         {
             var formatMock = new Mock<IReadFormat<DummyBuffer>>();
-            formatMock.Setup(o => o.CanFormat(typeof(object))).Returns(true).Verifiable();
+            formatMock.Setup(o => o.CanFormat(typeof(object), It.IsAny<FormatOptions>())).Returns(true).Verifiable();
             formatMock.Setup(o => o.Read(It.IsAny<Type>(), It.IsAny<ReadFormatContext<DummyBuffer>>())).Verifiable();
 
             var reader = new SeccsReader<DummyBuffer>();

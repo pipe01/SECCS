@@ -9,7 +9,7 @@ namespace SECCS
 
     public abstract class ReadFormat<T, TReader> : IReadFormat<TReader>
     {
-        bool IFormat.CanFormat(Type type) => CanFormatInheritedTypes ? typeof(T).IsAssignableFrom(type) : type == typeof(T);
+        bool IFormat.CanFormat(Type type, FormatOptions options) => CanFormatInheritedTypes ? typeof(T).IsAssignableFrom(type) : type == typeof(T);
         object IReadFormat<TReader>.Read(Type type, IReadFormatContext<TReader> context) => Read(context);
 
         protected virtual bool CanFormatInheritedTypes => true;

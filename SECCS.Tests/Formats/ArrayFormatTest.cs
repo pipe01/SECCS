@@ -1,5 +1,4 @@
-﻿using Moq;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SECCS.Formats;
 using SECCS.Tests.Classes;
 using SECCS.Tests.Utils;
@@ -13,13 +12,13 @@ namespace SECCS.Tests.Formats
         [Test]
         public void CanFormat_NonArrayType_False()
         {
-            Assert.IsFalse(Format.CanFormat(typeof(TestClass1)));
+            Assert.IsFalse(Format.CanFormat(typeof(TestClass1), new FormatOptions()));
         }
 
         [Test]
         public void CanFormat_ArrayType_True()
         {
-            Assert.IsTrue(Format.CanFormat(typeof(TestClass1[])));
+            Assert.IsTrue(Format.CanFormat(typeof(TestClass1[]), new FormatOptions()));
         }
 
         public static readonly object[] TestData = new object[]

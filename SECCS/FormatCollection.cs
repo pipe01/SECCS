@@ -40,11 +40,11 @@ namespace SECCS
                                    - (a.GetType().GetCustomAttribute<FormatPriorityAttribute>()?.Priority ?? 0));
         }
 
-        public TFormat GetFor(Type type)
+        public TFormat GetFor(Type type, FormatOptions options)
         {
             foreach (var item in InnerList)
             {
-                if (item.CanFormat(type))
+                if (item.CanFormat(type, options))
                     return item;
             }
 

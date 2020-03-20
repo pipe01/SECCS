@@ -6,7 +6,7 @@ namespace SECCS.Formats.MiscTypes
     {
         internal const string BytesPath = "GuidBytes";
 
-        public bool CanFormat(Type type) => type == typeof(Guid);
+        public bool CanFormat(Type type, FormatOptions options) => type == typeof(Guid);
 
         public object Read(Type type, IReadFormatContext<T> context)
         {

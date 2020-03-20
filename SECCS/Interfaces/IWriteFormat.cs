@@ -9,7 +9,7 @@ namespace SECCS
 
     public abstract class WriteFormat<T, TWriter> : IWriteFormat<TWriter>
     {
-        bool IFormat.CanFormat(Type type) => CanFormatInheritedTypes ? typeof(T).IsAssignableFrom(type) : type == typeof(T);
+        bool IFormat.CanFormat(Type type, FormatOptions options) => CanFormatInheritedTypes ? typeof(T).IsAssignableFrom(type) : type == typeof(T);
         void IWriteFormat<TWriter>.Write(object obj, IWriteFormatContext<TWriter> context) => Write((T)obj, context);
 
         protected virtual bool CanFormatInheritedTypes => true;

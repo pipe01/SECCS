@@ -10,7 +10,7 @@ namespace SECCS.Tests.Formats
         [Test]
         public void CanFormat_KeyValuePair_True()
         {
-            Assert.IsTrue(Format.CanFormat(typeof(KeyValuePair<int, int>)));
+            Assert.IsTrue(Format.CanFormat(typeof(KeyValuePair<int, int>), new FormatOptions()));
         }
 
         [Test]
