@@ -11,7 +11,7 @@ namespace SECCS
 
         public SeccsWriter(FormatOptions options = null)
         {
-            this.Options = options;
+            this.Options = options ?? new FormatOptions();
 
             Formats.Discover();
         }

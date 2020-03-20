@@ -1,5 +1,4 @@
-﻿using SECCS.Exceptions;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
 
 namespace SECCS
@@ -12,7 +11,7 @@ namespace SECCS
 
         public SeccsReader(FormatOptions options = null)
         {
-            this.Options = options;
+            this.Options = options ?? new FormatOptions();
 
             Formats.Discover();
         }

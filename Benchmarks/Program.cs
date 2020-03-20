@@ -1,68 +1,45 @@
-﻿using SECCS;
+﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
+using SECCS.Formats.MiscTypes;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using System.Text;
 
-namespace Benchmarks
+namespace SECCS.Benchmarks
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var mem = new MemoryStream();
-            var binWriter = new BinaryWriter(mem);
-            var writer = new SeccsWriter<BinaryWriter>();
-
-            writer.Serialize(binWriter, new Class
+            BenchmarkSwitcher.FromTypes(new[]
             {
-                Number = 42,
-                Byte = 255,
-                List = new List<int>
-                {
-                    1, 2, 3, 4
-                },
-                List2 = new List<ClassInner>
-                {
-                    new ClassInner { InnerNumber = 13, String = "one" },
-                    new ClassInner { InnerNumber = 13, String = "two" },
-                    new ClassInner { InnerNumber = 13, String = "three" },
-                },
-                Inner = new ClassInner
-                {
-                    InnerNumber = 69,
-                    String = "asdasd"
-                },
-                Dic = new Dictionary<int, string>
-                {
-                    { 1, "one" },
-                    { 2, "two" },
-                    { 3, "three" },
-                }
-            });
-
-            binWriter.Flush();
-            mem.Position = 0;
-
-            var binReader = new BinaryReader(mem);
-            var reader = new SeccsReader<BinaryReader>();
-
-            var d = reader.Deserialize<Class>(binReader);
+                typeof(SeccsBenchmark)
+            }).Run(args);
         }
     }
 
-    public class Class
+    public class SeccsBenchmark
     {
-        public int Number { get; set; }
-        public byte Byte { get; set; }
-        public List<int> List { get; set; }
-        public List<ClassInner> List2 { get; set; }
-        public Dictionary<int, string> Dic { get; set; }
+        private readonly SeccsWriter<DummyBuffer> Writer = new SeccsWriter<DummyBuffer>();
+        private readonly DummyBuffer Buffer = new DummyBuffer();
 
-        public ClassInner Inner { get; set; }
-    }
+        [Benchmark]
+        [ArgumentsSource(nameof(Arguments))]
+        public void GuidFormatWrite(object value)
+        {
+            Writer.Serialize(Buffer, value);
+        }
 
-    public class ClassInner
-    {
-        public int InnerNumber { get; set; }
-        public string String { get; set; }
+        public IEnumerable<object> Arguments()
+        {
+            return new object[]
+            {
+                "hello",
+                123,
+                (123, "nice"),
+            };
+        }
     }
 }
