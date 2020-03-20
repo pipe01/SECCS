@@ -11,6 +11,7 @@ namespace SECCS
     {
         private readonly List<TFormat> InnerList = new List<TFormat>();
         private readonly IFormatFinder<TFormat> FormatFinder;
+        private readonly Cache<Type, TFormat> TypeFormatCache = new Cache<Type, TFormat>();
 
         public int Count => this.InnerList.Count;
 
@@ -42,13 +43,16 @@ namespace SECCS
 
         public TFormat GetFor(Type type, FormatOptions options)
         {
-            foreach (var item in InnerList)
+            return TypeFormatCache.GetOrCreate(type, () =>
             {
-                if (item.CanFormat(type, options))
-                    return item;
-            }
+                foreach (var item in InnerList)
+                {
+                    if (item.CanFormat(type, options))
+                        return item;
+                }
 
-            throw new FormatNotFoundException(type);
+                throw new FormatNotFoundException(type);
+            });
         }
 
         public void Add(TFormat item)
