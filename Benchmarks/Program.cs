@@ -1,70 +1,87 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using SECCS.Formats.MiscTypes;
-using System;
+using SECCS.Formats;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Text;
 
 namespace SECCS.Benchmarks
 {
-    class Program
+    public static class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             BenchmarkSwitcher.FromTypes(new[]
             {
-                typeof(SeccsBenchmark)
+                typeof(FormatsBenchmark)
             }).Run(args);
         }
     }
 
-    public class SeccsBenchmark
+    public class FormatsBenchmark
     {
-        private readonly SeccsWriter<DummyBuffer> Writer = new SeccsWriter<DummyBuffer>();
-        private readonly DummyBuffer Buffer = new DummyBuffer();
+        [Benchmark]
+        [Arguments(true)]
+        [Arguments(false)]
+        public void WritePrimitive(bool valueType)
+        {
+            Singleton<PrimitiveFormatWriter<DummyBuffer>>.Instance.Write(valueType ? (object)123 : "hello", DummyContext.Instance);
+        }
 
-        [Benchmark]
-        public void WriteString()
-        {
-            Writer.Serialize(Buffer, "hello");
-        }
-        
-        [Benchmark]
-        public void WriteInteger()
-        {
-            Writer.Serialize(Buffer, 123);
-        }
-        
         [Benchmark]
         public void WriteTuple()
         {
-            Writer.Serialize(Buffer, (123, "nice"));
+            Singleton<TupleFormat<DummyBuffer>>.Instance.Write((123, "nice"), DummyContext.Instance);
         }
-        
+
         [Benchmark]
         public void WriteObject()
         {
-            Writer.Serialize(Buffer, new Class1 { String = "asdasd", Integer = 123 });
+            Singleton<ObjectFormat<DummyBuffer>>.Instance.Write(new Class1 { String = "asdasd", Integer = 123 }, DummyContext.Instance);
         }
-        
+
         [Benchmark]
         public void WriteDictionary()
         {
-            Writer.Serialize(Buffer, new Dictionary<int, int> { [1] = 2, [3] = 4, [5] = 6 });
+            Singleton<DictionaryWriteFormat<DummyBuffer>>.Instance.Write(new Dictionary<int, int> { [1] = 2, [3] = 4, [5] = 6 }, DummyContext.Instance);
         }
-        
+
         [Benchmark]
         public void WriteKeyValuePair()
         {
-            Writer.Serialize(Buffer, new KeyValuePair<int, int>(23, 34));
+            Singleton<KeyValuePairFormat<DummyBuffer>>.Instance.Write(new KeyValuePair<int, int>(23, 34), DummyContext.Instance);
         }
-        
+
         [Benchmark]
-        public void WriteList()
+        [Arguments(true)]
+        [Arguments(false)]
+        public void WriteList(bool valueType)
         {
-            Writer.Serialize(Buffer, new List<int> { 1, 2, 3, 4, 5 });
+            Singleton<ListFormat<DummyBuffer>>.Instance.Write(valueType ? (object)new List<int> { 1, 2, 3, 4, 5 } : new List<string> { "a", "b", "c", "d", "e" }, DummyContext.Instance);
+        }
+
+        [Benchmark]
+        [Arguments(true)]
+        [Arguments(false)]
+        public void WriteArray(bool valueType)
+        {
+            Singleton<ListFormat<DummyBuffer>>.Instance.Write(valueType ? (object)new[] { 1, 2, 3, 4, 5 } : new object[] { "a", "b", "c", "d", "e" }, DummyContext.Instance);
+        }
+    }
+
+    public static class Singleton<T> where T : new()
+    {
+        public static readonly T Instance = new T();
+    }
+
+    public class DummyContext : IWriteFormatContext<DummyBuffer>
+    {
+        public static readonly DummyContext Instance = new DummyContext();
+
+        public FormatOptions Options { get; } = new FormatOptions();
+        public DummyBuffer Writer { get; } = new DummyBuffer();
+
+        public IWriteFormatContext<DummyBuffer> Write(object obj, string path = "<>", bool nullMark = true)
+        {
+            return this;
         }
     }
 

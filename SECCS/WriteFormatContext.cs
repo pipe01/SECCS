@@ -1,5 +1,7 @@
 ﻿using SECCS.Exceptions;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SECCS
 {
@@ -36,9 +38,26 @@ namespace SECCS
 
         public FormatOptions Options { get; }
 
-        internal string Path { get; }
+        internal Stack<string> PathStack { get; }
 
-        internal WriteFormatContext(IBufferWriter<TWriter> bufferWriter, TWriter writer, string path, FormatOptions options = null)
+        public string Path
+        {
+            get
+            {
+#if NET45 || NETSTANDARD2_0
+                return string.Join(".", PathStack.Reverse());
+#else
+                return string.Join('.', PathStack.Reverse());
+#endif
+            }
+        }
+
+        internal WriteFormatContext(IBufferWriter<TWriter> bufferWriter, TWriter writer, string path, FormatOptions options = null) : this(bufferWriter, writer, new Stack<string>(), options)
+        {
+            PathStack.Push(path);
+        }
+        
+        internal WriteFormatContext(IBufferWriter<TWriter> bufferWriter, TWriter writer, Stack<string> pathStack, FormatOptions options = null)
         {
             if (bufferWriter == null)
                 throw new ArgumentNullException(nameof(bufferWriter));
@@ -48,27 +67,31 @@ namespace SECCS
 
             this.BufferWriter = bufferWriter;
             this.Writer = writer;
-            this.Path = path ?? "";
             this.Options = options ?? new FormatOptions();
+            this.PathStack = pathStack ?? new Stack<string>();
         }
 
         /// <inheritdoc/>
         public IWriteFormatContext<TWriter> Write(object obj, string path = "<>", bool nullMark = true)
         {
-            var fullPath = $"{Path}.{path}";
-
             if (nullMark && !(obj is ValueType))
                 Write((byte)(obj == null ? 0 : 1), "@Null");
 
             if (obj != null)
             {
+                PathStack.Push(path);
+
                 try
                 {
-                    BufferWriter.Serialize(Writer, obj, new WriteFormatContext<TWriter>(BufferWriter, Writer, fullPath));
+                    BufferWriter.Serialize(Writer, obj, new WriteFormatContext<TWriter>(BufferWriter, Writer, this.PathStack));
                 }
                 catch (Exception ex)
                 {
-                    throw new FormattingException($"Failed to write object of type {obj.GetType()} at path {fullPath}", ex);
+                    throw new FormattingException($"Failed to write object of type {obj.GetType()} at path {Path}", ex);
+                }
+                finally
+                {
+                    PathStack.Pop();
                 }
             }
 

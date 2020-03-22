@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SECCS.Internal;
+using System;
 using System.Collections;
 
 namespace SECCS.Formats
@@ -6,23 +7,38 @@ namespace SECCS.Formats
     [FormatPriority(-10)]
     internal class ListFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
-        public bool CanFormat(Type type, FormatOptions options) => typeof(IList).IsAssignableFrom(type) && type.GetGenericArguments().Length > 0;
+        public bool CanFormat(Type type, FormatOptions options) => typeof(IList).IsAssignableFrom(type) && (type.GetGenericArguments().Length > 0 || type.IsArray);
 
         public object Read(Type type, IReadFormatContext<T> context)
         {
-            var elementType = type.GetGenericArguments()[0];
-
-            var l = (IList)Activator.CreateInstance(type);
+            IList list;
 
             int count = context.Read<int>("Count");
 
-            for (int i = 0; i < count; i++)
+            if (type.IsArray)
             {
-                var value = context.Read(elementType, $"[{i}]");
-                l.Add(value);
+                list = (IList)Activator.CreateInstance(type, count);
+
+                var elementType = type.GetElementType();
+
+                for (int i = 0; i < count; i++)
+                {
+                    list[i] = context.Read(elementType, $"[{i}]");
+                }
+            }
+            else
+            {
+                list = (IList)ExpressionUtils.New(type);
+
+                var elementType = type.GetGenericArguments()[0];
+
+                for (int i = 0; i < count; i++)
+                {
+                    list.Add(context.Read(elementType, $"[{i}]"));
+                }
             }
 
-            return l;
+            return list;
         }
 
         public void Write(object obj, IWriteFormatContext<T> context)

@@ -28,15 +28,18 @@ namespace SECCS.Tests.Formats
             Assert.IsTrue(Format.CanFormat(typeof(List<TestClass1>), new FormatOptions()));
         }
 
-        public static readonly object[] TestData = new object[]
+        public static readonly object[] WriteListData = new object[]
         {
             new List<int>(),
             new List<int> { 1, 2, 3, 4 },
-            new List<string> { "asd", "heasdasd", "foo" }
+            new List<string> { "asd", "heasdasd", "foo" },
+            new int[0],
+            new[] { 1, 2, 3 },
+            new[] { "one", "two", "three" }
         };
 
-        [TestCaseSource(nameof(TestData))]
-        public void Write_List_CallsBufferWriter(IList data)
+        [TestCaseSource(nameof(WriteListData))]
+        public void Write_ListAndArray_CallsBufferWriter(IList data)
         {
             var contextMock = NewWriteContextMock();
             contextMock.SetupPath("Count", data.Count);
@@ -50,14 +53,17 @@ namespace SECCS.Tests.Formats
             contextMock.Verify();
         }
 
-        public static object[] ReadSource = new object[]
+        public static object[] ReadListSource = new object[]
         {
             new List<int> { 1, 2, 3 },
-            new List<string> { "asd", "sadsd", "lol" }
+            new List<string> { "asd", "sadsd", "lol" },
+            new int[0],
+            new[] { 1, 2, 3 },
+            new[] { "one", "two", "three" }
         };
 
-        [TestCaseSource(nameof(ReadSource))]
-        public void Read_List_CallsBufferWriter(IList list)
+        [TestCaseSource(nameof(ReadListSource))]
+        public void Read_ListAndArray_CallsBufferWriter(IList list)
         {
             var contextMock = NewReadContextMock();
             contextMock.SetupPath("Count", list.Count);

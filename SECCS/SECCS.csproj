@@ -7,12 +7,17 @@
     <DefineConstants>CS8</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'netstandard2.1'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="**/*.meta" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.3" Condition="'$(TargetFramework)' != 'netstandard2.1'" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" Condition="'$(TargetFramework)' == 'net45'" />
   </ItemGroup>
 
