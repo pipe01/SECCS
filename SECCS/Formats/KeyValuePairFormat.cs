@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SECCS.Internal;
+using System;
 
 namespace SECCS.Formats
 {
@@ -8,14 +9,14 @@ namespace SECCS.Formats
 
         public object Read(Type type, IReadFormatContext<T> context)
         {
-            var args = type.GetGenericArguments();
+            var args = ReflectionUtils.GetGenericParams(type);
             var keyType = args[0];
             var valueType = args[1];
 
             var key = context.Read(keyType, "Key");
             var value = context.Read(valueType, "Value");
 
-            return Activator.CreateInstance(type, key, value);
+            return ReflectionUtils.New(type, key, value);
         }
 
         public void Write(object obj, IWriteFormatContext<T> context)

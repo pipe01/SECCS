@@ -17,9 +17,9 @@ namespace SECCS.Formats
 
             if (type.IsArray)
             {
-                list = (IList)Activator.CreateInstance(type, count);
-
                 var elementType = type.GetElementType();
+
+                list = Array.CreateInstance(elementType, count);
 
                 for (int i = 0; i < count; i++)
                 {
@@ -30,7 +30,7 @@ namespace SECCS.Formats
             {
                 list = (IList)ReflectionUtils.New(type);
 
-                var elementType = type.GetGenericArguments()[0];
+                var elementType = ReflectionUtils.GetGenericParams(type)[0];
 
                 for (int i = 0; i < count; i++)
                 {
