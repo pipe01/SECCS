@@ -12,11 +12,9 @@ namespace SECCS.Formats
 
         public void Write(object obj, IWriteFormatContext<TWriter> context)
         {
-            var count = (int)obj.GetType().GetProperty("Count").GetValue(obj);
-
-            context.Write(count, "Count");
-
             var dic = (IDictionary)obj;
+
+            context.Write(dic.Count, "Count");
 
             int i = 0;
             foreach (var key in dic.Keys)

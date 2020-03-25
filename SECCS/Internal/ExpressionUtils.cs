@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,18 +13,8 @@ namespace SECCS.Internal
 
     internal static class ExpressionUtils
     {
-        private static readonly Cache<(Type, MemberInfo), MemberGetterDelegate> GetterCache = new Cache<(Type, MemberInfo), MemberGetterDelegate>();
+        private static readonly IDictionary<(Type, MemberInfo), MemberGetterDelegate> GetterCache = new Dictionary<(Type, MemberInfo), MemberGetterDelegate>();
         private static readonly IDictionary<Type, Func<object>> CtorCacheNoParams = new Dictionary<Type, Func<object>>();
-
-        private static Expression Member(Expression inst, ClassMember member)
-        {
-            if (member.Member is PropertyInfo prop)
-                return Property(inst, prop);
-            else if (member.Member is FieldInfo field)
-                return Field(inst, field);
-
-            throw new Exception("Neither");
-        }
 
         public static object New(Type t)
         {
@@ -45,12 +36,14 @@ namespace SECCS.Internal
 
         public static MemberGetterDelegate MemberGetter(Type t, ClassMember member)
         {
-            return GetterCache.GetOrCreate((t, member.Member), () =>
+            if (!GetterCache.TryGetValue((t, member.Member), out var getter))
             {
                 var objParam = Parameter(typeof(object));
 
-                return Lambda<MemberGetterDelegate>(Convert(Member(Convert(objParam, t), member), typeof(object)), objParam).Compile();
-            });
+                GetterCache[(t, member.Member)] = getter = Lambda<MemberGetterDelegate>(Convert(Member(Convert(objParam, t), member), typeof(object)), objParam).Compile();
+            }
+
+            return getter;
         }
 
         public static Expression ForLoop(Expression length, Func<ParameterExpression, Expression> body)
@@ -63,6 +56,16 @@ namespace SECCS.Internal
                     body(indexVar),
                     Break(breakLabel)),
                 breakLabel);
+        }
+
+        private static Expression Member(Expression inst, ClassMember member)
+        {
+            if (member.Member is PropertyInfo prop)
+                return Property(inst, prop);
+            else if (member.Member is FieldInfo field)
+                return Field(inst, field);
+
+            throw new Exception("Neither");
         }
     }
 }
