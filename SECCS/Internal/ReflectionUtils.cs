@@ -17,6 +17,7 @@ namespace SECCS.Internal
         private static readonly IDictionary<(Type, MemberInfo), MemberGetterDelegate> GetterCache = new Dictionary<(Type, MemberInfo), MemberGetterDelegate>();
         private static readonly IDictionary<Type, Func<object>> CtorCacheNoParams = new Dictionary<Type, Func<object>>();
         private static readonly IDictionary<Type, Func<object[], object>> CtorCacheParams = new Dictionary<Type, Func<object[], object>>();
+        private static readonly IDictionary<Type, Type[]> GenericParamsCache = new Dictionary<Type, Type[]>();
 
         public static object New(Type t)
         {
@@ -48,6 +49,16 @@ namespace SECCS.Internal
             }
 
             return ctorFunc(args);
+        }
+
+        public static Type[] GetGenericParams(Type t)
+        {
+            if (!GenericParamsCache.TryGetValue(t, out var p))
+            {
+                GenericParamsCache[t] = p = t.GetGenericArguments();
+            }
+
+            return p;
         }
 
         public static MemberSetterDelegate MemberSetter(Type t, ClassMember member)

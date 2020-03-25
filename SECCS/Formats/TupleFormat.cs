@@ -12,7 +12,7 @@ namespace SECCS.Formats
         {
             int length = context.Read<int>("Length");
 
-            var itemTypes = type.GetGenericArguments();
+            var itemTypes = ReflectionUtils.GetGenericParams(type);
             var items = new object[length];
 
             for (int i = 0; i < length; i++)
