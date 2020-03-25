@@ -23,7 +23,7 @@ namespace SECCS.Formats
 
                 for (int i = 0; i < count; i++)
                 {
-                    list[i] = context.Read(elementType, $"[{i}]");
+                    list[i] = context.Read(elementType, () => $"[{i}]");
                 }
             }
             else
@@ -34,7 +34,7 @@ namespace SECCS.Formats
 
                 for (int i = 0; i < count; i++)
                 {
-                    list.Add(context.Read(elementType, $"[{i}]"));
+                    list.Add(context.Read(elementType, () => $"[{i}]"));
                 }
             }
 

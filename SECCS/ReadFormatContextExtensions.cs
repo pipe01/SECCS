@@ -1,4 +1,6 @@
-﻿namespace SECCS
+﻿using System;
+
+namespace SECCS
 {
     public static class ReadFormatContextExtensions
     {
@@ -7,5 +9,7 @@
             return (T)(context.Read(typeof(T), path, nullCheck) ?? default(T));
         }
 
+        public static object Read(this IReadFormatContext context, Type type, string path = "<>", bool nullCheck = true)
+            => context.Read(type, () => path, nullCheck);
     }
 }
