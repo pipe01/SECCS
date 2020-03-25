@@ -28,7 +28,7 @@ namespace SECCS.Formats
             }
             else
             {
-                list = (IList)ExpressionUtils.New(type);
+                list = (IList)ReflectionUtils.New(type);
 
                 var elementType = type.GetGenericArguments()[0];
 

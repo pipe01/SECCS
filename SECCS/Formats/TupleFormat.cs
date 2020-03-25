@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SECCS.Internal;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace SECCS.Formats
@@ -19,7 +20,7 @@ namespace SECCS.Formats
                 items[i] = context.Read(itemTypes[i], $"Item{i + 1}");
             }
 
-            return Activator.CreateInstance(type, items);
+            return ReflectionUtils.New(type, items);
         }
 
         public void Write(object obj, IWriteFormatContext<T> context)

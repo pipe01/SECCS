@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -11,10 +12,11 @@ namespace SECCS.Internal
     public delegate void MemberSetterDelegate(object instance, object value);
     public delegate object MemberGetterDelegate(object instance);
 
-    internal static class ExpressionUtils
+    internal static class ReflectionUtils
     {
         private static readonly IDictionary<(Type, MemberInfo), MemberGetterDelegate> GetterCache = new Dictionary<(Type, MemberInfo), MemberGetterDelegate>();
         private static readonly IDictionary<Type, Func<object>> CtorCacheNoParams = new Dictionary<Type, Func<object>>();
+        private static readonly IDictionary<Type, Func<object[], object>> CtorCacheParams = new Dictionary<Type, Func<object[], object>>();
 
         public static object New(Type t)
         {
@@ -24,6 +26,28 @@ namespace SECCS.Internal
             }
 
             return ctor();
+        }
+        
+        public static object New(Type t, params object[] args)
+        {
+            if (!CtorCacheParams.TryGetValue(t, out var ctorFunc))
+            {
+                var argTypes = args.Select(o => o.GetType()).ToArray();
+                var ctor = t.GetConstructor(argTypes);
+                if (ctor == null)
+                    throw new MissingMemberException("Constructor not found");
+
+                var argsParam = Parameter(typeof(object[]));
+
+                CtorCacheParams[t] = ctorFunc = Lambda<Func<object[], object>>(
+                    Convert(
+                        Expression.New(
+                            ctor,
+                            args.Select((_, i) => Convert(ArrayAccess(argsParam, Constant(i)), argTypes[i]))),
+                        typeof(object)), argsParam).Compile();
+            }
+
+            return ctorFunc(args);
         }
 
         public static MemberSetterDelegate MemberSetter(Type t, ClassMember member)
