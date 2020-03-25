@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SECCS.Internal;
+using System;
 using System.Collections;
 
 namespace SECCS.Formats
@@ -9,9 +10,9 @@ namespace SECCS.Formats
 
         public object Read(Type type, IReadFormatContext<TReader> context)
         {
-            var dic = (IDictionary)Activator.CreateInstance(type);
+            var dic = (IDictionary)ReflectionUtils.New(type);
 
-            var genericArgs = type.GetGenericArguments();
+            var genericArgs = ReflectionUtils.GetGenericParams(type);
             var keyType = genericArgs[0];
             var valueType = genericArgs[1];
 

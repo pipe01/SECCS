@@ -1,4 +1,5 @@
 ﻿using SECCS.Interfaces;
+using SECCS.Internal;
 using System;
 
 namespace SECCS.Formats
@@ -9,10 +10,9 @@ namespace SECCS.Formats
 
         public object Read(Type type, IReadFormatContext<TReader> context)
         {
-            var obj = Activator.CreateInstance(type);
-            var readable = (ISeccsReadable<TReader>)obj;
+            var obj = (ISeccsReadable<TReader>)ReflectionUtils.New(type);
 
-            readable.Read(context.Reader);
+            obj.Read(context.Reader);
 
             return obj;
         }
