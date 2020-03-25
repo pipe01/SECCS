@@ -56,6 +56,11 @@ namespace SECCS
             {
                 return BufferReader.Deserialize(Reader, type, this);
             }
+            catch (FormattingException ex)
+            {
+                ex.AppendPath(path.Path);
+                throw;
+            }
             catch (Exception ex)
             {
                 throw new FormattingException($"Failed to read type {type}", ex).AppendPath(path.Path);
