@@ -17,7 +17,7 @@ namespace SECCS.Formats
 
             for (int i = 0; i < length; i++)
             {
-                items[i] = context.Read(itemTypes[i], () => $"Item{i + 1}");
+                items[i] = context.Read(itemTypes[i], new PathGetter("Item{0}", i + 1));
             }
 
             return ReflectionUtils.New(type, items);

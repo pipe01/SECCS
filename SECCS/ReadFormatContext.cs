@@ -7,7 +7,7 @@ namespace SECCS
     {
         FormatOptions Options { get; }
 
-        object Read(Type type, PathGetter path = null, bool nullCheck = true);
+        object Read(Type type, PathGetter path, bool nullCheck = true);
     }
 
     public interface IReadFormatContext<TReader> : IReadFormatContext
@@ -23,13 +23,7 @@ namespace SECCS
 
         public FormatOptions Options { get; }
 
-        internal PathGetter Path { get; }
-
-        internal ReadFormatContext(IBufferReader<TReader> bufferReader, TReader reader, string path, FormatOptions options = null) : this(bufferReader, reader, () => path, options)
-        {
-        }
-
-        internal ReadFormatContext(IBufferReader<TReader> bufferReader, TReader reader, PathGetter path, FormatOptions options = null)
+        internal ReadFormatContext(IBufferReader<TReader> bufferReader, TReader reader, FormatOptions options = null)
         {
             if (bufferReader == null)
                 throw new ArgumentNullException(nameof(bufferReader));
@@ -39,15 +33,11 @@ namespace SECCS
 
             this.BufferReader = bufferReader;
             this.Reader = reader;
-            this.Path = path;
             this.Options = options ?? new FormatOptions();
         }
 
-        public object Read(Type type, PathGetter path = null, bool nullCheck = true)
+        public object Read(Type type, PathGetter path, bool nullCheck = true)
         {
-            var _this = this;
-            string fullPath() => $"{_this.Path()}.{(path == null ? "<>" : path())}";
-
             if (nullCheck && !type.IsValueType)
             {
                 var nullByte = this.Read<byte>("@Null");
@@ -64,11 +54,11 @@ namespace SECCS
 
             try
             {
-                return BufferReader.Deserialize(Reader, type, new ReadFormatContext<TReader>(BufferReader, Reader, fullPath));
+                return BufferReader.Deserialize(Reader, type, this);
             }
             catch (Exception ex)
             {
-                throw new FormattingException($"Failed to read type {type} at path {fullPath()}", ex);
+                throw new FormattingException($"Failed to read type {type}", ex).AppendPath(path.Path);
             }
         }
     }

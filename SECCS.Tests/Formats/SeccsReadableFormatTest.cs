@@ -26,7 +26,7 @@ namespace SECCS.Tests.Formats
         {
             var buffer = new DummyBuffer();
 
-            Format.Read(typeof(Readable1), new ReadFormatContext<DummyBuffer>(Mock.Of<IBufferReader<DummyBuffer>>(), buffer, ""));
+            Format.Read(typeof(Readable1), new ReadFormatContext<DummyBuffer>(Mock.Of<IBufferReader<DummyBuffer>>(), buffer));
 
             Assert.Fail("Read not called");
         }

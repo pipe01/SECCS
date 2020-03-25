@@ -20,7 +20,7 @@ namespace SECCS.Tests.Formats
             var dummyBufferMock = new Mock<DummyBuffer>();
             dummyBufferMock.Setup(o => o.ReadInt32()).Verifiable();
 
-            Format.Read(typeof(int), new ReadFormatContext<DummyBuffer>(Mock.Of<IBufferReader<DummyBuffer>>(), dummyBufferMock.Object, ""));
+            Format.Read(typeof(int), new ReadFormatContext<DummyBuffer>(Mock.Of<IBufferReader<DummyBuffer>>(), dummyBufferMock.Object));
 
             dummyBufferMock.Verify();
         }

@@ -29,10 +29,10 @@ namespace SECCS.Tests
             var bufferReaderMock = new Mock<IBufferReader<DummyBuffer>>();
             bufferReaderMock.Setup(o => o.Deserialize(It.IsAny<DummyBuffer>(), It.IsAny<Type>(), It.IsAny<ReadFormatContext<DummyBuffer>>())).Throws(new Exception("Inner exception"));
 
-            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, new DummyBuffer(), "Path");
+            var context = new ReadFormatContext<DummyBuffer>(bufferReaderMock.Object, new DummyBuffer());
 
             Assert.Throws(Is.TypeOf<FormattingException>()
-                            .And.Message.EqualTo($"Failed to read type {typeof(TestClass1)} at path Path.InnerPath")
+                            .And.Message.EqualTo($"Failed to read type {typeof(TestClass1)} at .InnerPath")
                             .And.InnerException.Message.EqualTo("Inner exception"),
                 () => context.Read(typeof(TestClass1), "InnerPath", false));
         }

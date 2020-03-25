@@ -121,7 +121,7 @@ namespace SECCS.Benchmarks
         public DummyBuffer Reader { get; } = new DummyBuffer();
         public FormatOptions Options { get; } = new FormatOptions();
 
-        public object Read(Type type, PathGetter path = null, bool nullCheck = true)
+        public object Read(Type type, PathGetter path, bool nullCheck = true)
         {
             if (type == typeof(int))
                 return 2;
