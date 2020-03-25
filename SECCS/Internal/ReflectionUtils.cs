@@ -14,7 +14,8 @@ namespace SECCS.Internal
 
     internal static class ReflectionUtils
     {
-        private static readonly IDictionary<(Type, MemberInfo), MemberGetterDelegate> GetterCache = new Dictionary<(Type, MemberInfo), MemberGetterDelegate>();
+        private static readonly IDictionary<MemberInfo, MemberGetterDelegate> GetterCache = new Dictionary<MemberInfo, MemberGetterDelegate>();
+        private static readonly IDictionary<MemberInfo, MemberSetterDelegate> SetterCache = new Dictionary<MemberInfo, MemberSetterDelegate>();
         private static readonly IDictionary<Type, Func<object>> CtorCacheNoParams = new Dictionary<Type, Func<object>>();
         private static readonly IDictionary<Type, Func<object[], object>> CtorCacheParams = new Dictionary<Type, Func<object[], object>>();
         private static readonly IDictionary<Type, Type[]> GenericParamsCache = new Dictionary<Type, Type[]>();
@@ -63,19 +64,24 @@ namespace SECCS.Internal
 
         public static MemberSetterDelegate MemberSetter(Type t, ClassMember member)
         {
-            var objParam = Parameter(typeof(object));
-            var valueParam = Parameter(typeof(object));
+            if (!SetterCache.TryGetValue(member.Member, out var setter))
+            {
+                var objParam = Parameter(typeof(object));
+                var valueParam = Parameter(typeof(object));
 
-            return Lambda<MemberSetterDelegate>(Assign(Member(Convert(objParam, t), member), Convert(valueParam, member.MemberType)), objParam, valueParam).Compile();
+                SetterCache[member.Member] = setter = Lambda<MemberSetterDelegate>(Assign(Member(Convert(objParam, t), member), Convert(valueParam, member.MemberType)), objParam, valueParam).Compile();
+            }
+
+            return setter;
         }
 
         public static MemberGetterDelegate MemberGetter(Type t, ClassMember member)
         {
-            if (!GetterCache.TryGetValue((t, member.Member), out var getter))
+            if (!GetterCache.TryGetValue(member.Member, out var getter))
             {
                 var objParam = Parameter(typeof(object));
 
-                GetterCache[(t, member.Member)] = getter = Lambda<MemberGetterDelegate>(Convert(Member(Convert(objParam, t), member), typeof(object)), objParam).Compile();
+                GetterCache[member.Member] = getter = Lambda<MemberGetterDelegate>(Convert(Member(Convert(objParam, t), member), typeof(object)), objParam).Compile();
             }
 
             return getter;
