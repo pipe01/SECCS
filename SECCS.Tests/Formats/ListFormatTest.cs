@@ -5,6 +5,7 @@ using SECCS.Tests.Classes;
 using SECCS.Tests.Utils;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace SECCS.Tests.Formats
 {
@@ -65,16 +66,15 @@ namespace SECCS.Tests.Formats
         [TestCaseSource(nameof(ReadListSource))]
         public void Read_ListAndArray_CallsBufferWriter(IList list)
         {
-            var contextMock = NewReadContextMock();
-            contextMock.SetupPath("Count", list.Count);
+            using var contextMock = new MockReadContext();
+            contextMock.Setup("Count", list.Count);
             for (int i = 0; i < list.Count; i++)
             {
-                contextMock.SetupPath($"[{i}]", list[i]);
+                contextMock.Setup($"[{i}]", list[i]);
             }
 
-            var read = Format.Read(list.GetType(), contextMock.Object);
+            var read = Format.Read(list.GetType(), contextMock);
 
-            contextMock.Verify();
             CollectionAssert.AreEqual(list, (IEnumerable)read);
         }
     }

@@ -42,21 +42,20 @@ namespace SECCS.Tests.Formats
                 [3] = "three"
             };
 
-            var contextMock = NewReadContextMock();
-            contextMock.SetupPath("Count", dic.Count);
+            using var contextMock = new MockReadContext();
+            contextMock.Setup("Count", dic.Count);
 
             int i = 0;
             foreach (var item in dic)
             {
-                contextMock.SetupPath($"[{i}].Key", item.Key);
-                contextMock.SetupPath($"[{i}].Value", item.Value);
+                contextMock.Setup($"[{i}].Key", item.Key);
+                contextMock.Setup($"[{i}].Value", item.Value);
 
                 i++;
             }
 
-            var read = Format.Read(dic.GetType(), contextMock.Object);
+            var read = Format.Read(dic.GetType(), contextMock);
 
-            contextMock.Verify();
             CollectionAssert.AreEqual(dic, (IEnumerable)read);
         }
     }

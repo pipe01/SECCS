@@ -18,26 +18,35 @@ namespace SECCS.Tests.Formats
         [Test]
         public void Read_TestClass_CallsBufferReader()
         {
-            var contextMock = NewReadContextMock();
-            contextMock.SetupPath<int>(nameof(TestClass1.Prop1));
-            contextMock.SetupPath<string>(nameof(TestClass1.Prop2));
-            contextMock.SetupPath<int>(nameof(TestClass1.Field1));
-            contextMock.SetupPath<string>(nameof(TestClass1.Field2));
+            var data = new TestClass1()
+            {
+                Prop1 = 123,
+                Prop2 = "asd",
+                Field1 = 321,
+                Field2 = "foo"
+            };
 
-            Format.Read(typeof(TestClass1), contextMock.Object);
+            using var contextMock = new MockReadContext();
+            contextMock.Setup(nameof(TestClass1.Prop1), data.Prop1);
+            contextMock.Setup(nameof(TestClass1.Prop2), data.Prop2);
+            contextMock.Setup(nameof(TestClass1.Field1), data.Field1);
+            contextMock.Setup(nameof(TestClass1.Field2), data.Field2);
 
-            contextMock.Verify();
+            var read = (TestClass1)Format.Read(typeof(TestClass1), contextMock);
+
+            Assert.AreEqual(data.Prop1, read.Prop1);
+            Assert.AreEqual(data.Prop2, read.Prop2);
+            Assert.AreEqual(data.Field1, read.Field1);
+            Assert.AreEqual(data.Field2, read.Field2);
         }
 
         [Test]
         public void Read_ObjectWithConcreteType_CallsBufferReader()
         {
-            var contextMock = NewReadContextMock();
-            contextMock.SetupPath<List<int>>(nameof(TestClassConcrete.List));
+            using var contextMock = new MockReadContext();
+            contextMock.Setup(nameof(TestClassConcrete.List), new List<int>());
 
-            Format.Read(typeof(TestClassConcrete), contextMock.Object);
-
-            contextMock.Verify();
+            Format.Read(typeof(TestClassConcrete), contextMock);
         }
 
         [Test]

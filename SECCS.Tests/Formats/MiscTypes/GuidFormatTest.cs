@@ -23,12 +23,10 @@ namespace SECCS.Tests.Formats.MiscTypes
         [Test]
         public void Read_Guid_CallsBufferReader()
         {
-            var contextMock = NewReadContextMock();
-            contextMock.SetupPath(GuidFormat<DummyBuffer>.BytesPath, new byte[16]);
+            using var contextMock = new MockReadContext();
+            contextMock.Setup(GuidFormat<DummyBuffer>.BytesPath, new byte[16]);
 
-            Format.Read(typeof(Guid), contextMock.Object);
-
-            contextMock.Verify();
+            Format.Read(typeof(Guid), contextMock);
         }
     }
 }

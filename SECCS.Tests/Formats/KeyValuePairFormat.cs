@@ -32,13 +32,12 @@ namespace SECCS.Tests.Formats
         {
             var kvp = new KeyValuePair<int, string>(123, "nice");
 
-            var contextMock = NewReadContextMock();
-            contextMock.SetupPath("Key", kvp.Key);
-            contextMock.SetupPath("Value", kvp.Value);
+            using var contextMock = new MockReadContext();
+            contextMock.Setup("Key", kvp.Key);
+            contextMock.Setup("Value", kvp.Value);
 
-            var read = Format.Read(typeof(KeyValuePair<int, string>), contextMock.Object);
+            var read = Format.Read(typeof(KeyValuePair<int, string>), contextMock);
 
-            contextMock.Verify();
             Assert.AreEqual(kvp, read);
         }
     }

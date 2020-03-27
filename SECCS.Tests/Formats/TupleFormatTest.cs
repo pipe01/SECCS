@@ -26,15 +26,14 @@ namespace SECCS.Tests.Formats
         {
             var expected = (123, "nice", 3.1);
 
-            var contextMock = NewReadContextMock();
-            contextMock.SetupPath("Length", 3);
-            contextMock.SetupPath("Item1", expected.Item1);
-            contextMock.SetupPath("Item2", expected.Item2);
-            contextMock.SetupPath("Item3", expected.Item3);
+            using var contextMock = new MockReadContext();
+            contextMock.Setup("Length", 3);
+            contextMock.Setup("Item1", expected.Item1);
+            contextMock.Setup("Item2", expected.Item2);
+            contextMock.Setup("Item3", expected.Item3);
 
-            var result = Format.Read(expected.GetType(), contextMock.Object);
+            var result = Format.Read(expected.GetType(), contextMock);
 
-            contextMock.Verify();
             Assert.AreEqual(expected, result);
         }
 
