@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 #if NETFRAMEWORK || NETSTANDARD2_0
 using FormatType = System.String;
@@ -8,6 +9,7 @@ using FormatType = System.ReadOnlySpan<char>;
 
 namespace SECCS
 {
+    [DebuggerDisplay("{Path}")]
     public readonly ref struct PathGetter
     {
         public FormatType Format { get; }
