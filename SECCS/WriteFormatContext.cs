@@ -44,7 +44,7 @@ namespace SECCS
         {
             get
             {
-#if NET45 || NETSTANDARD2_0
+#if NETFRAMEWORK || NETSTANDARD2_0
                 return string.Join(".", PathStack.Reverse());
 #else
                 return string.Join('.', PathStack.Reverse());

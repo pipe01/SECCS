@@ -1,6 +1,6 @@
 ﻿using System;
 
-#if NET45 || NETSTANDARD2_0
+#if NETFRAMEWORK || NETSTANDARD2_0
 using FormatType = System.String;
 #else
 using FormatType = System.ReadOnlySpan<char>;
@@ -14,7 +14,7 @@ namespace SECCS
         public object Argument { get; }
 
         public string Path => string.Format(
-#if NET45 || NETSTANDARD2_0
+#if NETFRAMEWORK || NETSTANDARD2_0
             Format
 #else
             new string(Format)
