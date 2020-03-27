@@ -20,8 +20,8 @@ namespace SECCS.Formats
 
             for (int i = 0; i < count; i++)
             {
-                var key = context.Read(keyType, PathGetter.Index(i));
-                dic[key] = context.Read(valueType, PathGetter.Index(i));
+                var key = context.Read(keyType, new PathGetter("[{0}].Key", i));
+                dic[key] = context.Read(valueType, new PathGetter("[{0}].Value", i));
             }
 
             return dic;
