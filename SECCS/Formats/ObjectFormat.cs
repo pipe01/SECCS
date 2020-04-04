@@ -2,6 +2,7 @@
 using SECCS.Internal;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,8 +13,7 @@ namespace SECCS.Formats
     internal class ObjectFormat<T> : IReadFormat<T>, IWriteFormat<T>
     {
         private static readonly IDictionary<Type, Func<object>> NewExpressions = new Dictionary<Type, Func<object>>();
-        private static readonly IDictionary<Type, IEnumerable<ClassMember>> ReadableMembers = new Dictionary<Type, IEnumerable<ClassMember>>();
-        private static readonly IDictionary<Type, IEnumerable<ClassMember>> WriteableMembers = new Dictionary<Type, IEnumerable<ClassMember>>();
+        private static readonly IDictionary<Type, IEnumerable<ClassMember>> Members = new Dictionary<Type, IEnumerable<ClassMember>>();
 
         internal const string NullPath = "@Null";
 
@@ -26,13 +26,20 @@ namespace SECCS.Formats
 
             var obj = maker();
 
-            foreach (var member in GetReadableMembers(type))
+            foreach (var member in GetMembers(type))
             {
-                object value = context.Read(member.GetTypeOrConcrete(), member.Name);
+                try
+                {
+                    object value = context.Read(member.GetTypeOrConcrete(), member.Name);
 
-                var setter = ReflectionUtils.MemberSetter(type, member);
+                    var setter = ReflectionUtils.MemberSetter(type, member);
 
-                setter(obj, value);
+                    setter(obj, value);
+                }
+                catch (Exception ex)
+                {
+                    throw new FormattingException($"Failed to set member value of object {type.Name}", ex).AppendPath(member.Name);
+                }
             }
 
             return obj;
@@ -42,7 +49,7 @@ namespace SECCS.Formats
         {
             Type t = obj.GetType();
 
-            foreach (var member in GetWriteableMembers(t))
+            foreach (var member in GetMembers(t))
             {
                 var getter = ReflectionUtils.MemberGetter(t, member);
 
@@ -50,55 +57,48 @@ namespace SECCS.Formats
             }
         }
 
-        private static IEnumerable<ClassMember> GetReadableMembers(Type t)
+        private static IEnumerable<ClassMember> GetMembers(Type t)
         {
-            if (!ReadableMembers.TryGetValue(t, out var members))
+            if (!Members.TryGetValue(t, out var members))
             {
-                ReadableMembers[t] = members = GetMembers(t, true, false).ToArray();
+                Members[t] = members = Inner(t).ToArray();
             }
 
             return members;
-        }
-        
-        private static IEnumerable<ClassMember> GetWriteableMembers(Type t)
-        {
-            if (!WriteableMembers.TryGetValue(t, out var members))
+
+#if NETSTANDARD2_1 || NETCOREAPP3_1
+            static
+#endif
+            IEnumerable<ClassMember> Inner(Type type)
             {
-                WriteableMembers[t] = members = GetMembers(t, false, true).ToArray();
-            }
+                const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
 
-            return members;
-        }
+                foreach (var prop in type.GetProperties(flags))
+                {
+                    if (!prop.CanRead || !prop.CanWrite || prop.GetIndexParameters().Length != 0)
+                        continue;
 
-        private static IEnumerable<ClassMember> GetMembers(Type t, bool readable, bool writeable)
-        {
-            const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
+                    var isPublic = (prop.GetMethod.IsPublic || prop.GetMethod.HasSeccsMember())
+                                && (prop.SetMethod.IsPublic || prop.SetMethod.HasSeccsMember());
 
-            foreach (var prop in t.GetProperties(flags))
-            {
-                if ((!prop.CanRead && readable) || (!prop.CanWrite && writeable) || prop.GetIndexParameters().Length != 0)
-                    continue;
+                    var isMember = prop.HasSeccsMember();
+                    var isIgnored = prop.IsDefined(typeof(SeccsIgnoreAttribute));
 
-                var isPublic = (prop.GetMethod.IsPublic || prop.GetMethod.HasSeccsMember())
-                            && (prop.SetMethod.IsPublic || prop.SetMethod.HasSeccsMember());
+                    if ((isPublic || isMember) && !isIgnored)
+                        yield return prop;
+                }
 
-                var isMember = prop.HasSeccsMember();
-                var isIgnored = prop.IsDefined(typeof(SeccsIgnoreAttribute));
+                foreach (var field in type.GetFields(flags))
+                {
+                    if (field.IsInitOnly)
+                        continue;
 
-                if ((isPublic || isMember) && !isIgnored)
-                    yield return prop;
-            }
+                    var isMember = field.IsDefined(typeof(SeccsMemberAttribute));
+                    var isIgnored = field.IsDefined(typeof(SeccsIgnoreAttribute));
 
-            foreach (var field in t.GetFields(flags))
-            {
-                if (field.IsInitOnly && readable)
-                    continue;
-
-                var isMember = field.IsDefined(typeof(SeccsMemberAttribute));
-                var isIgnored = field.IsDefined(typeof(SeccsIgnoreAttribute));
-
-                if ((field.IsPublic || isMember) || isIgnored)
-                    yield return field;
+                    if ((field.IsPublic || isMember) && !isIgnored)
+                        yield return field;
+                }
             }
         }
 

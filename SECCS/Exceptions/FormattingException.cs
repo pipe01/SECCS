@@ -26,7 +26,7 @@ namespace SECCS.Exceptions
 
         public FormattingException AppendPath(string path)
         {
-            this.Path += $".{path}";
+            this.Path = $".{path}{this.Path}";
             return this;
         }
     }
