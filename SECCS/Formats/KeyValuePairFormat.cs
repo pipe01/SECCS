@@ -16,7 +16,7 @@ namespace SECCS.Formats
             var key = context.Read(keyType, "Key");
             var value = context.Read(valueType, "Value");
 
-            return ReflectionUtils.New(type, key, value);
+            return ReflectionUtils.New(type, new[] { keyType, valueType }, new[] { key, value });
         }
 
         public void Write(object obj, IWriteFormatContext<T> context)

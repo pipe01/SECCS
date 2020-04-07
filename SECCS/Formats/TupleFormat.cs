@@ -20,7 +20,7 @@ namespace SECCS.Formats
                 items[i] = context.Read(itemTypes[i], new PathGetter("Item{0}", i + 1));
             }
 
-            return ReflectionUtils.New(type, items);
+            return ReflectionUtils.New(type, itemTypes, items);
         }
 
         public void Write(object obj, IWriteFormatContext<T> context)

@@ -31,11 +31,10 @@ namespace SECCS.Internal
             return ctor();
         }
         
-        public static object New(Type t, params object[] args)
+        public static object New(Type t, Type[] argTypes, object[] args)
         {
             if (!CtorCacheParams.TryGetValue(t, out var ctorFunc))
             {
-                var argTypes = args.Select(o => o.GetType()).ToArray();
                 var ctor = t.GetConstructor(argTypes);
                 if (ctor == null)
                     throw new MissingMemberException("Constructor not found");
