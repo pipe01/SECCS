@@ -17,7 +17,7 @@ namespace SECCS.Formats
 
         internal const string NullPath = "@Null";
 
-        public bool CanFormat(Type type, FormatOptions options) => !type.IsPrimitive;
+        public bool CanFormat(Type type, FormatOptions options) => !type.IsPrimitive && !type.IsValueType;
 
         public object Read(Type type, IReadFormatContext<T> context)
         {
