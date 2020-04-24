@@ -9,6 +9,8 @@ namespace SECCS
     {
         FormatOptions Options { get; }
 
+        string Path { get; }
+
         /// <summary>
         /// The low-level writer.
         /// </summary>
