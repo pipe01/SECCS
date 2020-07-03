@@ -58,7 +58,7 @@ namespace SECCS
         {
             PathStack.Push(path);
         }
-        
+
         internal WriteFormatContext(IBufferWriter<TWriter> bufferWriter, TWriter writer, Stack<string> pathStack, FormatOptions options = null)
         {
             if (bufferWriter == null)

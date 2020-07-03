@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
 
 namespace SECCS.Internal
 {
@@ -30,7 +28,7 @@ namespace SECCS.Internal
 
             return ctor();
         }
-        
+
         public static object New(Type t, Type[] argTypes, object[] args)
         {
             if (!CtorCacheParams.TryGetValue(t, out var ctorFunc))
